@@ -1,0 +1,266 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 04-abr-2025, 9:57:05
+    Author     : brayan alexander salazar reyes
+*/
+
+/* Variables globales */
+:root {
+    --color-texto: #2c3e50;
+    --color-boton: #89b61f;
+    --color-boton-hover: #7da91b;
+    --color-fondo-form: #f4f7f9;
+    --color-fondo-camion: #f0f6ff;
+    --sombra-suave: 0 5px 20px rgba(0, 0, 0, 0.1);
+    --borde-input: 1px solid #ccc;
+    --radio: 8px;
+}
+
+/* Estilo general */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-fondo-form);
+    margin: 0;
+    padding: 0;
+    color: var(--color-texto);
+}
+
+.Contenedor {
+    max-width: 1000px;
+    margin: 50px auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: var(--sombra-suave);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--color-texto);
+}
+
+/* Formulario */
+form.formulario-citas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* Campos individuales */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: var(--color-texto);
+}
+
+.form-group input,
+.form-group select {
+    padding: 10px;
+    border: var(--borde-input);
+    border-radius: var(--radio);
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--color-boton);
+    outline: none;
+}
+
+/*Camiones extras*/
+
+.form-group-camiones-extra{
+    display: block !important;
+    width: 205%;
+    /*margin-top: 30%;
+    margin-left: -105%;*/
+}
+
+/* Contenedor de camiones */
+.camiones-container {
+    width: 100%;
+    height: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+/* Grupo de camiones */
+.camion-extra,
+.form-camion {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    border: 2px dashed var(--color-boton);
+    padding: 15px;
+    border-radius: 10px;
+    background-color: var(--color-fondo-camion);
+    margin-bottom: 15px;
+}
+
+/* Botón eliminar camión */
+.btnEliminarCamion {
+    grid-column: span 2;
+    justify-self: end;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: var(--radio);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btnEliminarCamion:hover {
+    background-color: #dc2626;
+}
+
+/* Botones de acción (Agregar / Submit) */
+.submit-group {
+    grid-column: span 2;
+    display: flex !important;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap; /* por si hay muchos botones en pantallas pequeñas */
+    margin-top: 20px;
+}
+
+
+button,
+input[type="submit"] {
+    background-color: var(--color-boton);
+    color: white;
+    padding: 12px 20px;
+    font-size: 15px;
+    border: none;
+    border-radius: var(--radio);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: var(--color-boton-hover);
+}
+
+/* Loader personalizado */
+.loader {
+  display: none;
+  width: 50px;
+  padding: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-boton);
+  --_m: 
+    conic-gradient(#0000 10%,#000),
+    linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+  mask: var(--_m);
+  -webkit-mask-composite: source-out;
+  mask-composite: subtract;
+  animation: l3 1s infinite linear;
+  margin-left: 10px;
+}
+
+@keyframes l3 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+
+/* Estilos para pantallas medianas (tablets) */
+@media (max-width: 768px) {
+    .Contenedor {
+        margin: 20px;
+        padding: 20px;
+    }
+
+    form.formulario-citas {
+        grid-template-columns: 1fr;
+    }
+
+    .camiones-container {
+        grid-template-columns: 1fr;
+    }
+
+    .camion-extra,
+    .form-camion {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-camiones-extra {
+        width: 100%;
+        margin-top: 30%;
+        margin-left: -105%;
+    }
+
+    .btnEliminarCamion,
+    .submit-group {
+        grid-column: span 1;
+        width: 100%;
+    }
+
+    button,
+    input[type="submit"] {
+        width: 100%;
+    }
+}
+
+/* Estilos para pantallas pequeñas (celulares) */
+@media (max-width: 576px) {
+    h1 {
+        font-size: 22px;
+    }
+
+    .Contenedor {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+        font-size: 13px;
+        padding: 8px;
+    }
+    
+    .form-group-camiones-extra{
+        margin-top: -1%;
+        margin-left: 0;
+    }
+    
+    .camion-extra,
+    .form-camion {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .btnEliminarCamion {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    button,
+    input[type="submit"] {
+        font-size: 14px;
+        padding: 10px;
+    }
+}

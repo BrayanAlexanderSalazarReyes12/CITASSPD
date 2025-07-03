@@ -1,0 +1,277 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 03-abr-2025, 14:06:01
+    Author     : braya
+*/
+
+:root {
+    --color-Contenedor: #f4f4f4;
+    --color-boton: #3498db;
+    --color-boton-hover: #2774a7;
+    --color-texto: #2c3e50;
+    --color-borde-input: #bdc3c7;
+    --color-placeholder: #95a5a6;
+    --color-borde-activo: #2980b9;
+    --color-boton-header: #89b61f;
+    --color-boton-header-hover: #7da91b;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: white;
+}
+.logo {
+    display: flex;
+    align-items: center;
+}
+.button-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.button-container input[type="submit"]{
+    background-color: var(--color-boton-header)
+}
+
+.button-container input[type="submit"]:hover{
+    background-color: var(--color-boton-header-hover)
+}
+
+img {
+    height: 150px;
+}
+input[type="submit"] {
+    background-color: #89b61f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    width: auto;
+}
+input[type="submit"]:hover {
+    background-color: #7da91b;
+}
+
+
+.Contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: var(--color-Contenedor);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+    max-width: 450px;
+    margin: auto;
+    margin-top: 100px;
+    font-family: "Poppins", sans-serif;
+}
+
+.Formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+label {
+    font-size: 15px;
+    color: var(--color-texto);
+    font-weight: 600;
+}
+
+input,
+textarea {
+    width: 95%;
+    padding: 12px;
+    border: 2px solid var(--color-borde-input);
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--color-texto);
+    outline: none;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--color-borde-activo);
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--color-placeholder);
+}
+
+input[type="submit"],
+input[type="button"] {
+    background: var(--color-boton);
+    color: white;
+    font-size: 17px;
+    font-weight: 600;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+input[type="submit"]:hover,
+input[type="button"]:hover {
+    background: var(--color-boton-hover);
+    box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+}
+
+input[type="submit"]:active,
+input[type="button"]:active {
+    transform: scale(0.98);
+}
+
+/* Estilo para la versión */
+h4 {
+    margin-top: 20px;
+    text-align: center;
+    color: #888;
+}
+
+.titulo{
+    display: flex;
+    align-content: center;
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--color-texto);
+}
+
+select {
+    width: 95%;
+    padding: 12px;
+    border: 2px solid var(--color-borde-input);
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--color-texto);
+    background-color: white;
+    outline: none;
+    transition: all 0.3s ease;
+    appearance: none; /* Para quitar estilos por defecto del navegador */
+}
+
+select:focus {
+    border-color: var(--color-borde-activo);
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+}
+
+
+@media screen and (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .button-container {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .button-container input[type="submit"] {
+        width: 100%;
+    }
+
+    img {
+        height: 100px;
+    }
+
+    .Contenedor {
+        max-width: 90%;
+        padding: 20px;
+        margin-top: 50px;
+    }
+
+    input, textarea {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    input[type="submit"], input[type="button"] {
+        font-size: 16px;
+        padding: 10px;
+    }
+    
+    .version{
+        display: flex;
+        align-content: center;
+        text-align: center;
+    }
+    
+    h4 {
+        margin-top: 16px;
+        text-align: center;
+        color: #888;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    header {
+        padding: 10px;
+    }
+
+    .logo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    img {
+        height: 80px;
+    }
+
+    .Contenedor {
+        padding: 15px;
+        margin-top: 30px;
+    }
+
+    label {
+        font-size: 14px;
+    }
+
+    input, textarea {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    input[type="submit"], input[type="button"] {
+        font-size: 15px;
+        padding: 8px;
+    }
+
+    .button-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .button-container input[type="submit"] {
+        width: 100%;
+    }
+    
+    h4 {
+        margin-top: 12px;
+        text-align: center;
+        color: #888;
+    }
+}

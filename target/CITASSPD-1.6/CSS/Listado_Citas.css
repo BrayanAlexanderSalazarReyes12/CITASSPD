@@ -1,0 +1,192 @@
+
+/* 
+    Created on : abr 7, 2025, 10:05:08 a.m.
+    Author     : braya
+*/
+
+:root {
+    --color-Contenedor: #f4f4f4;
+    --color-boton: #3498db;
+    --color-boton-hover: #2774a7;
+    --color-texto: #2c3e50;
+    --color-borde-input: #bdc3c7;
+    --color-placeholder: #95a5a6;
+    --color-borde-activo: #2980b9;
+    --color-boton-header: #89b61f;
+    --color-boton-header-hover: #7da91b;
+}
+
+.Content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: var(--color-Contenedor);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+    margin: auto;
+    margin-top: 100px;
+    margin-left: 250px;
+    margin-right: 250px;
+    font-family: "Poppins", sans-serif;
+}
+
+/* Estilo para la tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--color-Contenedor);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+thead {
+    background-color: var(--color-boton-header) !important;
+    color: white;
+}
+
+th, td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-borde-input);
+    text-align: left;
+}
+
+/* Hover en filas */
+tbody tr:hover {
+    background-color: var(--color-boton-header-hover) !important;
+    color: white;
+}
+
+/* Estilo del mensaje cuando no hay citas */
+h1 {
+    color: var(--color-boton);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    margin-top: 20px;
+}
+
+h2 {
+    color: var(--color-boton);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    margin-top: 20px;
+}
+
+
+/* Botones de acciones */
+.Botones_tabla {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.Botones_tabla input[type="button"] {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    color: white;
+    background-color: var(--color-boton);
+}
+
+.Botones_tabla input[type="button"]:hover {
+    background-color: var(--color-boton-hover);
+}
+
+/* =============================
+   Responsive para pantallas medianas (tabletas)
+   ============================= */
+@media screen and (max-width: 1020px) {
+    .Content {
+        margin: 80px 40px 40px 40px;
+        padding: 20px;
+    }
+
+    table {
+        display: block;
+        font-size: 15px;
+        overflow-x: auto;
+    }
+
+    th, td {
+        padding: 10px 12px;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+    
+    h2 {
+        font-size: 26px;
+    }
+}
+
+/* =============================
+   Responsive para pantallas pequeñas (móviles)
+   ============================= */
+@media screen and (max-width: 600px) {
+    .Content {
+        margin: 50px 15px 30px 15px;
+        padding: 15px;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody tr {
+        margin-bottom: 15px;
+        background-color: var(--color-Contenedor);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    td {
+        text-align: right;
+        padding: 10px 15px;
+        position: relative;
+        font-size: 14px;
+        border: none;
+        border-bottom: 1px solid var(--color-borde-input);
+    }
+
+    td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        top: 10px;
+        font-weight: bold;
+        color: var(--color-texto);
+        text-align: left;
+    }
+
+    td:last-child {
+        border-bottom: none;
+    }
+
+    .Botones_tabla {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    h1 {
+        font-size: 20px;
+        text-align: center;
+    }
+    
+    h2 {
+        font-size: 20px;
+        text-align: center;
+    }
+}
