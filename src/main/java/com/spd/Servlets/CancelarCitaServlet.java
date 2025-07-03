@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -55,7 +58,23 @@ public class CancelarCitaServlet extends HttpServlet {
             String empresaNit = request.getParameter("empresaTransportadoraNit");
             String placa = request.getParameter("vehiculoNumPlaca");
             String cedula = request.getParameter("conductorCedulaCiudadania");
-            String fecha = request.getParameter("fechaOfertaSolicitud");
+            String fechaIso = request.getParameter("fechaOfertaSolicitud"); // Ej: "2025-07-01T13:56:00-05:00"
+            String fechaFormateada = null;
+            if (fechaIso != null && !fechaIso.isEmpty()) {
+                // Parsear fecha con zona horaria
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(fechaIso);
+
+                // Convertir a LocalDateTime (sin zona horaria)
+                LocalDateTime fechaSinZona = offsetDateTime.toLocalDateTime();
+
+                // Formatear como "yyyy-MM-dd'T'HH:mm:ss"
+                fechaFormateada = fechaSinZona.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+                System.out.println("Fecha formateada: " + fechaFormateada);
+                // Resultado: "2025-07-01T13:56:00"
+            } else {
+                System.out.println("Parámetro 'fechaOfertaSolicitud' no proporcionado.");
+            }
             String operacion = request.getParameter("tipooperacion");
             // Valores fijos o simulados (ajústalos según tu sistema)
             String usuario = USUARIOMINTRASPOR;
@@ -83,7 +102,7 @@ public class CancelarCitaServlet extends HttpServlet {
             variables.put("empresaTransportadoraNit", empresaNit);
             variables.put("vehiculoNumPlaca", placa);
             variables.put("conductorCedulaCiudadania", cedula);
-            variables.put("fechaOfertaSolicitud", fecha);
+            variables.put("fechaOfertaSolicitud", fechaFormateada);
             variables.put("quien", quien);
             variables.put("causalid", causalid);
             variables.put("descripcion", descripcion);
