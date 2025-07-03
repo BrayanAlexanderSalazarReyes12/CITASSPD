@@ -128,10 +128,10 @@
             "</div>" +
             
             "<div class=\"form-group\">" +
-            "    <label for=\"NombreConductor\">Nombre Conductor:</label>" +
+            "    <label for=\"NombreConductor\">Nombre Completo Del Conductor:</label>" +
             "    <input type=\"text\" id=\"NombreConductor\" name=\"nombreExtra\" value=\"" + nombre + "\" " +
-            "           oninput=\"this.value = this.value.replace(/[^a-zA-Z\s]/g, '')\" required/>" +
-            "</div>" +
+            "           oninput=\"this.value = this.value.replace(/[^a-zA-Z\\s]/g, '').replace(/(^\\s+|\\s{2,})/g, ' ').trimStart()\" required/>" +
+            "</div>"+
            
             "<div class=\"form-group\">" +
             "    <label for=\"PlacaExtra\">Placa de Vehículo:</label>" +
@@ -366,10 +366,10 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="NombreConductor">Nombre Del Conductor</label>
+                    <label for="NombreConductor">Nombre Completo Del Conductor</label>
                     
                     <input id="NombreConductor" type="text" name="Nombre"
-                           value="<%= session.getAttribute("nombreconductor") != null ? session.getAttribute("nombreconductor") : "" %>" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')" required/>
+                           value="<%= session.getAttribute("nombreconductor") != null ? session.getAttribute("nombreconductor") : "" %>" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '').replace(/\s+g, ' ').trim()" required/>
                 </div>
                 
                 <div class="form-group">
