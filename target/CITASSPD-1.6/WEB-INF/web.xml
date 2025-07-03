@@ -40,6 +40,10 @@
         <servlet-name>AsignarCitaCamiones</servlet-name>
         <servlet-class>com.spd.Servlets.AsignarCitaCamiones</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>CancelarCitaServlet</servlet-name>
+        <servlet-class>com.spd.Servlets.CancelarCitaServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <url-pattern>/Iniciar_Seccion_Servlet</url-pattern>
@@ -79,6 +83,10 @@
     <servlet-mapping>
         <servlet-name>AsignarCitaCamiones</servlet-name>
         <url-pattern>/AsignarCitaCamiones</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CancelarCitaServlet</servlet-name>
+        <url-pattern>/CancelarCitaServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
