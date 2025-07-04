@@ -16,6 +16,19 @@
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Date"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+   
+<%
+    Cookie[] cookies4 = request.getCookies();
+    if (cookies4 != null) {
+        for (Cookie cookie : cookies4) {
+            if(cookie.getName().equals("CITACREADA")){
+                cookie.setMaxAge(0);
+                cookie.setPath("/CITASSPD");
+                response.addCookie(cookie);
+            }
+        }
+    }
+%>
 
 <% 
     String[] cedulasExtras = (String[]) session.getAttribute("cedulasExtras");    
@@ -467,33 +480,6 @@
                     <div class="loader" id="activar" style="display: none;"/> 
                 </div>
             </form>
-
-            <%
-                String mensaje = (String) session.getAttribute("Error");
-                Boolean Estado = (Boolean) session.getAttribute("Activo");
-            %>
-
-            <%
-                if(Estado != null){
-                    if(Estado){
-            %>
-                        <div id="deleteModal" class="modal" style="display: flex;">
-                            <div class="modal-content">
-                                <span class="close" onclick="closeModal()">&times;</span>
-                                <h2><%= mensaje %></h2>
-                                <div class="modal-actions">
-                                    <form action="../EliminarContrato" method="post">
-                                        <input type="hidden" name="contratoId" id="contratoId">
-                                        <button type="button" onclick="closeModal()" class="cancel-btn">Cerrar</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-            <%
-                        session.setAttribute("Activo", false);
-                    }
-                }
-            %>
         </div>
     </body>
 </html>
