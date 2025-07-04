@@ -335,7 +335,12 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                             }
                             
                             response.sendRedirect(request.getContextPath() + "/TiposProductos?ordenOperacion=" + OPERACION);// Esto recarga la página actual 
-
+                            
+                            Cookie cookie = new Cookie("CITACREADA", "true");
+                            cookie.setMaxAge(3600);
+                            cookie.setPath("/CITASSPD");
+                            response.addCookie(cookie);
+                            
                             return;
                         } else {
                             System.out.println("✅ Todo correcto.");

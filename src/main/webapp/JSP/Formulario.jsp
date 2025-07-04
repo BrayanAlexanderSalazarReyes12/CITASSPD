@@ -16,6 +16,19 @@
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Date"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+   
+<%
+    Cookie[] cookies4 = request.getCookies();
+    if (cookies4 != null) {
+        for (Cookie cookie : cookies4) {
+            if(cookie.getName().equals("CITACREADA")){
+                cookie.setMaxAge(0);
+                cookie.setPath("/CITASSPD");
+                response.addCookie(cookie);
+            }
+        }
+    }
+%>
 
 <% 
     String[] cedulasExtras = (String[]) session.getAttribute("cedulasExtras");    

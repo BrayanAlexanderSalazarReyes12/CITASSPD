@@ -17,6 +17,7 @@
 
 <%
     Cookie[] cookies3 = request.getCookies();
+    String estadocita = "";
     if (cookies3 != null) {
         for (Cookie cookie : cookies3) {
             if(cookie.getName().equals("NOMBRE_DE_BARCAZA")){
@@ -33,6 +34,12 @@
             if(cookie.getName().equals("OPERACION")){
                 cookie.setMaxAge(0);
                 cookie.setPath("/CITASSPD"); // <- ¡esto es clave!
+                response.addCookie(cookie);
+            }
+            if(cookie.getName().equals("CITACREADA")){
+                estadocita = cookie.getValue();
+                cookie.setMaxAge(0);
+                cookie.setPath("/CITASSPD");
                 response.addCookie(cookie);
             }
         }
@@ -119,10 +126,12 @@
         <link rel="stylesheet" href="../CSS/Login.css"/>
         <link rel="stylesheet" href="../CSS/Formulario.css"/>
         <link rel="stylesheet" href="../CSS/Listado_Citas.css"/>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <title>Opeaciones Activas</title>
     </head>
     
     <%
+        
         Cookie[] cookies1 = request.getCookies();
         response.setContentType("text/html");
 
@@ -154,6 +163,27 @@
     %>
     
     <header>
+        <script>
+            function getCookie(name) {
+                const value = "; " + document.cookie;
+                const parts = value.split("; " + name + "=");
+                if (parts.length === 2) return parts.pop().split(";").shift();
+            }
+
+            const estadocita = getCookie("CITACREADA");
+
+            console.log("estadocita:", estadocita);
+
+            if (estadocita === "true") {
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'La cita se creó correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        </script>
+        
         <div class="logo">
             <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
         </div>
