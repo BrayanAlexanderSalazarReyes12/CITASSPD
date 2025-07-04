@@ -39,4 +39,4 @@ Thumbs.db
 # Environment files #
 #####################
 *.env
-WEB-INF/json.env
+src/main/webapp/WEB-INF/json.env
