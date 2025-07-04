@@ -6,6 +6,7 @@ package com.spd.Servlets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.spd.API.FormularioPost;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -19,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.json.JSONObject;
 
 /**
@@ -48,7 +50,7 @@ public class CancelarCitaServlet extends HttpServlet {
         String SISTEMAENTURNAMIENTOID = jsonEnv.optString("SISTEMAENTURNAMIENTOID");
         String USUARIOMINTRASPOR = jsonEnv.optString("USUARIOMINTRASPOR");
         String CONTRAMINTRASPOR = jsonEnv.optString("CONTRAMINTRASPOR");
-        
+        FormularioPost fp = new FormularioPost();
         response.setContentType("application/json;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
 
@@ -110,11 +112,49 @@ public class CancelarCitaServlet extends HttpServlet {
             Map<String, Object> finalJson = new LinkedHashMap<>();
             finalJson.put("acceso", acceso);
             finalJson.put("variables", variables);
-
+            
             // Convertir a JSON con Gson
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(finalJson);
+            
+            
+            String url = "http://172.16.100.121:8081/rest/RIEN";
+            String response1 = fp.Post(url, json);
+            
+            if(response1 != null && !response1.isEmpty()){
+                JSONObject jsonresponse = new JSONObject(response1);
+                
+                if(jsonresponse.has("ErrorCode")){
+                    int errorCode = jsonresponse.getInt("ErrorCode");
+                    
+                    if (errorCode != 0) {
+                        
+                        // Manejo del error
+                        System.out.println("❌ Error detectado: " + jsonresponse.optString("ErrorText", "Sin detalle"));
+                        //aqui tiene que estar los valores que le entrar al modal
+                        
+                        //variable de seccion
+                        HttpSession session = request.getSession();
+                        session.setAttribute("Error", "Error: " + jsonresponse.optString("ErrorText", "Sin detalle"));
+                        session.setAttribute("Activo", true);
+                        
+                        response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");// Esto recarga la página actual 
 
+                        return;
+                        
+                    }else{
+                        System.out.println("✅ Todo correcto.");
+                    }
+                }else {
+                    System.out.println("⚠️ Respuesta vacía.");
+                    HttpSession session = request.getSession();
+                    session.setAttribute("Activo", true);
+                    session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
+                    response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
+                    return;
+                }
+            }
+            
             // Imprimir o enviar el JSON
             out.println(json);
 
@@ -132,19 +172,19 @@ public class CancelarCitaServlet extends HttpServlet {
             case "14": return "Problemas Operativos en la terminal";
             case "15": return "Confirmación tardía de la cita";
             case "16": return "Problemas de atraque de la Motonave";
-            case "29": return "Otros (Puerto)";
+            case "29": return "Otros";
             case "31": return "Daño mecánico del vehículo";
             case "32": return "Enfermedad del Conductor";
             case "33": return "Inocuidad del vehículo o del producto";
             case "34": return "Error en la digitación de la información";
-            case "49": return "Otros (Transportador)";
+            case "49": return "Otros";
             case "51": return "Problemas de Nacionalización o Liberación";
-            case "69": return "Otros (Generador)";
+            case "69": return "Otros";
             case "71": return "Problemas de Infraestructura en la Vía";
             case "72": return "Problemas ocasionados por la comunidad";
-            case "89": return "Otros (Estado)";
+            case "89": return "Otros";
             case "91": return "Situación climática - Lluvia";
-            case "99": return "Otros (Indeterminado)";
+            case "99": return "Otros";
             default: return "Causal desconocida";
         }
     }
