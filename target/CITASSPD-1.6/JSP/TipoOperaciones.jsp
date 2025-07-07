@@ -137,12 +137,28 @@
 
                             </form>
                             <script>
+                                
+                                const cookies = document.cookie;
+                                function getCookie(nombre) {
+                                    const cookies = document.cookie.split(';');
+                                    for (let cookie of cookies) {
+                                      const [key, value] = cookie.trim().split('=');
+                                      if (key === nombre) {
+                                        return decodeURIComponent(value);
+                                      }
+                                    }
+                                    return null;
+                                }
+
+                                const usuario = getCookie("USUARIO");
+                                console.log("Cookie 'USUARIO':", usuario);
+                                
                                 const tanquesPorCliente = {
-                                  "Conquers World Trade": ["TK101"],
-                                  "Conquers ZF": ["TK102","TK109", "TK110"],
-                                  "Octano Industrial": ["TK105"],
-                                  "Atlantic Marine": ["TK103", "TK104", "TK108"],
-                                  "Prodexport": ["TK106"],
+                                  "cwtrade": ["TK101"],
+                                  "conquers": ["TK102","TK109", "TK110"],
+                                  "ocindustrial": ["TK105"],
+                                  "amfuels": ["TK103", "TK104", "TK108"],
+                                  "prodexport": ["TK106"],
                                   "Puma Energy": ["TK107"]
                                 };
 
@@ -218,11 +234,6 @@
                                     selectCliente.name = "cliente_" + index;
                                     selectCliente.required = true;
 
-                                    selectCliente.innerHTML = "<option value=''>Seleccione cliente</option>";
-                                    for (const cliente in tanquesPorCliente) {
-                                      selectCliente.innerHTML += "<option value=\"" + cliente + "\">" + cliente + "</option>";
-                                    }
-
                                     const labelTanqueOrigen = document.createElement("label");
                                     labelTanqueOrigen.innerText = "Tanque actual (origen):";
 
@@ -246,10 +257,8 @@
                                       selectTanqueOrigen.innerHTML = options;
                                       selectTanqueDestino.innerHTML = options;
                                     };
-
-                                    selectCliente.addEventListener("change", function () {
-                                      actualizarTanques(this.value);
-                                    });
+                                    
+                                    actualizarTanques(usuario);
 
                                     extras.appendChild(labelCliente);
                                     extras.appendChild(selectCliente);
@@ -263,14 +272,13 @@
                                     const labelCliente = document.createElement("label");
                                     labelCliente.innerText = "Cliente asociado (op #" + index + "):";
 
-                                    const selectCliente = document.createElement("select");
+                                    // Crear el input
+                                    const selectCliente = document.createElement("input");
+                                    selectCliente.type = "text"; // tipo input texto
                                     selectCliente.name = "cliente_" + index;
                                     selectCliente.required = true;
-
-                                    selectCliente.innerHTML = "<option value=''>Seleccione cliente</option>";
-                                    for (const cliente in tanquesPorCliente) {
-                                      selectCliente.innerHTML += "<option value=\"" + cliente + "\">" + cliente + "</option>";
-                                    }
+                                    selectCliente.value = usuario;
+                                    selectCliente.readOnly = true;
 
                                     const labelTanque = document.createElement("label");
                                     labelTanque.innerText = "Tanque asignado (op #" + index + "):";
@@ -281,14 +289,15 @@
                                     selectTanque.required = true;
                                     selectTanque.innerHTML = "<option value=''>Seleccione tanque</option>";
 
-                                    selectCliente.addEventListener("change", function () {
-                                      const tanques = tanquesPorCliente[this.value] || [];
-                                      selectTanque.innerHTML = "<option value=''>Seleccione tanque</option>";
-                                      tanques.forEach(t => {
-                                        selectTanque.innerHTML += "<option value=\"" + t + "\">" + t + "</option>";
-                                      });
+                                    const tanques = tanquesPorCliente[usuario] || [];
+                                    selectTanque.innerHTML = "<option value=''>Seleccione tanque</option>";
+                                    tanques.forEach(t => {
+                                      const option = document.createElement("option");
+                                      option.value = t;
+                                      option.textContent = t;
+                                      selectTanque.appendChild(option);
                                     });
-
+                                    
                                     extras.appendChild(labelCliente);
                                     extras.appendChild(selectCliente);
                                     extras.appendChild(labelTanque);

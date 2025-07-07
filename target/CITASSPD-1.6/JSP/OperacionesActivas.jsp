@@ -218,7 +218,7 @@
                         List<String> operacionesper = (List<String>) session.getAttribute("Operacionespermitadas");
                         List<String> Tipooperacion = (List<String>) session.getAttribute("tipooperacionselect");
                         
-                        System.out.println("opeaciones: "+ Tipooperacion.get(0));
+                        //System.out.println("opeaciones: "+ Tipooperacion);
                         
                         List<OperacionEstado> formFinalizado = new ArrayList<OperacionEstado>();
                         int i = 1;
