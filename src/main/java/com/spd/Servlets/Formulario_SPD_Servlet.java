@@ -101,6 +101,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         String TipoProducto = request.getParameter("tipoProducto");
         String PesoProducto = request.getParameter("PesoProducto");
         String Barcades = request.getParameter("Barcades");
+        String producto = request.getParameter("tipoProducto");
                 
         // Vehículos adicionales
         String[] cedulasExtras = request.getParameterValues("CedulaExtra");
@@ -207,6 +208,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 operacion,
                 fecha,
                 nombreBarcaza,
+                producto,
                 Double.parseDouble(cantidadproducto),
                 FacturaComercial,
                 facturacomerpdf,
@@ -634,7 +636,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         
         // Mostrar resultado
         PrintWriter out = response.getWriter();
-        out.print(json2);
+        out.print(json3);
         out.flush();
         
         

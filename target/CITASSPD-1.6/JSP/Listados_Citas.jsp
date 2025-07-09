@@ -154,7 +154,7 @@
                     List<ListadoCItas> ListadoCitas = rc.getCitasVehiculos();
                     List<ListadoCItas> ListadoCitas2 = rc.getCitasVehiculos2();
                     List<ListadoCitasBar> listadoCitasBars = rc.getCitasBarcazas();
-
+                    
                     if(ListadoCitas.isEmpty() && listadoCitasBars.isEmpty() && ListadoCitas2.isEmpty()){
                 %>
                     <h1>⚠ No hay Citas disponibles en este momento.</h1>
