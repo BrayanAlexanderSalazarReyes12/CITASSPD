@@ -15,6 +15,7 @@ public class BarcazaCita {
     private String operacion;
     private String fechaHoraOperacion;
     private String nombreBarcaza;
+    private String producto;
     private double cantProducto;
     private String facturaRemision;
     private String archivo;
@@ -24,11 +25,12 @@ public class BarcazaCita {
     private int nmformZf;
     private String barcazaDestino;
 
-    public BarcazaCita(String cliente, String operacion, String fechaHoraOperacion, String nombreBarcaza, double cantProducto, String facturaRemision, String archivo, double precioUsd, String observaciones, String feEstimadaZarpe, int nmformZf, String barcazaDestino) {
+    public BarcazaCita(String cliente, String operacion, String fechaHoraOperacion, String nombreBarcaza, String producto, double cantProducto, String facturaRemision, String archivo, double precioUsd, String observaciones, String feEstimadaZarpe, int nmformZf, String barcazaDestino) {
         this.cliente = cliente;
         this.operacion = operacion;
         this.fechaHoraOperacion = fechaHoraOperacion;
         this.nombreBarcaza = nombreBarcaza;
+        this.producto = producto;
         this.cantProducto = cantProducto;
         this.facturaRemision = facturaRemision;
         this.archivo = archivo;
@@ -37,6 +39,14 @@ public class BarcazaCita {
         this.feEstimadaZarpe = feEstimadaZarpe;
         this.nmformZf = nmformZf;
         this.barcazaDestino = barcazaDestino;
+    }
+    
+    public String getProducto() {
+        return producto;
+    }
+
+    public void setProducto(String producto) {
+        this.producto = producto;
     }
     
     public String getCliente() {

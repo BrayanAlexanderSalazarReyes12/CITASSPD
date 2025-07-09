@@ -36,7 +36,7 @@ public class ListadoDAO {
 
         String url = "http://www.siza.com.co/spdcitas-1.0/api/citas/?estado=PROGRAMADA";
         String url2 = "http://www.siza.com.co/spdcitas-1.0/api/citas/?estado=AGENDADA";
-        String url1 = "http://www.siza.com.co/spdcitas-1.0/api/citas/barcazas/?estado=AGENDADA";
+        String url1 = "http://www.siza.com.co/spdcitas-1.0/api/citas/barcazas/?estado=PROGRAMADA";
 
         FormularioPost fp = new FormularioPost();
 
