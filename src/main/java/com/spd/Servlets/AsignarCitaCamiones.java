@@ -63,18 +63,19 @@ public class AsignarCitaCamiones extends HttpServlet {
                     data.put("fe_aprobacion", fecha);
                     data.put("nom_conductor", vehiculo.get("nombre"));
                     data.put("placa", vehiculo.get("placa"));
-                    data.put("fmm", fmm);
+                    data.put("nmform_zf", fmm);
                     listaFinal.add(data);
                 }
 
                 // Convertir lista a JSON array
                 String json = gson.toJson(listaFinal);
-
+                
                 // Enviar a API
                 FormularioPost fp = new FormularioPost();
                 String apiUrl = "http://www.siza.com.co/spdcitas-1.0/api/citas/aprobacion";
 
                 try {
+                    
                     String apiResponse = fp.ActualizarCitacamionesbarcaza(apiUrl, json);
                     System.out.println("Respuesta API: " + apiResponse);
 
