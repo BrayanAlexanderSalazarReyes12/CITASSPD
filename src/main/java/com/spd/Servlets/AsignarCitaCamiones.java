@@ -42,6 +42,7 @@ public class AsignarCitaCamiones extends HttpServlet {
                 String vehiculosJsonEncoded = request.getParameter("vehiculos");
                 String fecha = request.getParameter("fecha");         // Ej: "2025-06-24T08:46:00-05:00"
                 String registro = request.getParameter("registro");   // Ej: "CTA000000000001"
+                String fmm = request.getParameter("fmm");
 
                 // Decodificar el JSON
                 String vehiculosJson = URLDecoder.decode(vehiculosJsonEncoded, StandardCharsets.UTF_8.name());
@@ -62,7 +63,7 @@ public class AsignarCitaCamiones extends HttpServlet {
                     data.put("fe_aprobacion", fecha);
                     data.put("nom_conductor", vehiculo.get("nombre"));
                     data.put("placa", vehiculo.get("placa"));
-
+                    data.put("fmm", fmm);
                     listaFinal.add(data);
                 }
 

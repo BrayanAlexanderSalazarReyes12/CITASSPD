@@ -9,6 +9,7 @@ com\spd\Servlets\Formulario_SPD_Servlet.class
 com\spd\Model\OperacionEstado.class
 com\spd\API\TipoPorductosGet$1.class
 com\spd\Servlets\CancelarCitaServlet.class
+com\spd\Servlets\AsignarCitaBarcaza.class
 com\spd\CItasDB\ListaVehiculos.class
 com\spd\DAO\ConexionDB.class
 com\spd\DAO\ListadoUsuarios$1.class

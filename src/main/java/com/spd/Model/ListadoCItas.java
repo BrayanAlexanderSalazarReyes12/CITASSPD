@@ -29,9 +29,19 @@ public class ListadoCItas implements Serializable {
     private String nomConductor;
     private String manifiesto;
     private String estado;
+    private String fmm;
+    
     @SerializedName("vehiculos")
     private List<ListaVehiculos> vehiculos;
 
+    public String getFmm() {
+        return fmm;
+    }
+
+    public void setFmm(String fmm) {
+        this.fmm = fmm;
+    }
+    
     public String getPlaca() {
         return placa;
     }

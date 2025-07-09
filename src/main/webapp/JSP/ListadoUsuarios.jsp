@@ -48,6 +48,10 @@
     
 </script>
 
+<%
+    String rol_conversion = "";
+%>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -155,7 +159,7 @@
                                     <td data-label="Nit"><%= listado.getNit_cliente() %></td>
                                     <td data-label="Codigo Usuario"><%= listado.getCodcia_user() %></td>
                                     <td data-label="Correo"><%= listado.getEmail() %></td>
-                                    <td data-label="Rol"><%= listado.getRol() %></td>
+                                    <td data-label="Rol"><%= listado.getRol() == 2 ? "Operador" : (listado.getRol() == 1 ? "Administrador" : "Porteria") %></td>
                                     <td data-label="Estado"><%= listado.getEstado() %></td>
                                     <td>
                                         <div class="Botones_tabla">

@@ -229,7 +229,6 @@
             const allCheckboxes = document.querySelectorAll('input[name="vehiculos"]');
             const selectedCheckboxes = document.querySelectorAll('input[name="vehiculos"]:checked');
 
-            // Verificar si hay checkboxes y si todos están seleccionados
             if (allCheckboxes.length === 0) {
                 Swal.fire('⚠ No hay vehículos disponibles para seleccionar');
                 return;
@@ -240,17 +239,18 @@
                 return;
             }
 
-            /*if (selectedCheckboxes.length !== allCheckboxes.length) {
-                Swal.fire('⚠ Debes seleccionar **todos** los vehículos para continuar');
-                return;
-            }*/
-
             Swal.fire({
                 title: '📋 Programar Cita (Múltiples)',
                 html:
-                    '<div style="display: flex; align-items: center; width: 100%;">' +
+                    '<div style="display: flex; align-items: center; width: 100%; margin-bottom: 10px;">' +
                         '<label for="fechaCita" style="width: 150px; text-align: left;"><strong>Fecha de Cita:</strong></label>' +
                         '<input id="fechaCita" type="datetime-local" class="swal2-input" style="flex: 1;">' +
+                    '</div>' +
+                    '<div style="display: flex; align-items: center; width: 100%;">' +
+                        '<label for="numeroformulario" style="width: 150px; text-align: left;"><strong>Número De Formulario Asignado:</strong></label>' +
+                        '<input id="numeroformulario" type="text" class="swal2-input" style="flex: 1;" ' +
+                        'pattern="\\d+" inputmode="numeric" oninput="this.value = this.value.replace(/\\D/g, \'\')" ' +
+                        'placeholder="Solo números">' +
                     '</div>',
                 confirmButtonText: 'Guardar',
                 confirmButtonColor: '#28a745',
@@ -258,15 +258,22 @@
                 showCancelButton: true,
                 preConfirm: () => {
                     const fecha = document.getElementById('fechaCita').value;
+                    const fmm = document.getElementById('numeroformulario').value;
+
                     if (!fecha) {
                         Swal.showValidationMessage('⚠ Debes seleccionar una fecha');
                         return false;
                     }
-                    return { fecha: fecha };
+                    if (!fmm) {
+                        Swal.showValidationMessage('⚠ Debes escribir el número del formulario');
+                        return false;
+                    }
+
+                    return { fecha: fecha, fmm: fmm };
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const { fecha } = result.value;
+                    const { fecha, fmm } = result.value;
                     const seleccionados = [];
 
                     selectedCheckboxes.forEach(cb => {
@@ -282,10 +289,12 @@
 
                     window.location.href = '../AsignarCitaCamiones?vehiculos=' + json +
                                            '&fecha=' + encodeURIComponent(fecha + ":00-05:00") +
+                                           '&fmm=' + encodeURIComponent(fmm) +
                                            '&registro=' + encodeURIComponent(registro);
                 }
             });
         }
+
 
 
         function cancelarCita(codigoCita, empresaNit, placa, cedula, fechaOferta, operacion) {
