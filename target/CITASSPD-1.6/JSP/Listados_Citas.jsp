@@ -71,6 +71,7 @@
   
         <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
         
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         
         <script>
             $(document).ready(function () {
@@ -281,6 +282,7 @@
                                                 <th>MANIFIESTO</th>
                                                 <th>ESTADO</th>
                                                 <th>FECHA</th>
+                                                <th>FMM</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -304,6 +306,7 @@
                                                 <td><%= listado.getManifiesto() %></td>
                                                 <td><%= listado.getEstado() %></td>
                                                 <td><%= fechaConHora %></td>
+                                                <td><%= listado.getFmm() %></td>
                                             </tr>
                                             <%
                                                         }
@@ -330,6 +333,7 @@
                                                 <td><%= v.getNumManifiestoCarga() %></td>
                                                 <td><%= listado.getEstado() %></td>
                                                 <td><%= v.getFechaOfertaSolicitud() %></td>
+                                                <td><%= listado.getFmm() %></td>
                                             </tr>
                                             <%
                                                                     }
@@ -612,8 +616,20 @@
                                                                 <td>
                                                                     <div class="Botones_tabla">
                                                                         <input type="button"
-                                                                               onclick="window.location.href='../JSP/Tabla_Barcaza_Cita.jsp?codigo=<%= barcaza.getCodigoCita() %>'"
-                                                                               value="📋 Ver">
+                                                                            class="btn-ver-cita"
+                                                                            data-cliente="<%= barcaza.getCliente() %>"
+                                                                            data-nombrebarcaza="<%= barcaza.getNombreBarcaza() %>"
+                                                                            data-operacion="<%= barcaza.getOperacion() %>"
+                                                                            data-cantproducto="<%= barcaza.getCantProducto() %>"
+                                                                            data-precio="<%= barcaza.getPrecioUsd() %>"
+                                                                            data-factura="<%= barcaza.getFacturaRemision() %>"
+                                                                            data-barcazadestino="<%= barcaza.getBarcazaDestino() %>"
+                                                                            data-fechacreacion="<%= fecha_creacion_zona %>"
+                                                                            data-fechazarpe="<%= fecha_zarpe_zona %>"
+                                                                            data-observaciones="<%= barcaza.getObservaciones() %>"
+                                                                            data-codigocita="<%= barcaza.getCodigoCita() %>"
+                                                                            onclick="abrirFormularioCitaMultiple(this)"
+                                                                            value="📋 Ver">
                                                                         <%
                                                                             if (session.getAttribute("Rol") != null && (Integer)session.getAttribute("Rol") == 1) {
                                                                         %>
@@ -657,8 +673,21 @@
                                                                 <td>
                                                                     <div class="Botones_tabla">
                                                                         <input type="button"
-                                                                               onclick="window.location.href='../JSP/Tabla_Barcaza_Cita.jsp?codigo=<%= barcaza.getCodigoCita() %>'"
-                                                                               value="📋 Ver">
+                                                                            class="btn-ver-cita"
+                                                                            data-cliente="<%= barcaza.getCliente() %>"
+                                                                            data-nombrebarcaza="<%= barcaza.getNombreBarcaza() %>"
+                                                                            data-operacion="<%= barcaza.getOperacion() %>"
+                                                                            data-cantproducto="<%= barcaza.getCantProducto() %>"
+                                                                            data-precio="<%= barcaza.getPrecioUsd() %>"
+                                                                            data-factura="<%= barcaza.getFacturaRemision() %>"
+                                                                            data-barcazadestino="<%= barcaza.getBarcazaDestino() %>"
+                                                                            data-fechacreacion="<%= fecha_creacion_zona %>"
+                                                                            data-fechazarpe="<%= fecha_zarpe_zona %>"
+                                                                            data-observaciones="<%= barcaza.getObservaciones() %>"
+                                                                            data-codigocita="<%= barcaza.getCodigoCita() %>"
+                                                                            onclick="abrirFormularioCitaMultiple(this)"
+                                                                            value="📋 Ver">
+
                                                                         <%
                                                                             if (session.getAttribute("Rol") != null && (Integer)session.getAttribute("Rol") == 1) {
                                                                         %>
@@ -680,6 +709,61 @@
                                 </div>
                                 
                                 <script>
+                                    function abrirFormularioCitaMultiple(btn) {
+                                        // Extraer datos del botón
+                                        const barcaza = {
+                                            cliente: btn.dataset.cliente,
+                                            nombreBarcaza: btn.dataset.nombrebarcaza,
+                                            operacion: btn.dataset.operacion,
+                                            cantProducto: btn.dataset.cantproducto,
+                                            precioUsd: btn.dataset.precio,
+                                            facturaRemision: btn.dataset.factura,
+                                            barcazaDestino: btn.dataset.barcazadestino,
+                                            fechaCreacion: btn.dataset.fechacreacion,
+                                            fechaZarpe: btn.dataset.fechazarpe,
+                                            observaciones: btn.dataset.observaciones,
+                                            codigoCita: btn.dataset.codigocita
+                                        };
+
+                                        Swal.fire({
+                                            title: '📋 Programar Cita Barcaza',
+                                            html:
+                                                '<div style="display: flex; align-items: center; width: 100%;">' +
+                                                    '<label for="fechaCita" style="width: 150px; text-align: left;"><strong>Fecha de Cita:</strong></label>' +
+                                                    '<input id="fechaCita" type="datetime-local" class="swal2-input" style="flex: 1;">' +
+                                                '</div>',
+                                            confirmButtonText: 'Guardar',
+                                            confirmButtonColor: '#28a745',
+                                            cancelButtonText: 'Cancelar',
+                                            showCancelButton: true,
+                                            preConfirm: () => {
+                                                const fecha = document.getElementById('fechaCita').value;
+                                                if (!fecha) {
+                                                    Swal.showValidationMessage('⚠ Debes seleccionar una fecha');
+                                                    return false;
+                                                }
+                                                return fecha;
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                const fechaSeleccionada = result.value;
+
+                                                // Agregar la fecha de cita al objeto barcaza
+                                                barcaza.fechaCita = fechaSeleccionada;
+
+                                                // Aquí puedes hacer lo que necesites, por ejemplo enviar a otro servlet:
+                                                const json = encodeURIComponent(JSON.stringify(barcaza));
+                                                window.location.href = '../AsignarCitaBarcaza?data=' + json;
+
+
+                                                // O usar fetch/AJAX si deseas enviar sin recargar
+                                            }
+                                        });
+                                    }
+
+                                </script>
+                                
+                                <script>
                                     function mostrarTab(button) {
                                       // Desactivar todos los botones y contenidos
                                       document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
@@ -695,7 +779,6 @@
                                         tabContent.classList.add("active");
                                       }
                                     }
-
                                     // Inicializar pestaña activa
                                     window.onload = function () {
                                       const defaultButton = document.querySelector(".tab-button.active") || document.querySelector(".tab-button");
