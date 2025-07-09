@@ -22,6 +22,7 @@ public class ListadoCItas implements Serializable {
     private String operacion;
     private String codCita;
     private String fechaCita;
+    private long feAprobacion;
     private String nitTransportadora;
     private int variosVehiculos;
     private String placa;
@@ -29,11 +30,20 @@ public class ListadoCItas implements Serializable {
     private String nomConductor;
     private String manifiesto;
     private String estado;
+    @SerializedName("nmformZf")
     private String fmm;
     
     @SerializedName("vehiculos")
     private List<ListaVehiculos> vehiculos;
 
+    public long getFeAprobacion() {
+        return feAprobacion;
+    }
+
+    public void setFeAprobacion(long feAprobacion) {
+        this.feAprobacion = feAprobacion;
+    }
+    
     public String getFmm() {
         return fmm;
     }

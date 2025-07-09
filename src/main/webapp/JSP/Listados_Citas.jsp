@@ -288,8 +288,13 @@
                                         <tbody>
                                             <%
                                                 for (ListadoCItas listado : ListadoCitas2) {
-                                                    OffsetDateTime offsetDateTime = OffsetDateTime.parse(listado.getFecha_Creacion_Cita());
+                                                    // Convertir a OffsetDateTime (zona UTC, puedes cambiar el offset si deseas)
+                                                    OffsetDateTime offsetDateTime = Instant.ofEpochMilli(listado.getFeAprobacion()).atOffset(ZoneOffset.UTC);
+
+                                                    // Obtener LocalDate
                                                     LocalDate fechaCita = offsetDateTime.toLocalDate();
+
+                                                    // Formatear con fecha y hora
                                                     String fechaConHora = offsetDateTime.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
                                                     if (fechaCita.equals(hoy)) {
