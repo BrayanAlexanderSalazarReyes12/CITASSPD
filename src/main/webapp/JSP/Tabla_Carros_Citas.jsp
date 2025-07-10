@@ -98,6 +98,7 @@
                             <th>MANIFIESTO</th>
                             <th>ESTADO</th>
                             <th>FECHA</th>
+                            <th>REMISION</th>
                             <th>CANCELAR</th>
                             <th>SELECCIONAR</th>
                         </tr>
@@ -127,6 +128,12 @@
                                 %>
                                 
                                 <td><%= fechaSinZona %></td>
+                                <td>
+                                    <input type="button" 
+                                           value="REMISIÓN VALORIZADA"
+                                           onclick="descargarPDF('<%= listado.getFacturaRemision() %>.pdf', '<%= listado.getArchivo().replaceAll("\n", "").replaceAll("\r", "").replaceAll("'", "\\\\'") %>')">
+                                </td>
+
                                 <td>
                                     <%
                                         
@@ -166,7 +173,12 @@
                                 <td><%= vehiculo.getNombreConductor() %></td>
                                 <td><%= vehiculo.getNumManifiestoCarga() %></td>
                                 <td><%= listado.getEstado() %></td>
-                                <td><%= vehiculo.getFechaOfertaSolicitud() %></td>
+                                <td><%= vehiculo.getFechaOfertaSolicitud() == null ? "No hay fecha" : vehiculo.getFechaOfertaSolicitud() %></td>
+                                <td>
+                                    <input type="button" 
+                                           value="REMISIÓN VALORIZADA"
+                                           onclick="descargarPDF('<%= listado.getFacturaRemision() %>.pdf', '<%= listado.getArchivo().replaceAll("\n", "").replaceAll("\r", "").replaceAll("'", "\\\\'") %>')">
+                                </td>
                                 <td>
                                     <input type="button" 
                                     onclick="cancelarCita(
@@ -218,6 +230,37 @@
             }
         %>
     </div>
+    <script>
+        function descargarPDF(nombre, base64) {
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "DescargarRemision.jsp";
+            form.target = "_blank";
+
+            const input1 = document.createElement("input");
+            input1.type = "hidden";
+            input1.name = "nombre";
+            input1.value = nombre;
+
+            const input2 = document.createElement("input");
+            input2.type = "hidden";
+            input2.name = "base64";
+            input2.value = base64;
+
+            const accion = document.createElement("input");
+            accion.type = "hidden";
+            accion.name = "accion";
+            accion.value = "descargar";
+
+            form.appendChild(input1);
+            form.appendChild(input2);
+            form.appendChild(accion);
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+    </script>
 
     <script>
         function navegarInternamente(url) {
