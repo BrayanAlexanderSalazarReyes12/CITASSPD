@@ -21,6 +21,7 @@ com\spd\API\FormularioPost.class
 com\spd\DAO\ListadoDAO$3.class
 com\spd\Model\Formulario_Citas_SPD.class
 com\spd\Model\ResultadoCitas.class
+com\spd\Model\Cliente.class
 com\spd\API\Usuario_Insert.class
 com\spd\DAO\ListadoDAO$1.class
 com\spd\Model\Inicio_Seccion.class

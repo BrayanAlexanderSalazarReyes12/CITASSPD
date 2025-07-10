@@ -32,6 +32,24 @@ public class ListadoCItas implements Serializable {
     private String estado;
     @SerializedName("nmformZf")
     private String fmm;
+    private String archivo;
+    private String facturaRemision;
+
+    public String getFacturaRemision() {
+        return facturaRemision;
+    }
+
+    public void setFacturaRemision(String facturaRemision) {
+        this.facturaRemision = facturaRemision;
+    }
+    
+    public String getArchivo() {
+        return archivo;
+    }
+
+    public void setArchivo(String archivo) {
+        this.archivo = archivo;
+    }
     
     @SerializedName("vehiculos")
     private List<ListaVehiculos> vehiculos;

@@ -585,7 +585,19 @@
                                                     <th>FECHA CREACIÓN</th>
                                                     <th>ZARPE ESTIMADO</th>
                                                     <th>OBSERVACIONES</th>
-                                                    <th>Acciones</th>
+                                                    <%
+                                                        if (session.getAttribute("Rol") != null && (Integer)session.getAttribute("Rol") == 1) {
+                                                    %>
+                                                            
+                                                            <th>FACTURA DE REMISION</th>
+                                                            <th>ACCIONES</th>
+                                                    <%
+                                                        }else{
+                                                    %>
+                                                            <th>FACTURA DE REMISION</th>
+                                                    <%
+                                                        }
+                                                    %>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -618,6 +630,11 @@
                                                                 <td><%= fecha_creacion_zona %></td>
                                                                 <td><%= fecha_zarpe_zona %></td>
                                                                 <td><%= barcaza.getObservaciones() %></td>
+                                                                <td>
+                                                                    <input type="button" 
+                                                                           value="REMISIÓN VALORIZADA"
+                                                                           onclick="descargarPDF('<%= barcaza.getFacturaRemision() %>.pdf', '<%= barcaza.getArchivo().replaceAll("\n", "").replaceAll("\r", "").replaceAll("'", "\\\\'") %>')">
+                                                                </td>
                                                                 <td>
                                                                     <div class="Botones_tabla">
                                                                         <input type="button"
@@ -676,7 +693,15 @@
                                                                 <td><%= fecha_zarpe_zona %></td>
                                                                 <td><%= barcaza.getObservaciones() %></td>
                                                                 <td>
+                                                                    <input type="button" 
+                                                                           value="REMISIÓN VALORIZADA"
+                                                                           onclick="descargarPDF('<%= barcaza.getFacturaRemision() %>.pdf', '<%= barcaza.getArchivo().replaceAll("\n", "").replaceAll("\r", "").replaceAll("'", "\\\\'") %>')">
+                                                                </td>
+                                                                <td>
                                                                     <div class="Botones_tabla">
+                                                                        <%
+                                                                            if (session.getAttribute("Rol") != null && (Integer)session.getAttribute("Rol") == 1) {
+                                                                        %>
                                                                         <input type="button"
                                                                             class="btn-ver-cita"
                                                                             data-cliente="<%= barcaza.getCliente() %>"
@@ -692,10 +717,6 @@
                                                                             data-codigocita="<%= barcaza.getCodigoCita() %>"
                                                                             onclick="abrirFormularioCitaMultiple(this)"
                                                                             value="📋 Ver">
-
-                                                                        <%
-                                                                            if (session.getAttribute("Rol") != null && (Integer)session.getAttribute("Rol") == 1) {
-                                                                        %>
                                                                         <input type="button"
                                                                                onclick="if(confirm('¿Cancelar cita?')) window.location.href='../CancelarCitaBarcazaServlet?codigo=<%= barcaza.getCodigoCita() %>'"
                                                                                value="🗑 Cancelar">
@@ -712,6 +733,38 @@
                                         </table>
                                     </div>
                                 </div>
+                                
+                                    <script>
+                                        function descargarPDF(nombre, base64) {
+                                            const form = document.createElement("form");
+                                            form.method = "post";
+                                            form.action = "DescargarRemision.jsp";
+                                            form.target = "_blank";
+
+                                            const input1 = document.createElement("input");
+                                            input1.type = "hidden";
+                                            input1.name = "nombre";
+                                            input1.value = nombre;
+
+                                            const input2 = document.createElement("input");
+                                            input2.type = "hidden";
+                                            input2.name = "base64";
+                                            input2.value = base64;
+
+                                            const accion = document.createElement("input");
+                                            accion.type = "hidden";
+                                            accion.name = "accion";
+                                            accion.value = "descargar";
+
+                                            form.appendChild(input1);
+                                            form.appendChild(input2);
+                                            form.appendChild(accion);
+
+                                            document.body.appendChild(form);
+                                            form.submit();
+                                            document.body.removeChild(form);
+                                        }
+                                </script>
                                 
                                 <script>
                                     function abrirFormularioCitaMultiple(btn) {

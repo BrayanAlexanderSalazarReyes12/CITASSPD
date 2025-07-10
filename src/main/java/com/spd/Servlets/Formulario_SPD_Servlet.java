@@ -28,9 +28,11 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import org.json.JSONObject;
 import com.spd.CItasDB.VehiculoDB;
+import com.spd.Model.Cliente;
 
 import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.Base64;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.Cookie;
@@ -68,13 +70,39 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         String nombreUsuario = null;
         
         Cookie[] cookies = request.getCookies();
-
+        
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("USUARIO".equals(cookie.getName())) {
+                if ("DATA".equals(cookie.getName())) {
                     nombreUsuario = cookie.getValue();
                     break;
                 }
+            }
+        }
+
+        // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+        List<Cliente> clientes = Arrays.asList(
+            new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+            new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+            new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+            new Cliente("901312960-3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+            new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+            new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+            new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+            new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+            new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+            new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+            new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+            new Cliente("901.312.960–3", "C I CONQUERS WORLD TRADE S A S")
+        );
+
+        String empresaUsuario = null;
+
+        // Buscar la empresa asociada al NIT
+        for (Cliente cliente : clientes) {
+            if (cliente.getNit().equals(nombreUsuario)) {
+                empresaUsuario = cliente.getEmpresa();
+                break;
             }
         }
         
@@ -221,7 +249,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         
         CitaBascula cb = new CitaBascula(
                 usuario,
-                nombreUsuario,
+                empresaUsuario,
                 placa,Cedula,
                 nombre,
                 fecha,
@@ -404,6 +432,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
             // Solo barcaza
             else if (operacion.equals("Barcaza - Tanque") || operacion.equals("Tanque - Barcaza") || operacion.equals("Barcaza - Barcaza")) {
                 response4 = fp.CitaBarcaza(URL2, json3);
+                response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");
                 System.out.println("Enviando datos a CitaBarcaza (Solo Barcaza)");
             }
 

@@ -30,7 +30,7 @@ public class ListadoCitasBar {
     private String codigoCita;
     private String estado;
     private String producto; // puede ser null
-
+    
     public String getCliente() {
         return cliente;
     }
