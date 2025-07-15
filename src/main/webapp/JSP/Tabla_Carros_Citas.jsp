@@ -1,9 +1,3 @@
-<%-- 
-    Document   : Tabla_Carros_Citas
-    Created on : jun 11, 2025, 12:04:36 p.m.
-    Author     : braya
---%>
-
 <%@page import="java.time.LocalDateTime"%>
 <%@page import="java.time.OffsetDateTime"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
@@ -26,7 +20,22 @@
     <title>Listados Citas SPD</title>
     <link rel="stylesheet" href="../CSS/Listado_Citas.css"/>
     <link rel="stylesheet" href="../CSS/Login.css"/>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+    
+    <script>
+            $(document).ready(function () {
+                $('#myTable').DataTable({
+                    language: {
+                        url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                    }
+                });
+            });
+
+      </script>
 </head>
 
 <%
@@ -89,7 +98,7 @@
         %>
             <h2>📋 Lista de Citas Por Registros Por Camiones</h2>
             <form id="formularioCitas">
-                <table border="1">
+                <table id="myTable" class="display">
                     <thead>
                         <tr>
                             <th>PLACA</th>
