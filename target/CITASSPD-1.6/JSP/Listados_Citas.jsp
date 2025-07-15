@@ -430,9 +430,7 @@
                                                 <td>
                                                     <div class="Botones_tabla">
                                                         <input type="button" onclick="window.location.href='../JSP/Tabla_Carros_Citas.jsp?registro=<%= listado.getCodCita() %>'" value="📋 Ver">
-                                                        <% if ((Integer)session.getAttribute("Rol") == 1) { %>
-                                                        <input type="button" onclick="if(confirm('¿Cancelar esta cita?')) window.location.href='../CancelarCitaServlet?codigo=<%= listado.getCodCita() %>'" value="🗑 Cancelar">
-                                                        <% } %>
+                                                       
                                                     </div>
                                                 </td>
                                             </tr>
@@ -501,15 +499,6 @@
                                                             <input type="button"
                                                                    onclick="window.location.href='../JSP/Tabla_Carros_Citas_Agendada.jsp?registro=<%= listado.getCodCita() %>'"
                                                                    value="📋 Ver">
-                                                            <%
-                                                                if (session.getAttribute("Rol") != null && (Integer)session.getAttribute("Rol") == 1) {
-                                                            %>
-                                                            <input type="button"
-                                                                   onclick="if(confirm('¿Cancelar esta cita?')) window.location.href='../CancelarCitaServlet?codigo=<%= listado.getCodCita() %>'"
-                                                                   value="🗑 Cancelar">
-                                                            <%
-                                                                }
-                                                            %>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -547,15 +536,6 @@
                                                                                     <input type="button"
                                                                                            onclick="window.location.href='../JSP/Tabla_Carros_Citas_Agendada.jsp?registro=<%= listado.getCodCita() %>'"
                                                                                            value="📋 Ver">
-                                                                                    <%
-                                                                                        if (session.getAttribute("Rol") != null && (Integer)session.getAttribute("Rol") == 1) {
-                                                                                    %>
-                                                                                    <input type="button"
-                                                                                           onclick="if(confirm('¿Cancelar esta cita?')) window.location.href='../CancelarCitaServlet?codigo=<%= listado.getCodCita() %>'"
-                                                                                           value="🗑 Cancelar">
-                                                                                    <%
-                                                                                        }
-                                                                                    %>
                                                                                 </div>
                                                                             </td>
                                                                         </tr>
