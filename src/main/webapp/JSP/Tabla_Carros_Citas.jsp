@@ -29,6 +29,7 @@
     <script>
             $(document).ready(function () {
                 $('#myTable').DataTable({
+                    scrollY: 400,
                     language: {
                         url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
                     }
@@ -96,6 +97,7 @@
         <%
             } else {
         %>
+        
             <h2>📋 Lista de Citas Por Registros Por Camiones</h2>
             <form id="formularioCitas">
                 <table id="myTable" class="display">
@@ -381,7 +383,7 @@
                 title: '🗑 Cancelar Cita',
                 html: 
                     '<label for="causalSelect"><strong>Selecciona una causal de cancelación:</strong></label><br>' +
-                    '<select id="causalSelect" class="swal2-select" style="width:100%; margin-top:10px;">' +
+                    '<select id="causalSelect" class="swal2-select" style="width: 100%; max-width: 100%; margin-top:10px; font-size: 16px; padding: 10px; border-radius: 5px;">' +
                         '<option value="">-- Selecciona una opción --</option>' +
                         opcionesHtml +
                     '</select>',
