@@ -35,11 +35,13 @@ com\spd\CItasDB\BarcazaCita.class
 com\spd\ClasesJsonFormularioMinisterio\Variables.class
 com\spd\API\LoginPost.class
 com\spd\ClasesJsonFormularioMinisterio\FormularioCompleto.class
+com\spd\Servlets\Finalizarcita$1.class
 com\spd\DAO\ListadoDAO.class
 com\spd\DAO\ListadoDAO$2.class
 com\spd\Productos\Producto.class
 com\spd\Model\Usuarios_Tanques.class
 com\spd\CrearUsuarioJson\ActualizarUsuarioCompleto.class
+com\spd\Servlets\Finalizarcita.class
 com\spd\Servlets\CerrarSeccion.class
 com\spd\CrearUsuarioJson\CrearUsuarioClass.class
 com\spd\Servlets\AsignarCitaCamiones.class

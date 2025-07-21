@@ -95,6 +95,13 @@
                         url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
                     }
                 });
+                
+                $('#myTable4').DataTable({
+                    scrollY: 400,
+                    language: {
+                        url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                    }
+                });
             });
 
       </script>
@@ -253,6 +260,7 @@
                                             if (rolObj != null && ((Integer) rolObj) != 0) {
                                         %>
                                         <button class="tab-button" data-tab="camiones-sin-terminar" onclick="mostrarTab(this)">📁 Citas Camiones Sin Terminar</button>
+                                        <button class="tab-button" data-tab="camiones-por-finalizar" onclick="mostrarTab(this)">📁 Citas Camiones Por Finalizar</button>
                                         <button class="tab-button" data-tab="barcazas" onclick="mostrarTab(this)">📁 Citas Barcazas</button>
                                         <%
                                             }
@@ -548,7 +556,110 @@
                                             </tbody>
                                         </table>
                                     </div>        
-                                        
+                                    
+                                    <div id="tab-camiones-por-finalizar" class="tab-content">
+                                        <!-- Aquí irá la tabla de camiones -->
+                                        <h3>📋 Lista de Citas de Camiones Por Finalizar</h3>
+                                        <table id="myTable4" class="display">
+                                            <thead>
+                                                <tr>
+                                                    <th>NIT</th>
+                                                    <th>EMPRESA TRANSPORTADORA</th>
+                                                    <th>EMPRESA</th>
+                                                    <th>TIPO OPERACIÓN</th>
+                                                    <th>CANTIDAD VEHÍCULOS</th>
+                                                    <th>FECHA CREACIÓN</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                
+                                                <%
+                                                    if (rolObj != null && ((Integer) rolObj) == 2){
+                                                 
+                                                            for(ListadoCItas listado: ListadoCitas2){
+                                                                if (listado.getNombre_Empresa().equals(usuario))
+                                                                {
+                                                                    String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
+                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
+                                                                    LocalDateTime ldt = odt.toLocalDateTime();
+                                                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                                                    String fecha = ldt.format(formatter1);
+                                                                    String fechaSinZona = ldt.format(formatter);
+
+                                                                    Date fecha_actual = new Date();
+                                                                    LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                                                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                                                    String fechaactual = ldt1.format(formatter2);
+
+                                                                    System.out.println(fechaSinZona); // Resultado: 2025-04-26 10:00:00
+
+                                                                    if (fecha.equals(fechaactual)) {
+
+                                                %>
+                                                <tr>
+                                                    <td><%= listado.getNit() %></td>
+                                                    <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                    <td><%= listado.getNombre_Empresa() %></td>
+                                                    <td><%= listado.getTipo_Operacion() %></td>
+                                                    <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                    <td><%= fechaSinZona %></td>
+                                                    <td>
+                                                        <div class="Botones_tabla">
+                                                            <input type="button"
+                                                                   onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>'"
+                                                                   value="📋 Ver">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <%
+                                                    }}}} else if (rolObj != null && ((Integer) rolObj) == 1){
+                                                %>
+                                                        <%
+                                                            for(ListadoCItas listado: ListadoCitas2){
+                                                                    String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
+                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
+                                                                    LocalDateTime ldt = odt.toLocalDateTime();
+                                                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                                                    String fecha = ldt.format(formatter1);
+                                                                    String fechaSinZona = ldt.format(formatter);
+
+                                                                    Date fecha_actual = new Date();
+                                                                    LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                                                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                                                    String fechaactual = ldt1.format(formatter2);
+
+                                                                    System.out.println(fechaSinZona); // Resultado: 2025-04-26 10:00:00
+
+ 
+                                                        %>
+                                                                        <tr>
+                                                                            <td><%= listado.getNit() %></td>
+                                                                            <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                                            <td><%= listado.getNombre_Empresa() %></td>
+                                                                            <td><%= listado.getTipo_Operacion() %></td>
+                                                                            <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                                            <td><%= fechaSinZona %></td>
+                                                                            <td>
+                                                                                <div class="Botones_tabla">
+                                                                                    <input type="button"
+                                                                                           onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>'"
+                                                                                           value="📋 Ver">
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                   <%
+                                                                       }
+                                                                   %>
+                                                <%
+                                                    }
+                                                %>
+                                            </tbody>
+                                        </table>
+                                    </div>         
+                                            
                                     <div id="tab-barcazas" class="tab-content">
                                         <!-- Aquí irá la tabla de barcazas -->
                                         <h3>🚢 Lista de Citas de Barcazas</h3>

@@ -119,7 +119,7 @@ public class CancelarCitaServlet extends HttpServlet {
             String json = gson.toJson(finalJson);
             
             
-            String url = "http://172.16.100.121:8081/rest/RIEN";
+            String url = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
             String response1 = fp.Post(url, json);
             
             if(response1 != null && !response1.isEmpty()){
