@@ -373,16 +373,27 @@
                 { codigo: '91', descripcion: 'Situación climática - Lluvia', responsable: 'INDETERMINADO' },
                 { codigo: '99', descripcion: 'Otros', responsable: 'INDETERMINADO' }
             ];
+            
+            const sufijos = {
+                '29': 'Puerto',
+                '49': 'Transportador',
+                '69': 'Generador',
+                '89': 'Estado',
+                '99': 'Indeterminado'
+            };
 
-            const opcionesHtml = causales.map(function(c) {
-                return '<option value="' + c.codigo + '">' + c.codigo + ' - ' + c.descripcion + '</option>';
+            const opcionesHtml = causales.map(c => {
+                const sufijo = sufijos[c.codigo] ? ' - '+ sufijos[c.codigo]+'' : '';
+                return '<option value="'+c.codigo+'">'+c.codigo+' - '+c.descripcion+''+sufijo+'</option>';
             }).join('');
+
 
 
             Swal.fire({
                 title: '🗑 Cancelar Cita',
-                html:
-                    '<div class="swal2-html-container" id="swal2-html-container" style="display: flex; max-width: 400px;">'+
+                html: 
+                    '<div class="swal2-html-container" id="swal2-html-container" style="display: flex;">'+
+
                     '<label for="causalSelect"><strong>Selecciona una causal de cancelación:</strong></label><br>' +
                     '<select id="causalSelect" class="swal2-select" style=" font-size: 16px; padding: 10px; border-radius: 5px;">' +
                         '<option value="">-- Selecciona una opción --</option>' +
