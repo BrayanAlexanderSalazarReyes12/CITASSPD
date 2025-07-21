@@ -393,8 +393,9 @@
                 title: '🗑 Cancelar Cita',
                 html: 
                     '<div class="swal2-html-container" id="swal2-html-container" style="display: flex;">'+
+
                     '<label for="causalSelect"><strong>Selecciona una causal de cancelación:</strong></label><br>' +
-                    '<select id="causalSelect" class="swal2-select" style="width: 100%; max-width: 100%; margin-top:10px; font-size: 16px; padding: 10px; border-radius: 5px;">' +
+                    '<select id="causalSelect" class="swal2-select" style=" font-size: 16px; padding: 10px; border-radius: 5px;">' +
                         '<option value="">-- Selecciona una opción --</option>' +
                         opcionesHtml +
                     '</select>'+
