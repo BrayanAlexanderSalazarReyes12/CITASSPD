@@ -4,6 +4,7 @@
     Author     : Brayan Salazar
 --%>
 
+<%@page import="java.util.Locale"%>
 <%@page import="com.spd.CItasDB.ListaVehiculos"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
 <%@page import="java.time.LocalDateTime"%>
@@ -101,7 +102,6 @@
                                 <th>NOMBRE CONDUCTOR</th>
                                 <th>MANIFIESTO</th>
                                 <th>ESTADO</th>
-                                <th>FECHA DE CITA INSIDE</th>
                                 <th>FECHA CITA PROGRAMADA</th>
                                 <th>SELECCIONAR</th>
                             </tr>
@@ -131,7 +131,6 @@
                                                 <td><%= listado.getManifiesto() %></td>
                                                 <td>PROGRAMADA</td>
                                                 <td><%= fechaSinZona %></td>
-                                                <td><%= fechaSinZona %></td>
                                                 <td>
                                                     <input type="checkbox" name="vehiculos"
                                                            data-operacion="<%= listado.getTipo_Operacion() %>"
@@ -140,7 +139,6 @@
                                                            data-cedula="<%= listado.getCedConductor() %>"
                                                            data-manifiesto="<%= listado.getManifiesto() %>"
                                                            value="<%= listado.getPlaca() %>"
-                                                           data-fechainside="<%= fechaSinZona2 %>"
                                                            data-fecha="<%= fechaSinZona2 %>">
                                                 </td>
                                             </tr>
@@ -159,7 +157,21 @@
                                     <td><%= vehiculo.getNumManifiestoCarga() %></td>
                                     <td> PROGRAMADA </td>
                                     <td><%= vehiculo.getFechaOfertaSolicitud() %></td>
-                                    <td><%= vehiculo.getFechaOfertaSolicitud() %></td>
+                                    <%
+                                        String originalDate = vehiculo.getFechaOfertaSolicitud();
+
+                                        // Paso 1: Formato original
+                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a", Locale.ENGLISH);
+
+                                        // Paso 2: Formato deseado
+                                        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+                                        // Parsear y formatear
+                                        LocalDateTime date = LocalDateTime.parse(originalDate, inputFormatter);
+                                        String formattedDate = date.format(outputFormatter);
+
+                                        //System.out.println(formattedDate); // Salida: 2025-07-22T10:40:00
+                                    %>
                                     <td>
                                         <input type="checkbox" name="vehiculos"
                                                data-operacion="<%= listado.getTipo_Operacion() %>"
@@ -168,8 +180,7 @@
                                                data-cedula="<%= vehiculo.getConductorCedulaCiudadania() %>"
                                                data-manifiesto="<%= vehiculo.getNumManifiestoCarga() %>"
                                                value="<%= vehiculo.getVehiculoNumPlaca() %>"
-                                               data-fechainside="<%= vehiculo.getFechaOfertaSolicitud() %>"
-                                               data-fecha="<%= vehiculo.getFechaOfertaSolicitud() %>">
+                                               data-fecha="<%= formattedDate %>">
                                     </td>
                                 </tr>
                             <%
@@ -229,6 +240,10 @@
                 title: '📋 Finalizar Citas De Camiones',
                 html:
                     '<div style="display: flex; align-items: center; width: 100%; margin-bottom: 10px;">' +
+                        '<label for="fechacitainside" style="width: 150px; text-align: left;"><strong>Fecha de la cita creada por inside</strong></label>' +
+                        '<input id="fechacitainside" type="datetime-local" class="swal2-input" style="flex: 1; margin-left:auto; padding:5px;" step="1">' +
+                    '</div>' +
+                    '<div style="display: flex; align-items: center; width: 100%; margin-bottom: 10px;">' +
                         '<label for="fechaCita" style="width: 150px; text-align: left;"><strong>Fecha de entrada por bascula</strong></label>' +
                         '<input id="fechaCita" type="datetime-local" class="swal2-input" style="flex: 1; margin-left:auto; padding:5px;">' +
                     '</div>' +
@@ -257,7 +272,13 @@
                     const fechasal = document.getElementById('fechasalida').value;
                     const pentrada = document.getElementById('pesoentrada').value;
                     const psalida = document.getElementById('pesosalida').value;
-                    
+                    let fechacitainside = document.getElementById('fechacitainside').value;
+                    // Asegurarte de que incluya los segundos
+                    if (!fechacitainside.includes(':') || fechacitainside.length === 16) {
+                      // El valor tiene solo HH:MM → agregar ":00"
+                      fechacitainside += ':00';
+                    }
+                    console.log('Fecha capturada:', fechacitainside);
                     if (!fecha) {
                         Swal.showValidationMessage('⚠ Debes seleccionar una fecha');
                         return false;
@@ -274,12 +295,16 @@
                         Swal.showValidationMessage('⚠ Debes escribir el peso de salida del camion');
                         return false;
                     }
+                    if(!fechacitainside)
+                    {
+                        Swal.showValidationMessage('⚠ Debes escribir la fecha de la cita del INSIDE');
+                    }
 
-                    return { fecha: fecha, pentrada: pentrada, fechasal:fechasal, psalida:psalida };
+                    return { fecha: fecha, pentrada: pentrada, fechasal:fechasal, psalida:psalida, fechacitainside:fechacitainside };
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const { fecha, pentrada, fechasal, psalida } = result.value;
+                    const { fecha, pentrada, fechasal, psalida, fechacitainside } = result.value;
                     let identificador = "0";
                     const seleccionados = [];
 
@@ -294,7 +319,7 @@
                             empresaTransportadoraNit: cb.dataset.transportadora || "",
                             vehiculoNumPlaca: cb.value || cb.dataset.placa || "", // fallback si value no tiene la placa
                             conductorCedulaCiudadania: cb.dataset.cedula || "",
-                            fechaOfertaSolicitud: cb.dataset.fechainside || "",
+                            fechaOfertaSolicitud: cb.dataset.fecha || "",
                             numManifiestoCarga: cb.dataset.manifiesto || ""
                         });
                     });
@@ -308,6 +333,7 @@
                     params.append('pesoentrada', pentrada);
                     params.append('fechasal', fechasal);
                     params.append('psalida', psalida);
+                    params.append('fechacitainside', fechacitainside);
 
                     window.location.href = '../Finalizarcita?' + params.toString();
 

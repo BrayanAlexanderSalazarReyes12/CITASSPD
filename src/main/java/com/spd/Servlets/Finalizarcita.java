@@ -49,6 +49,8 @@ public class Finalizarcita extends HttpServlet {
         String pesoentrada = request.getParameter("pesoentrada");
         String fechasal = request.getParameter("fechasal");
         String psalida = request.getParameter("psalida");
+        String fechainside = request.getParameter("fechacitainside");
+        System.out.println(fechainside);
         FormularioPost fp = new FormularioPost();
         //variables de entorno
         String path = getServletContext().getRealPath("/WEB-INF/json.env");
@@ -122,7 +124,7 @@ public class Finalizarcita extends HttpServlet {
             variables.put("empresaTransportadoraNit", vehiculosMap.get("empresaTransportadoraNit"));
             variables.put("vehiculoNumPlaca", vehiculosMap.get("vehiculoNumPlaca"));
             variables.put("conductorCedulaCiudadania", vehiculosMap.get("conductorCedulaCiudadania"));
-            variables.put("fechaOfertaSolicitud", vehiculosMap.get("fechaOfertaSolicitud"));
+            variables.put("fechaOfertaSolicitud", fechainside);
             variables.put("numManifiestoCarga", vehiculosMap.get("numManifiestoCarga"));
             variables.put("turnoAsignado", turnoAsignado);
             
