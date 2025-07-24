@@ -116,7 +116,21 @@
     
     let indexCamion = 0;
     
+    // Captura los valores del carro original al cargar la página
+    let carroOriginal = {};
+
+    function guardarDatosCarroOriginal() {
+        carroOriginal = {
+            cedula: document.getElementById("Cedula").value.trim(),
+            placa: document.getElementById("Placa").value.trim().toUpperCase(),
+            remolque: document.getElementById("Remolque").value.trim(),
+            manifiesto: document.getElementById("manifiesto").value.trim()
+        };
+        console.log("Carro original guardado:", carroOriginal);
+    }
+    
     function agregarCamposCamion() {
+        guardarDatosCarroOriginal();
         const contenedor = document.getElementById("camionesExtras");
 
         const nuevoCamion = document.createElement("div");
@@ -173,6 +187,33 @@
 
 
         contenedor.appendChild(nuevoCamion);
+        // Espera un momento para asegurar que los inputs estén en el DOM
+        setTimeout(() => {
+            const cedulaExtra = nuevoCamion.querySelector("#CedulaExtra");
+            const placaExtra = nuevoCamion.querySelector("#PlacaExtra");
+            const remolqueExtra = nuevoCamion.querySelector("#RemolqueExtra");
+            const manifiestoExtra = nuevoCamion.querySelector("#ManifiestoExtra");
+
+            [cedulaExtra, placaExtra, remolqueExtra, manifiestoExtra].forEach(input => {
+                input.addEventListener("blur", () => {
+                    const cedula = cedulaExtra.value.trim();
+                    const placa = placaExtra.value.trim().toUpperCase();
+                    const remolque = remolqueExtra.value.trim();
+                    const manifiesto = manifiestoExtra.value.trim();
+
+                    if (
+                        cedula === carroOriginal.cedula ||
+                        placa === carroOriginal.placa ||
+                        remolque === carroOriginal.remolque ||
+                        manifiesto === carroOriginal.manifiesto
+                    ) {
+                        alert("❌ No puede repetir la información del carrotanque original.");
+                        input.value = "";
+                    }
+                });
+            });
+        }, 100);
+
         indexCamion++;
     }
     
@@ -207,6 +248,7 @@
     
     
     window.onload = function () {
+        guardarDatosCarroOriginal();
         mostrarCamionesExtra();
         for(let i = 0; i< cedulasExtras.length; i++){
             agregarCamposCamion();
