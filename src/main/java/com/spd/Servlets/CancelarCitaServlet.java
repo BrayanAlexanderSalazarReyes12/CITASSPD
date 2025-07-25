@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -126,9 +128,14 @@ public class CancelarCitaServlet extends HttpServlet {
             cancelacioncita.put("codcita", registro);
             cancelacioncita.put("placa", placa);
             cancelacioncita.put("manifiesto", manifiesto);
-            
+
+            // Crear una lista y agregar el mapa
+            List<Map<String, Object>> listaCancelaciones = new ArrayList<>();
+            listaCancelaciones.add(cancelacioncita);
+
+            // Convertir la lista a JSON
             Gson gson1 = new GsonBuilder().setPrettyPrinting().create();
-            String json1 = gson1.toJson(cancelacioncita);
+            String json1 = gson1.toJson(listaCancelaciones);
             
             /*
             String url = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
