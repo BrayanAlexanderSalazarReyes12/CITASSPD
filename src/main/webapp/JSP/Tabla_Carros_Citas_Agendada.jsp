@@ -43,7 +43,7 @@
     Cookie[] cookies = request.getCookies();
     response.setContentType("text/html");
     boolean seccionIniciada = false;
-
+    String fechaParaInput = "";
     if (cookies != null) {
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("SeccionIniciada")) {
@@ -118,6 +118,7 @@
                                 DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
                                 String fechaSinZona = ldt.format(formatter);
+                                fechaParaInput = fechaSinZona;
                                 if (listado.getCodCita().equals(registro)) {
                         %>
                                         <tr style="display: none;">
@@ -214,7 +215,7 @@
                 html:
                     '<div style="display: flex; align-items: center; width: 100%; margin-bottom: 10px;">' +
                         '<label for="fechaCita" style="width: 150px; text-align: left;"><strong>Fecha de Cita:</strong></label>' +
-                        '<input id="fechaCita" type="datetime-local" class="swal2-input" style="flex: 1;">' +
+                        `<input id="fechaCita" type="datetime-local" class="swal2-input" style="flex: 1;" value="<%= fechaParaInput %>">` +
                     '</div>' +
                     '<div style="display: flex; align-items: center; width: 100%;">' +
                         '<label for="numeroformulario" style="width: 150px; text-align: left;"><strong>Número De Formulario Asignado:</strong></label>' +
@@ -226,6 +227,42 @@
                 confirmButtonColor: '#28a745',
                 cancelButtonText: 'Cancelar',
                 showCancelButton: true,
+                didOpen: () => {
+                    const input = document.getElementById('fechaCita');
+                    input.addEventListener('input', () => {
+                        if (!input.value) return; // Si está vacío, no hacer nada
+
+                        const partes = input.value.split('T');
+                        console.log('fechaFija:', partes);
+                        if (partes.length !== 2) {
+                            // Formato incorrecto, restablecer a fechaFija + hora por defecto
+                            const fechaFija = partes[0];
+                            input.value = fechaFija+"T00:00";
+                            return;
+                        }
+
+                        const [fecha, hora] = partes;
+                        const fechaFija = partes[0];
+
+                        // Validar formato hora HH:mm
+                        const horaValida = /^([01]\d|2[0-3]):[0-5]\d$/.test(hora);
+                        
+                        console.log('fechaFija:', fechaFija, 'hora:', hora);
+                        console.log('input.value antes de asignar:', fechaFija+"T"+hora);
+
+                        
+                        if (fecha !== fechaFija) {
+                            if (horaValida) {
+                                input.value = fechaFija+"T"+hora;
+                            } else {
+                                input.value = fechaFija+"T00:00";
+                            }
+                        }
+                    });
+
+
+
+                },
                 preConfirm: () => {
                     const fecha = document.getElementById('fechaCita').value;
                     const fmm = document.getElementById('numeroformulario').value;

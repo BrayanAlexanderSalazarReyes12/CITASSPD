@@ -158,17 +158,22 @@
                                     <td> PROGRAMADA </td>
                                     <td><%= vehiculo.getFechaOfertaSolicitud() %></td>
                                     <%
-                                        String originalDate = vehiculo.getFechaOfertaSolicitud();
+                                        String formattedDate = "";
+                                        try {
+                                            String originalDate = vehiculo.getFechaOfertaSolicitud(); // Ejemplo: "Jul 25, 2025 2:21:00 PM"
 
-                                        // Paso 1: Formato original
-                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a", Locale.ENGLISH);
+                                            // Formato original
+                                            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm:ss a", Locale.ENGLISH);
 
-                                        // Paso 2: Formato deseado
-                                        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+                                            // Formato deseado
+                                            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm:ss a", Locale.ENGLISH);
 
-                                        // Parsear y formatear
-                                        LocalDateTime date = LocalDateTime.parse(originalDate, inputFormatter);
-                                        String formattedDate = date.format(outputFormatter);
+                                            // Parsear y formatear
+                                            LocalDateTime date = LocalDateTime.parse(originalDate, inputFormatter);
+                                            formattedDate = date.format(outputFormatter);
+                                        } catch (Exception e) {
+                                            formattedDate = "Fecha inválida";
+                                        }
 
                                         //System.out.println(formattedDate); // Salida: 2025-07-22T10:40:00
                                     %>
