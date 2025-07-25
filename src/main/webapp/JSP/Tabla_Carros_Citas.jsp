@@ -162,7 +162,9 @@
                                         '<%= listado.getPlaca()%>',
                                         '<%= listado.getCedConductor() %>',
                                         '<%= listado.getFecha_Creacion_Cita() %>',
-                                        '<%= operacion %>'
+                                        '<%= operacion %>',
+                                        '<%= registro %>',
+                                        '<%= listado.getManifiesto() %>'
                                     )"
                                     value="🗑 Cancelar">
                                 </td>
@@ -200,7 +202,9 @@
                                         '<%= vehiculo.getVehiculoNumPlaca() %>',
                                         '<%= vehiculo.getConductorCedulaCiudadania() %>',
                                         '<%= vehiculo.getFechaOfertaSolicitud() %>',
-                                        '<%= operacion %>'
+                                        '<%= operacion %>',
+                                        '<%= registro %>',
+                                        '<%= vehiculo.getNumManifiestoCarga() %>'
                                     )"
                                     value="🗑 Cancelar">
                                 </td>
@@ -390,7 +394,7 @@
 
         
 
-        function cancelarCita(codigoCita, empresaNit, placa, cedula, fechaOferta, operacion) {
+        function cancelarCita(codigoCita, empresaNit, placa, cedula, fechaOferta, operacion, registro, manifiesto) {
             const causales = [
                 { codigo: '11', descripcion: 'Finalización del Buque - Finalización de la carga', responsable: 'PUERTO' },
                 { codigo: '12', descripcion: 'Obstáculo por movilidad en última milla', responsable: 'PUERTO' },
@@ -463,9 +467,10 @@
                         vehiculoNumPlaca: placa,
                         conductorCedulaCiudadania: cedula,
                         fechaOfertaSolicitud: fechaOferta,
-                        tipooperacion: operacion
+                        tipooperacion: operacion,
+                        registro:registro,
+                        manifiesto:manifiesto
                     });
-
                     window.location.href = '../CancelarCitaServlet?' + params.toString();
                 }
             });

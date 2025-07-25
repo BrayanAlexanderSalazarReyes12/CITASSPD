@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -61,23 +62,26 @@ public class CancelarCitaServlet extends HttpServlet {
             String empresaNit = request.getParameter("empresaTransportadoraNit");
             String placa = request.getParameter("vehiculoNumPlaca");
             String cedula = request.getParameter("conductorCedulaCiudadania");
-            String fechaIso = request.getParameter("fechaOfertaSolicitud"); // Ej: "2025-07-01T13:56:00-05:00"
             String fechaFormateada = null;
-            if (fechaIso != null && !fechaIso.isEmpty()) {
-                // Parsear fecha con zona horaria
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(fechaIso);
+            String registro = request.getParameter("registro");
+            String manifiesto = request.getParameter("manifiesto");
+            String fechaIso = request.getParameter("fechaOfertaSolicitud");
+            String fechaFormateada1 = "";
 
-                // Convertir a LocalDateTime (sin zona horaria)
-                LocalDateTime fechaSinZona = offsetDateTime.toLocalDateTime();
+            if (fechaIso != null && !fechaIso.trim().isEmpty() && !"null".equalsIgnoreCase(fechaIso.trim())) {
+                try {
+                    OffsetDateTime offsetDateTime = OffsetDateTime.parse(fechaIso);
+                    LocalDateTime fechaSinZona = offsetDateTime.toLocalDateTime();
+                    fechaFormateada1 = fechaSinZona.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-                // Formatear como "yyyy-MM-dd'T'HH:mm:ss"
-                fechaFormateada = fechaSinZona.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
-                System.out.println("Fecha formateada: " + fechaFormateada);
-                // Resultado: "2025-07-01T13:56:00"
+                    System.out.println("Fecha formateada: " + fechaFormateada1);
+                } catch (DateTimeParseException e) {
+                    System.out.println("Error al parsear fecha: " + e.getMessage());
+                }
             } else {
-                System.out.println("Parámetro 'fechaOfertaSolicitud' no proporcionado.");
+                System.out.println("Parámetro 'fechaOfertaSolicitud' no proporcionado o es inválido.");
             }
+
             String operacion = request.getParameter("tipooperacion");
             // Valores fijos o simulados (ajústalos según tu sistema)
             String usuario = USUARIOMINTRASPOR;
@@ -118,7 +122,15 @@ public class CancelarCitaServlet extends HttpServlet {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(finalJson);
             
+            Map<String, Object> cancelacioncita = new LinkedHashMap<>();
+            cancelacioncita.put("codcita", registro);
+            cancelacioncita.put("placa", placa);
+            cancelacioncita.put("manifiesto", manifiesto);
             
+            Gson gson1 = new GsonBuilder().setPrettyPrinting().create();
+            String json1 = gson1.toJson(cancelacioncita);
+            
+            /*
             String url = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
             String response1 = fp.Post(url, json);
             
@@ -154,10 +166,10 @@ public class CancelarCitaServlet extends HttpServlet {
                     response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
                     return;
                 }
-            }
+            }*/
             
             // Imprimir o enviar el JSON
-            out.println(json);
+            out.println(json1);
 
 
             // Aquí podrías enviarlo a otro servicio con HttpClient o guardar en BD
