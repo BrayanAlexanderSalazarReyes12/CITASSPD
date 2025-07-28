@@ -107,6 +107,8 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         }
         
         String Operaciones = request.getParameter("Operaciones");
+        String OrdenOperacion = request.getParameter("ordenOperacion");
+        
         int identificador = 0;
         if("operacion de cargue".equals(Operaciones)){
             identificador = 1;
@@ -364,7 +366,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                                 System.out.println("No hay cookies en la solicitud.");
                             }
                             
-                            response.sendRedirect(request.getContextPath() + "/TiposProductos?ordenOperacion=" + OPERACION);// Esto recarga la página actual 
+                            response.sendRedirect(request.getContextPath()+"/TiposProductos"+"?ordenOperacion="+OPERACION+"&operacion="+operacion+"&error=1"+"&mensaje="+jsonResponse.optString("ErrorText", "Sin detalle"));
                             
                             Cookie cookie = new Cookie("CITACREADA", "true");
                             cookie.setMaxAge(3600);
@@ -424,7 +426,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                     HttpSession session = request.getSession();
                     session.setAttribute("Activo", true);
                     session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
-                    response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
+                    response.sendRedirect(request.getRequestURI()+"?ordenOperacion="+OrdenOperacion+"&operacion="+operacion); // También recarga si está vacía
                     return;
                 }
             }
@@ -496,9 +498,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                                 System.out.println("No hay cookies en la solicitud.");
                             }
                             
-                            response.sendRedirect(request.getContextPath() + "/TiposProductos?ordenOperacion=" + OPERACION);// Esto recarga la página actual 
-
-
+                            response.sendRedirect(request.getContextPath()+"/TiposProductos"+"?ordenOperacion="+OPERACION+"&operacion="+operacion+"&error=1"+"&mensaje="+jsonResponse.optString("ErrorText", "Sin detalle")); // También recarga si está vacía
                             return;
                         } else {
                             System.out.println("✅ Todo correcto.");
@@ -550,7 +550,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                     HttpSession session = request.getSession();
                     session.setAttribute("Activo", true);
                     session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
-                    response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
+                    response.sendRedirect(request.getRequestURI()+"?ordenOperacion="+OrdenOperacion+"&operacion="+operacion); // También recarga si está vacía
                     return;
                 }
             }

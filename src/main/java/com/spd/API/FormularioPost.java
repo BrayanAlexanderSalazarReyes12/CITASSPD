@@ -26,6 +26,19 @@ public class FormularioPost {
         }
     }
     
+    public String EliminarCita (String url, String json) throws IOException {
+        RequestBody body = RequestBody.create(json, JSON);
+        String token = "f470b475-f094-411c-a274-7c17e62b6c41";
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Token", token)
+                .put(body)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            return response.body() != null ? json : "";
+        }
+    }
+    
     public String ActualizarCitacamionesbarcaza (String url, String json) throws IOException{
         RequestBody body = RequestBody.create(json, JSON);
 

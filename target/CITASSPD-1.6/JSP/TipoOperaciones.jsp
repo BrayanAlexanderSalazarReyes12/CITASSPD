@@ -340,32 +340,6 @@
 
                                 }
                             </script>
-                            <%      
-                                String mensaje = (String) session.getAttribute("Error");
-                                Boolean Estado = (Boolean) session.getAttribute("Activo");
-                            %>
-
-                            <%
-                                if(Estado != null){
-                                    if(Estado){
-                            %>
-                                        <div id="deleteModal" class="modal" style="display: flex;">
-                                            <div class="modal-content">
-                                                <span class="close" onclick="closeModal()">&times;</span>
-                                                <h2><%= mensaje %></h2>
-                                                <div class="modal-actions">
-                                                    <form action="../EliminarContrato" method="post">
-                                                        <input type="hidden" name="contratoId" id="contratoId">
-                                                        <button type="button" onclick="closeModal()" class="cancel-btn">Cerrar</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                            <%
-                                        session.setAttribute("Activo", false);
-                                    }
-                                }
-                            %>
                         </div>
                     </body>
                 <%
