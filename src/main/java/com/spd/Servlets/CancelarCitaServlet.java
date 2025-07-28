@@ -137,43 +137,47 @@ public class CancelarCitaServlet extends HttpServlet {
             Gson gson1 = new GsonBuilder().setPrettyPrinting().create();
             String json1 = gson1.toJson(listaCancelaciones);
             
-            /*
-            String url = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
-            String response1 = fp.Post(url, json);
+            String url = "http://www.siza.com.co/spdcitas-1.0/api/citas/cancelacion";
+            String response2 = fp.EliminarCita(url, json1);
             
-            if(response1 != null && !response1.isEmpty()){
-                JSONObject jsonresponse = new JSONObject(response1);
-                
-                if(jsonresponse.has("ErrorCode")){
-                    int errorCode = jsonresponse.getInt("ErrorCode");
-                    
-                    if (errorCode != 0) {
-                        
-                        // Manejo del error
-                        System.out.println("❌ Error detectado: " + jsonresponse.optString("ErrorText", "Sin detalle"));
-                        //aqui tiene que estar los valores que le entrar al modal
-                        
-                        //variable de seccion
+            if (response2 != null && !response2.isEmpty()){
+                String url1 = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
+                String response1 = fp.Post(url1, json);
+
+                if(response1 != null && !response1.isEmpty()){
+                    JSONObject jsonresponse = new JSONObject(response1);
+
+                    if(jsonresponse.has("ErrorCode")){
+                        int errorCode = jsonresponse.getInt("ErrorCode");
+
+                        if (errorCode != 0) {
+
+                            // Manejo del error
+                            System.out.println("❌ Error detectado: " + jsonresponse.optString("ErrorText", "Sin detalle"));
+                            //aqui tiene que estar los valores que le entrar al modal
+
+                            //variable de seccion
+                            HttpSession session = request.getSession();
+                            session.setAttribute("Error", "Error: " + jsonresponse.optString("ErrorText", "Sin detalle"));
+                            session.setAttribute("Activo", true);
+
+                            response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
+
+                            return;
+
+                        }else{
+                            System.out.println("✅ Todo correcto.");
+                        }
+                    }else {
+                        System.out.println("⚠️ Respuesta vacía.");
                         HttpSession session = request.getSession();
-                        session.setAttribute("Error", "Error: " + jsonresponse.optString("ErrorText", "Sin detalle"));
                         session.setAttribute("Activo", true);
-                        
-                        response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
-                        
+                        session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
+                        response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
                         return;
-                        
-                    }else{
-                        System.out.println("✅ Todo correcto.");
                     }
-                }else {
-                    System.out.println("⚠️ Respuesta vacía.");
-                    HttpSession session = request.getSession();
-                    session.setAttribute("Activo", true);
-                    session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
-                    response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
-                    return;
                 }
-            }*/
+            }
             
             // Imprimir o enviar el JSON
             out.println(json1);

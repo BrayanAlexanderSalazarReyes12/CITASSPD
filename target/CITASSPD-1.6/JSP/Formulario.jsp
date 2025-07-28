@@ -307,8 +307,32 @@
         <link rel="stylesheet" href="./CSS/Login.css"/>
         <link rel="stylesheet" href="./CSS/Formulario.css"/>
         <link rel="stylesheet" href="./CSS/Styles_modal.css"/>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <title>Citas-SPD</title>
     </head>
+    
+    <script>
+        // Función para obtener parámetros de la URL
+        function getUrlParam(param) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(param);
+        }
+
+        // Verifica si el parámetro "error" está presente y es igual a 1
+        window.addEventListener('DOMContentLoaded', () => {
+            const error = getUrlParam("error");
+            const mensaje = getUrlParam("mensaje");
+            if (error === "1") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: mensaje,
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        });
+    </script>
+    
     <%
         Cookie[] cookies = request.getCookies();
         response.setContentType("text/html");
