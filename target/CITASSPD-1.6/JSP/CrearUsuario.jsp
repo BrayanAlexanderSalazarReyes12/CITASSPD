@@ -70,73 +70,75 @@
         }
     %>
     <header>
-       <div class="logo">
-           <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
-       </div>
-       <div class="button-container">
-           <input type="submit" value="HOME" onclick="navegarInternamente('https://spdique.com/')"/>
-            <input type="submit" value="CREAR CITA" onclick="navegarInternamente('Formulario.jsp')"/>
-            <input type="submit" value="LISTAR USUARIOS" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
-            <input type="submit" value="LISTADOS DE CITAS" onclick="navegarInternamente('./Listados_Citas.jsp')"/>
-            <input type="submit" value="CERRAR SESIÓN" onclick="window.location.href='../CerrarSeccion'"/>
-       </div>
-   </header>
+        <div class="logo">
+            <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
+        </div>
+        <div class="button-container">
+            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
+           <%
+                Object rolObj = session.getAttribute("Rol");
+                if (rolObj != null && ((Integer) rolObj) == 1) {
+            %>
+                <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
+                <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
+            <%
+                }
+            %>
+            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
+            <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
+        </div>
+    </header>
     <body>
         <div class="Contenedor">
             <div class="version">
-                <h1>CREAR USUARIO</h1>
+                <h1>Crear usuario</h1>
             </div>
             <form name="LoginForm" action="../CrearUsuarioServlet" method="POST" class="Formulario">
-                <label for="Usuario">Nombre de usuario: </label>
+                <label for="Usuario">Nombre de usuario:</label>
                 <input type="text" id="Usuario" name="Usuario" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" required />
 
-                <label for="Contrasena">Contraseña: </label>
+                <label for="Contrasena">Contraseña:</label>
                 <input type="password" id="Contrasena" name="Contrasena" required />
-                
-                <label for="NitCliente">Nit cliente</label>
+
+                <label for="NitCliente">Nit cliente:</label>
                 <input type="text" id="NitCliente" name="NitCliente" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
-                
-                <label for="Email">Correo</label>
-                <input type="email" id="Email" name="Email" required>
-                
-                <label for="TipoRol">ROL</label>
-                <select id="TipoRol" id="TipoRol" name="TipoRol" required>
+
+                <label for="Email">Correo:</label>
+                <input type="email" id="Email" name="Email" required />
+
+                <label for="TipoRol">Rol:</label>
+                <select id="TipoRol" name="TipoRol" required>
                     <option value="1">Administrador</option>
                     <option value="2">Operador</option>
-                    <option value="0">Porteria</option>
+                    <option value="0">Portería</option>
                     <option value="4" disabled>Consultor</option>
                 </select>
-                
-                <input type="submit" value="Crear usuario" />
-                
-            </form>
-            
-            <%
-                    String mensaje = (String) session.getAttribute("Error");
-                    Boolean Estado = (Boolean) session.getAttribute("Activo");
-                %>
 
-                <%
-                    if(Estado != null){
-                        if(Estado){
-                %>
-                            <div id="deleteModal" class="modal" style="display: flex;">
-                                <div class="modal-content">
-                                    <span class="close" onclick="closeModal()">&times;</span>
-                                    <h2><%= mensaje %></h2>
-                                    <div class="modal-actions">
-                                        <form action="../EliminarContrato" method="post">
-                                            <input type="hidden" name="contratoId" id="contratoId">
-                                            <button type="button" onclick="closeModal()" class="cancel-btn">Cerrar</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                <%
-                            session.setAttribute("Activo", false);
-                        }
-                    }
-                %>
+                <input type="submit" value="Crear usuario" />
+            </form>
+
+            <%
+                String mensaje = (String) session.getAttribute("Error");
+                Boolean Estado = (Boolean) session.getAttribute("Activo");
+                if (Estado != null && Estado) {
+            %>
+            <div id="deleteModal" class="modal" style="display: flex;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h2><%= mensaje %></h2>
+                    <div class="modal-actions">
+                        <form action="../EliminarContrato" method="post">
+                            <input type="hidden" name="contratoId" id="contratoId" />
+                            <button type="button" onclick="closeModal()" class="cancel-btn">Cerrar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <%
+                    session.setAttribute("Activo", false);
+                }
+            %>
         </div>
     </body>
 </html>

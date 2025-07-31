@@ -109,18 +109,19 @@
             <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
         </div>
         <div class="button-container">
-            <input type="submit" value="HOME" onclick="navegarInternamente('https://spdique.com/')"/>
+            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
            <%
                 Object rolObj = session.getAttribute("Rol");
                 if (rolObj != null && ((Integer) rolObj) == 1) {
             %>
-                <input type="submit" value="CREAR USUARIO" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                <input type="submit" value="CREAR CITA" onclick="navegarInternamente('Formulario.jsp')"/>
+                <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
+                <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <%
                 }
             %>
-            <input type="submit" value="LISTADOS DE CITAS" onclick="navegarInternamente('./Listados_Citas.jsp')"/>
-            <input type="submit" value="CERRAR SESIÓN" onclick="window.location.href='../CerrarSeccion'"/>
+            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
+            <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
     </header>
     <body>
@@ -128,19 +129,20 @@
             <table id="myTable" class="display">
                 <%
                     ListadoUsuarios lu = new ListadoUsuarios();
-                    List<Usuario> ListadoUsuarios = lu.Obtenerusuarios();
-                    if(ListadoUsuarios.isEmpty()){
+                    List<Usuario> listadoUsuarios = lu.Obtenerusuarios();
+                    String usuarioActual = (String) session.getAttribute("Usuario");
+                    if (listadoUsuarios.isEmpty()) {
                 %>
-                    <h1>⚠ No hay Usuarios en el momento.</h1>
+                    <h1>⚠ No hay usuarios en el momento.</h1>
                 <%
-                    }else{
+                    } else {
                 %>
                     <h2>📋 Lista de usuarios</h2>
                     <thead>
                         <tr>
                             <th>Usuario</th>
-                            <th>Nit</th>
-                            <th>Codigo usuario</th>
+                            <th>NIT</th>
+                            <th>Código usuario</th>
                             <th>Email</th>
                             <th>Rol</th>
                             <th>Estado</th>
@@ -149,57 +151,56 @@
                     </thead>
                     <tbody>
                 <%
-                    for(Usuario listado: ListadoUsuarios){
-                        String UsuarioAntiguo = (String) session.getAttribute("Usuario");
-                        if(!UsuarioAntiguo.equals(listado.getUsername()))
-                        {
+                        for (Usuario usuario : listadoUsuarios) {
+                            if (!usuarioActual.equals(usuario.getUsername())) {
                 %>
-                                <tr>
-                                    <td data-label="Usuario"><%= listado.getUsername()%></td>
-                                    <td data-label="Nit"><%= listado.getNit_cliente() %></td>
-                                    <td data-label="Codigo Usuario"><%= listado.getCodcia_user() %></td>
-                                    <td data-label="Correo"><%= listado.getEmail() %></td>
-                                    <td data-label="Rol"><%= listado.getRol() == 2 ? "Operador" : (listado.getRol() == 1 ? "Administrador" : "Porteria") %></td>
-                                    <td data-label="Estado"><%= listado.getEstado() == 0 ? "Activo" : "Inactivo"  %></td>
-                                    <td>
-                                        <div class="Botones_tabla">
-                                            <input type="button" 
-                                                   onclick="window.location.href='./ActualizarUsuario.jsp?usuario=<%= listado.getUsername() %>'"
-                                                   value="📋 Actualizar Usuario">
-                                        </div>
-                                    </td>
-                                </tr>
+                        <tr>
+                            <td data-label="Usuario"><%= usuario.getUsername() %></td>
+                            <td data-label="NIT"><%= usuario.getNit_cliente() %></td>
+                            <td data-label="Código usuario"><%= usuario.getCodcia_user() %></td>
+                            <td data-label="Correo"><%= usuario.getEmail() %></td>
+                            <td data-label="Rol">
+                                <%= usuario.getRol() == 2 ? "Operador" : (usuario.getRol() == 1 ? "Administrador" : "Portería") %>
+                            </td>
+                            <td data-label="Estado"><%= usuario.getEstado() == 0 ? "Activo" : "Inactivo" %></td>
+                            <td>
+                                <div class="Botones_tabla">
+                                    <input type="button" 
+                                           onclick="window.location.href='./ActualizarUsuario.jsp?usuario=<%= usuario.getUsername() %>'" 
+                                           value="📋 Actualizar usuario">
+                                </div>
+                            </td>
+                        </tr>
                 <%
-                    }}}
+                            }
+                        }
+                    }
                 %>
-                        </tbody>
+                    </tbody>
             </table>
-            <%
-                String mensaje = (String) session.getAttribute("Error");
-                Boolean Estado = (Boolean) session.getAttribute("Activo");
-            %>
 
             <%
-                if(Estado != null){
-                    if(Estado){
+                String mensaje = (String) session.getAttribute("Error");
+                Boolean estado = (Boolean) session.getAttribute("Activo");
+                if (estado != null && estado) {
             %>
-                        <div id="deleteModal" class="modal" style="display: flex;">
-                            <div class="modal-content">
-                                <span class="close" onclick="closeModal()">&times;</span>
-                                <h2><%= mensaje %></h2>
-                                <div class="modal-actions">
-                                    <form action="../EliminarContrato" method="post">
-                                        <input type="hidden" name="contratoId" id="contratoId">
-                                        <button type="button" onclick="closeModal()" class="cancel-btn">Cerrar</button>
-                                    </form>
-                                </div>
-                            </div>
+                <div id="deleteModal" class="modal" style="display: flex;">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <h2><%= mensaje %></h2>
+                        <div class="modal-actions">
+                            <form action="../EliminarContrato" method="post">
+                                <input type="hidden" name="contratoId" id="contratoId">
+                                <button type="button" onclick="closeModal()" class="cancel-btn">Cerrar</button>
+                            </form>
                         </div>
+                    </div>
+                </div>
             <%
-                        session.setAttribute("Activo", false);
-                    }
+                    session.setAttribute("Activo", false);
                 }
             %>
         </div>
     </body>
+
 </html>

@@ -63,19 +63,19 @@
             <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
         </div>
         <div class="button-container">
-            <input type="submit" value="HOME" onclick="navegarInternamente('https://spdique.com/')"/>
-            <%
+            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
+           <%
                 Object rolObj = session.getAttribute("Rol");
                 if (rolObj != null && ((Integer) rolObj) == 1) {
             %>
-                <input type="submit" value="CREAR USUARIO" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                <input type="submit" value="LISTAR USUARIOS" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
+                <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
+                <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <%
                 }
             %>
-            <input type="submit" Value="MOSTRAR OPERACIONES ACTIVAS" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
-            <input type="submit" value="LISTADOS DE CITAS" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
-            <input type="submit" value="CERRAR SESIÓN" onclick="window.location.href='../CerrarSeccion'"/>
+            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
+            <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
     </header>
 
@@ -90,22 +90,22 @@
 
             if(ListadoCitas.isEmpty()){
         %>
-            <h1>⚠ No hay Citas disponibles en este momento.</h1>
+            <h1>⚠ No hay citas disponibles en este momento.</h1>
         <%
             } else {
         %>
-            <h2>📋 Lista de Citas Por Registros Por Camiones</h2>
+            <h2>📋 Lista de citas por registros por camiones</h2>
             <form id="formularioCitas">
                 <table id="myTable" class="display">
                     <thead>
                         <tr>
-                            <th>PLACA</th>
-                            <th>CEDULA CONDUCTOR</th>
-                            <th>NOMBRE CONDUCTOR</th>
-                            <th>MANIFIESTO</th>
-                            <th>ESTADO</th>
-                            <th>FECHA</th>
-                            <th>SELECCIONAR</th>
+                            <th>Placa</th>
+                            <th>Cedula conductor</th>
+                            <th>Nombre conductor</th>
+                            <th>Manifiesto</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th>Seleccionar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -126,7 +126,7 @@
                                             <td><%= listado.getCedConductor() %></td>
                                             <td><%= listado.getNomConductor() %></td>
                                             <td><%= listado.getManifiesto() %></td>
-                                            <td>PROGRAMADA</td>
+                                            <td><%= listado.getEstado()%></td>
                                             <td><%= fechaSinZona %></td>
                                             <td>
                                                 <input type="checkbox" name="vehiculos"
@@ -174,7 +174,7 @@
                 %>
                     <input type="button" 
                         onclick="abrirFormularioCitaMultiple()"
-                        value="📋 Programar Cita a Seleccionados">
+                        value="📋 Programar cita a seleccionados">
                 <%
                     } else {
                 %>
@@ -214,11 +214,11 @@
                 title: '📋 Programar Cita (Múltiples)',
                 html:
                     '<div style="display: flex; align-items: center; width: 100%; margin-bottom: 10px;">' +
-                        '<label for="fechaCita" style="width: 150px; text-align: left;"><strong>Fecha de Cita:</strong></label>' +
+                        '<label for="fechaCita" style="width: 150px; text-align: left;"><strong>Fecha de cita:</strong></label>' +
                         `<input id="fechaCita" type="datetime-local" class="swal2-input" style="flex: 1;" value="<%= fechaParaInput %>">` +
                     '</div>' +
                     '<div style="display: flex; align-items: center; width: 100%;">' +
-                        '<label for="numeroformulario" style="width: 150px; text-align: left;"><strong>Número De Formulario Asignado:</strong></label>' +
+                        '<label for="numeroformulario" style="width: 150px; text-align: left;"><strong>Número de formulario asignado:</strong></label>' +
                         '<input id="numeroformulario" type="text" class="swal2-input" style="flex: 1;" ' +
                         'pattern="\\d+" inputmode="numeric" oninput="this.value = this.value.replace(/\\D/g, \'\')" ' +
                         'placeholder="Solo números">' +

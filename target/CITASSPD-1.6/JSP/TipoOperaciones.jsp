@@ -96,18 +96,19 @@
             <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
         </div>
         <div class="button-container">
-            <input type="submit" value="HOME" onclick="navegarInternamente('https://spdique.com/')"/>
+            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
            <%
                 Object rolObj = session.getAttribute("Rol");
                 if (rolObj != null && ((Integer) rolObj) == 1) {
             %>
-                <input type="submit" value="CREAR USUARIO" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                <input type="submit" value="LISTAR USUARIOS" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
+                <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
+                <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <%
                 }
             %>
-            <input type="submit" value="LISTADOS DE CITAS" onclick="navegarInternamente('./Listados_Citas.jsp')"/>
-            <input type="submit" value="CERRAR SESIÓN" onclick="window.location.href='../CerrarSeccion'"/>
+            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
+            <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
     </header>
     
@@ -117,7 +118,7 @@
     %>
     <body>
         <div class="contenedor">
-            <input type="submit" value="LISTADOS DE CITAS" onclick="navegarInternamente('./Listados_Citas.jsp')"/>
+            <input type="submit" value="Listado citas" onclick="navegarInternamente('./Listados_Citas.jsp')"/>
         </div>
     </body>
     <%

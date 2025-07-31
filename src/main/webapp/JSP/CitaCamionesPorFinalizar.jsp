@@ -17,7 +17,7 @@
 <!DOCTYPE html>
 <html>
     <meta charset="UTF-8">
-    <title>Listados Citas A Finalizar SPD</title>
+    <title>Listados citas a finalizar SPD</title>
     <link rel="stylesheet" href="../CSS/Listado_Citas.css"/>
     <link rel="stylesheet" href="../CSS/Login.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -60,52 +60,82 @@
                 <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
             </div>
             <div class="button-container">
-                <input type="submit" value="HOME" onclick="navegarInternamente('https://spdique.com/')"/>
-                <%
+                <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
+               <%
                     Object rolObj = session.getAttribute("Rol");
                     if (rolObj != null && ((Integer) rolObj) == 1) {
                 %>
-                    <input type="submit" value="CREAR USUARIO" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                    <input type="submit" value="LISTAR USUARIOS" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
+                    <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
+                    <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
                 <%
                     }
                 %>
-                <input type="submit" Value="MOSTRAR OPERACIONES ACTIVAS" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
-                <input type="submit" value="LISTADOS DE CITAS" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
-                <input type="submit" value="CERRAR SESIÓN" onclick="window.location.href='../CerrarSeccion'"/>
+                <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+                <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
+                <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
             </div>
         </header>
-        <div class="Content">
+        <div>
+            <style>
+                .content-container {
+                    max-width: 1200px; /* puedes ajustarlo a 100%, 90vw, etc. */
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #f4f4f4;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    overflow-x: auto;
+                }
+
+                /* Responsive ajustes */
+                @media (max-width: 768px) {
+                    .content-container {
+                        padding: 15px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .content-container {
+                        padding: 10px;
+                    }
+                }
+            </style>
+            <div class="content-container">
             <%
                 String registro = request.getParameter("registro");
+                String rol = request.getParameter("rol");
                 ListadoDAO ldao = new ListadoDAO();
 
                 ResultadoCitas rc = ldao.ObtenerContratos();
 
                 List<ListadoCItas> ListadoCitas = rc.getCitasVehiculos2();
 
+                if(rol.equals("1"))
+                {
+                
                 if(ListadoCitas.isEmpty()){
             %>
                 <h1>⚠ No hay Citas disponibles en este momento.</h1>
             <%
                 } else {
             %>
-                <h2>📋 Lista de Citas A Finalizar Por Registros De Camiones</h2>
+                <h2>📋 Lista de citas a finalizar por registros de camiones</h2>
                 <form id="formularioCitas">
                     <table id="myTable" class="display">
                         <thead>
                             <tr>
-                                <th>TIPO OPERACION</th>
-                                <th>EMPRESA TRANSPORTADORA</th>
-                                <th>PLACA</th>
-                                <th>CEDULA CONDUCTOR</th>
-                                <th>NOMBRE CONDUCTOR</th>
-                                <th>MANIFIESTO</th>
-                                <th>ESTADO</th>
-                                <th>FECHA CITA PROGRAMADA</th>
-                                <th>SELECCIONAR</th>
+                                <th>Tipo operación</th>
+                                <th>Empresa transportadora</th>
+                                <th>Placa</th>
+                                <th>Cédula conductor</th>
+                                <th>Nombre conductor</th>
+                                <th>Manifiesto</th>
+                                <th>Estado</th>
+                                <th>Fecha cita programada</th>
+                                <th>Seleccionar</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             <%
                                 for(ListadoCItas listado : ListadoCitas){
@@ -121,28 +151,6 @@
                                     
                                     if (listado.getCodCita().equals(registro)) {
                                         System.out.println(listado.getPlaca());
-                            %>              
-                                            <tr>
-                                                <td><%= listado.getTipo_Operacion() %></td>
-                                                <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                <td><%= listado.getPlaca() %></td>
-                                                <td><%= listado.getCedConductor() %></td>
-                                                <td><%= listado.getNomConductor() %></td>
-                                                <td><%= listado.getManifiesto() %></td>
-                                                <td>PROGRAMADA</td>
-                                                <td><%= fechaSinZona %></td>
-                                                <td>
-                                                    <input type="checkbox" name="vehiculos"
-                                                           data-operacion="<%= listado.getTipo_Operacion() %>"
-                                                           data-transportadora="<%= listado.getNit_Empresa_Transportadora() %>"
-                                                           data-nombre="<%= listado.getNomConductor() %>"
-                                                           data-cedula="<%= listado.getCedConductor() %>"
-                                                           data-manifiesto="<%= listado.getManifiesto() %>"
-                                                           value="<%= listado.getPlaca() %>"
-                                                           data-fecha="<%= fechaSinZona2 %>">
-                                                </td>
-                                            </tr>
-                            <%
                                         List<ListaVehiculos> vehiculos = listado.getVehiculos();
                                         if (vehiculos != null && !vehiculos.isEmpty()){
                                             for (ListaVehiculos vehiculo : vehiculos){
@@ -155,7 +163,7 @@
                                     <td><%= vehiculo.getConductorCedulaCiudadania() %></td>
                                     <td><%= vehiculo.getNombreConductor() %></td>
                                     <td><%= vehiculo.getNumManifiestoCarga() %></td>
-                                    <td> PROGRAMADA </td>
+                                    <td> <%= listado.getEstado() %> </td>
                                     <td><%= vehiculo.getFechaOfertaSolicitud() %></td>
                                     <%
                                         String formattedDate = "";
@@ -205,7 +213,7 @@
                     %>
                         <input type="button" 
                             onclick="abrirFormularioCitaMultiple()"
-                            value="📋 Finalizar Cita a los selecionados">
+                            value="📋 Finalizar cita a los carro tanques seleccionados">
                     <%
                         } else {
                     %>
@@ -217,8 +225,112 @@
                     %>
                 </div>
             <%
-                }
+                }}else{
+                    if(ListadoCitas.isEmpty()){
             %>
+                <h1>⚠ No hay Citas disponibles en este momento.</h1>
+            <%
+                } else {
+            %>
+                <h2>📋 Lista de citas a finalizar por registros de camiones</h2>
+                <form id="formularioCitas">
+                    <table id="myTable" class="display">
+                        <thead>
+                            <tr>
+                                <th>Tipo operación</th>
+                                <th>Empresa transportadora</th>
+                                <th>Placa</th>
+                                <th>Cédula conductor</th>
+                                <th>Nombre conductor</th>
+                                <th>Manifiesto</th>
+                                <th>Estado</th>
+                                <th>Fecha cita programada</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <%
+                                for(ListadoCItas listado : ListadoCitas){
+                                    String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
+                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
+                                    LocalDateTime ldt = odt.toLocalDateTime();
+                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+                                    String fechaSinZona = ldt.format(formatter);
+                                    String fechaSinZona2 = ldt.format(formatter2);
+                                    
+                                    if (listado.getCodCita().equals(registro)) {
+                                        System.out.println(listado.getPlaca());
+                                        List<ListaVehiculos> vehiculos = listado.getVehiculos();
+                                        if (vehiculos != null && !vehiculos.isEmpty()){
+                                            for (ListaVehiculos vehiculo : vehiculos){
+                                             if(vehiculo.getFechaOfertaSolicitud() != null ){
+                            %>
+                                <tr>
+                                    <td><%= listado.getTipo_Operacion() %></td>
+                                    <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                    <td><%= vehiculo.getVehiculoNumPlaca() %></td>
+                                    <td><%= vehiculo.getConductorCedulaCiudadania() %></td>
+                                    <td><%= vehiculo.getNombreConductor() %></td>
+                                    <td><%= vehiculo.getNumManifiestoCarga() %></td>
+                                    <td> <%= listado.getEstado() %> </td>
+                                    <td><%= vehiculo.getFechaOfertaSolicitud() %></td>
+                                    <%
+                                        String formattedDate = "";
+                                        try {
+                                            String originalDate = vehiculo.getFechaOfertaSolicitud(); // Ejemplo: "Jul 25, 2025 2:21:00 PM"
+
+                                            // Formato original
+                                            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm:ss a", Locale.ENGLISH);
+
+                                            // Formato deseado
+                                            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm:ss a", Locale.ENGLISH);
+
+                                            // Parsear y formatear
+                                            LocalDateTime date = LocalDateTime.parse(originalDate, inputFormatter);
+                                            formattedDate = date.format(outputFormatter);
+                                        } catch (Exception e) {
+                                            formattedDate = "Fecha inválida";
+                                        }
+
+                                        //System.out.println(formattedDate); // Salida: 2025-07-22T10:40:00
+                                    %>
+                                    
+                                </tr>
+                            <%
+                                            }}
+                                        }
+                                    }
+                                }
+                            %>
+                        </tbody>
+                    </table>
+                </form>
+                <div style="margin-top: 20px; width: auto; height: auto;" class="Botones_tabla">
+                    <%
+                        Object rolObject1 = session.getAttribute("Rol");
+                        if (rolObject1 != null && ((Integer) rolObject1) == 1)
+                        {
+                    %>
+                        <input type="button" 
+                            onclick="abrirFormularioCitaMultiple()"
+                            value="📋 Finalizar cita a los carro tanques seleccionados">
+                    <%
+                        } else {
+                    %>
+                        <input type="button" 
+                            onclick="navegarInternamente('./Listados_Citas.jsp')"
+                            value="⟵ Volver">
+                    <%
+                        }
+                    %>
+                </div>
+            <%
+                }}
+            %>
+            </div>
         </div>
     </body>
     <script>
@@ -237,12 +349,12 @@
             }
 
             if (selectedCheckboxes.length !== 1) {
-                Swal.fire('⚠ Debes seleccionar solo un vehiculo');
+                Swal.fire('⚠ Debes seleccionar solo un vehículo');
                 return;
             }
 
             Swal.fire({
-                title: '📋 Finalizar Citas De Camiones',
+                title: '📋 Finalizar citas de camiones',
                 html:
                     '<div style="display: flex; align-items: center; width: 100%; margin-bottom: 10px;">' +
                         '<label for="fechacitainside" style="width: 150px; text-align: left;"><strong>Fecha de la cita creada por inside</strong></label>' +
@@ -293,15 +405,14 @@
                         return false;
                     }
                     if (!pentrada) {
-                        Swal.showValidationMessage('⚠ Debes escribir el peso de entrada del camion');
+                        Swal.showValidationMessage('⚠ Debes escribir el peso de entrada del camión');
                         return false;
                     }
                     if (!psalida){
-                        Swal.showValidationMessage('⚠ Debes escribir el peso de salida del camion');
+                        Swal.showValidationMessage('⚠ Debes escribir el peso de salida del camión');
                         return false;
                     }
-                    if(!fechacitainside)
-                    {
+                    if(!fechacitainside) {
                         Swal.showValidationMessage('⚠ Debes escribir la fecha de la cita del INSIDE');
                     }
 

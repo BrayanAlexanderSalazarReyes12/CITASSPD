@@ -50,6 +50,8 @@ public class CerrarSeccion extends HttpServlet {
         session.setAttribute("PrecioArticulo", null);
         session.setAttribute("Remolque", null);
         session.setAttribute("remolqueExtras", null);
+        session.setAttribute("tipoproducto", null);
+        session.setAttribute("PesoProducto", null);
         
         if (cookies != null) {
             for (Cookie cookie : cookies) {

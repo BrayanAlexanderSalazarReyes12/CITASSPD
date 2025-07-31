@@ -34,6 +34,9 @@ public class CitaBascula {
     private String tanque;
     private List<VehiculoDB> vehiculos;
 
+    public CitaBascula() {
+    }
+    
     public CitaBascula(String nitEmpBascula, String usuCreacion, String placa, String cedConductor, String nomConductor, String fechaCita, String manifiesto, int nmformZf, String nitTransportadora, String estado, int variosVehiculos, String producto, int cantProducto, String facturaRemision, double precioUsd, String archivo, String observaciones, String operacion, String remolque, String barcaza, String tanque, List<VehiculoDB> vehiculos) {
         this.nitEmpBascula = nitEmpBascula;
         this.usuCreacion = usuCreacion;

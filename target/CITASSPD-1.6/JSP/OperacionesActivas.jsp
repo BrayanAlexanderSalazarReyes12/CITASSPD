@@ -188,18 +188,19 @@
             <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
         </div>
         <div class="button-container">
-            <input type="submit" value="HOME" onclick="navegarInternamente('https://spdique.com/')"/>
+            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
            <%
                 Object rolObj = session.getAttribute("Rol");
                 if (rolObj != null && ((Integer) rolObj) == 1) {
             %>
-                <input type="submit" value="CREAR USUARIO" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                <input type="submit" value="LISTAR USUARIOS" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
+                <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
+                <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <%
                 }
             %>
-            <input type="submit" value="LISTADOS DE CITAS" onclick="navegarInternamente('./Listados_Citas.jsp')"/>
-            <input type="submit" value="CERRAR SESIÓN" onclick="window.location.href='../CerrarSeccion'"/>
+            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
+            <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
     </header>
     
@@ -208,8 +209,8 @@
             <table border="1">
                 <thead>
                     <tr>
-                        <th>Tipo De Operaciones</th>
-                        <th>Agendar citas solo para Carro Tanques</th>
+                        <th>Tipo de operaciones</th>
+                        <th>Agendar citas solo para carrotanques</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -244,7 +245,7 @@
                                 %>
                                         <input 
                                             type="button" 
-                                            value="Agendar Cita" 
+                                            value="Agendar cita" 
                                             onclick="window.location.href='../TiposProductos?ordenOperacion=<%= ordenOp %>&operacion=<%= Tipooperacion.get(u) %>'"
                                         />
                                 <%
@@ -257,7 +258,7 @@
                                 %>
                                             <input 
                                                 type="button" 
-                                                value="Agendar Cita" 
+                                                value="Agendar cita" 
                                                 onclick="window.location.href='../TipoProductosBarcaza?ordenOperacion=<%= ordenOp %>'"
                                             />
                                 <%
@@ -265,7 +266,7 @@
                                 %>
                                             <input 
                                                 type="button" 
-                                                value="Agendar Cita" 
+                                                value="Agendar cita" 
                                                 onclick="window.location.href='../TipoProductosBarcaza?ordenOperacion=<%= ordenOp %>'"
                                             />
                                 <%

@@ -249,7 +249,17 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 Barcades
         );
         
-        CitaBascula cb = new CitaBascula(
+        System.out.println("empresaUsuario:"+usuario);
+        
+        CitaBascula cb = new CitaBascula();
+        // Vehículos adicionales
+        if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
+            
+            VehiculoDB vdb2 = new VehiculoDB(placa, Cedula, nombre, fecha, Manifiesto);
+            
+            vehiculosDB.add(vdb2);
+            
+            cb = new CitaBascula(
                 usuario,
                 empresaUsuario,
                 placa,Cedula,
@@ -271,7 +281,38 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 nombreBarcaza,
                 nombreTanque,
                 vehiculosDB
-        );
+            );
+        }else{
+            List<VehiculoDB> vehiculosDB1 = new ArrayList<VehiculoDB>();
+            
+            VehiculoDB vdb1 = new VehiculoDB(placa, Cedula, nombre, fecha, Manifiesto);
+            
+            vehiculosDB1.add(vdb1);
+            
+            cb = new CitaBascula(
+                usuario,
+                empresaUsuario,
+                placa,Cedula,
+                nombre,
+                fecha,
+                Manifiesto,
+                0,
+                Nitempresa,
+                "PROGRAMADA",
+                vehiculos.size(),
+                TipoProducto,
+                Integer.parseInt(cantidadproducto),
+                FacturaComercial,
+                Double.parseDouble(PrecioArticulo),
+                facturacomerpdf,
+                Observaciones,
+                Operaciones,
+                Remolque,
+                nombreBarcaza,
+                nombreTanque,
+                vehiculosDB1
+            );
+        }
         
         //Convertir el Objeto a JSON
         Gson gson = new Gson();
@@ -350,6 +391,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                             session.setAttribute("remolqueExtras", remolqueExtras);
                             session.setAttribute("PesoProducto", PesoProducto);
                             session.setAttribute("Barcades", Barcades);
+                            session.setAttribute("tipoproducto", producto);
                             
                             String OPERACION = "";
         
@@ -482,6 +524,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                             session.setAttribute("remolqueExtras", remolqueExtras);
                             session.setAttribute("PesoProducto", PesoProducto);
                             session.setAttribute("Barcades", Barcades);
+                            session.setAttribute("tipoproducto", producto);
                             
                             String OPERACION = "";
         

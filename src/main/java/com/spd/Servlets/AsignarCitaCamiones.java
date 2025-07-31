@@ -43,7 +43,7 @@ public class AsignarCitaCamiones extends HttpServlet {
                 String fecha = request.getParameter("fecha");         // Ej: "2025-06-24T08:46:00-05:00"
                 String registro = request.getParameter("registro");   // Ej: "CTA000000000001"
                 String fmm = request.getParameter("fmm");
-
+                
                 // Decodificar el JSON
                 String vehiculosJson = URLDecoder.decode(vehiculosJsonEncoded, StandardCharsets.UTF_8.name());
 
@@ -54,13 +54,13 @@ public class AsignarCitaCamiones extends HttpServlet {
 
                 // Construir lista de objetos completos
                 List<Map<String, String>> listaFinal = new ArrayList<>();
-
+                System.out.println(fecha);
                 for (Map<String, String> vehiculo : vehiculos) {
                     Map<String, String> data = new HashMap<>();
                     data.put("codigo", registro);
                     data.put("estado", "Asignado");
                     data.put("cedula", vehiculo.get("cedula"));
-                    data.put("fe_aprobacion", fecha);
+                    data.put("fe_aprobacion", fecha+":00-05:00");
                     data.put("nom_conductor", vehiculo.get("nombre"));
                     data.put("placa", vehiculo.get("placa"));
                     data.put("nmform_zf", fmm);
@@ -81,14 +81,7 @@ public class AsignarCitaCamiones extends HttpServlet {
 
                     response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");
                     
-                    /* Responder al navegador
-                    response.setContentType("application/json");
-                    response.setCharacterEncoding("UTF-8");
-
-                    PrintWriter out = response.getWriter();
-                    out.print(apiResponse);
-                    out.flush();
-                    */
+                    
                 } catch (IOException e) {
                     System.err.println("Error al llamar API: " + e.getMessage());
 

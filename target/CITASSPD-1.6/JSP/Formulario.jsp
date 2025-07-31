@@ -4,6 +4,9 @@
     Author     : brayan alexander salazar reyes
 --%>
 
+<%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.time.LocalDateTime"%>
+<%@page import="java.time.OffsetDateTime"%>
 <%@page import="java.net.URLDecoder"%>
 <%@page import="com.google.gson.JsonObject"%>
 <%@page import="java.util.Map"%>
@@ -308,17 +311,15 @@
         <link rel="stylesheet" href="./CSS/Formulario.css"/>
         <link rel="stylesheet" href="./CSS/Styles_modal.css"/>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <title>Citas-SPD</title>
+        <title>Solicitud de Citas - SPD</title>
     </head>
     
     <script>
-        // Función para obtener parámetros de la URL
         function getUrlParam(param) {
             const params = new URLSearchParams(window.location.search);
             return params.get(param);
         }
 
-        // Verifica si el parámetro "error" está presente y es igual a 1
         window.addEventListener('DOMContentLoaded', () => {
             const error = getUrlParam("error");
             const mensaje = getUrlParam("mensaje");
@@ -332,7 +333,7 @@
             }
         });
     </script>
-    
+
     <%
         Cookie[] cookies = request.getCookies();
         response.setContentType("text/html");
@@ -350,11 +351,9 @@
                 }
             }
         }
-        
+
         Boolean HayOperaciones = (Boolean) session.getAttribute("hayOperacionValida");
-        
-        
-        
+
         if (HayOperaciones != null && !HayOperaciones){
             response.sendRedirect("./TipoOperaciones.jsp");
         }
@@ -363,130 +362,121 @@
             response.sendRedirect(request.getContextPath());
         }
     %>
-    
-    
+
     <header>
         <div class="logo">
             <img src="./Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
         </div>
         <div class="button-container">
-            <input type="submit" value="HOME" onclick="navegarInternamente('https://spdique.com/')"/>
+            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
            <%
                 Object rolObj = session.getAttribute("Rol");
                 if (rolObj != null && ((Integer) rolObj) == 1) {
             %>
-                <input type="submit" value="CREAR USUARIO" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                <input type="submit" value="LISTAR USUARIOS" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
+                <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
+                <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <%
                 }
             %>
-            <input type="submit" Value="MOSTRAR OPERACIONES ACTIVAS" onclick="navegarInternamente('./JSP/OperacionesActivas.jsp')">
-            <input type="submit" value="LISTADOS DE CITAS" onclick="navegarInternamente('./JSP/Listados_Citas.jsp')"/>
-            <input type="submit" value="CERRAR SESIÓN" onclick="window.location.href='./CerrarSeccion'"/>
+            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('./JSP/OperacionesActivas.jsp')">
+            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('./JSP/Listados_Citas.jsp')"/>
+            <input type="submit" value="Cerrar Sesión" onclick="window.location.href='./CerrarSeccion'"/>
         </div>
     </header>
+
     <body>
         <div class="Contenedor">
-            <h1>Solicitud de citas</h1>
+            <h1>Formulario de Solicitud de Citas</h1>
             <form name="Formulario_Citas" action="./Formulario_SPD_Servlet" method="POST"  enctype="multipart/form-data" class="formulario-citas" onsubmit="return desactivarBotonEnvio(this)">
+
                 <div class="form-group">
-                    <label for="Cliente">Cliente </label>
+                    <label for="Cliente">NIT del Cliente:</label>
                     <%
                         String nit = URLDecoder.decode((String) DATA, "UTF-8");
-                        nit = nit = nit.replace(".", "").replace("-", "").replace("–", "");
+                        nit = nit.replace(".", "").replace("-", "").replace("–", "");
                     %>
+                    <input id="Cliente" type="text" name="Cliente" value="<%= !DATA.equals("") ? nit : session.getAttribute("clienteForm") %>" readonly />
+                </div>
 
-                    <input id="Cliente" type="text" name="Cliente" value="<%= DATA != "" ? nit : session.getAttribute("clienteForm") %>" readonly />
-                </div>
-                    
                 <div class="form-group">
-                    <label for="Operaciones">Operaciones: </label>
+                    <label for="Operaciones">Operación Asociada:</label>
                     <input id="Operaciones" type="text" name="Operaciones" value="<%= operacion %>" readonly />
-                    <!--
-                    <select name="Operaciones" required>
-                        <option value="" disabled <%= session.getAttribute("operacionesForm") == null ? "selected" : "" %>>Seleccione un valor</option>
-                        <option value="operacion de cargue" <%= "operacion de cargue".equals(session.getAttribute("operacionesForm")) ? "selected" : "" %>>Operación de cargue</option>
-                        <option value="operacion de descargue" <%= "operacion de descargue".equals(session.getAttribute("operacionesForm")) ? "selected" : "" %>>Operación de descargue</option>
-                    </select>
-                    -->
                 </div>
-                                
+
                 <div class="form-group">
-                    <label for="Fecha">Fecha y Hora de ingreso: </label>
+                    <label for="Fecha">Fecha y Hora de Ingreso al Puerto:</label>
                     <%
                         Date date = new Date();
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
                         String fechaActual = sdf.format(date);
+                        String fecha_sesion = (String) session.getAttribute("fechaForm");
+                        String fechaFormateada = "";
+                        if (fecha_sesion != null) {
+                            OffsetDateTime odt = OffsetDateTime.parse(fecha_sesion);
+                            LocalDateTime ldt = odt.toLocalDateTime();
+                            fechaFormateada = ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+                        }
                     %>
-                    <input id="Fecha" type="datetime-local" name="fecha"
-                        value="<%= session.getAttribute("fechaForm") != null ? session.getAttribute("fechaForm") : fechaActual %>" required/>
+                    <input id="Fecha" type="datetime-local" name="fecha" value="<%= fecha_sesion != null ? fechaFormateada : fechaActual %>" required/>
                 </div>
 
                 <div class="form-group">
-                    <label for="Verificacion">¿Vas a registrar varios camiones de la misma empresa transportadora? </label>
-                    
+                    <label for="Verificacion">¿Desea registrar varios camiones de la misma empresa transportadora?</label>
                     <select id="Verificacion" name="Verificacion" onchange="mostrarCamionesExtra()" required>
-                        <option value="" disabled <%= session.getAttribute("verificacionForm") == null ? "selected" : "" %>>Seleccione un valor</option>
-                        <option value="Si" <%= "Si".equals(session.getAttribute("verificacionForm")) ? "selected" : "" %>>SI</option>
+                        <option value="" disabled <%= session.getAttribute("verificacionForm") == null ? "selected" : "" %>>Seleccione una opción</option>
+                        <option value="Si" <%= "Si".equals(session.getAttribute("verificacionForm")) ? "selected" : "" %>>Sí</option>
                         <option value="No" <%= "No".equals(session.getAttribute("verificacionForm")) ? "selected" : "" %>>No</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="Nitempresa">Nit empresa transportadora: </label>
-                    <input id="Nitempresa" type="text" maxlength="50" name="Nitempresa"
-                           value="<%= session.getAttribute("nitForm") != null ? session.getAttribute("nitForm") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
-                </div>
-                
-                <div class="form-group">
-                    <label for="Cedula">Cédula Conductor: </label>
-                    <input id="Cedula" type="text" maxlength="20" name="Cedula"
-                           value="<%= session.getAttribute("cedulaForm") != null ? session.getAttribute("cedulaForm") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
-                </div>
-                
-                <div class="form-group">
-                    <label for="NombreConductor">Nombre Completo Del Conductor</label>
-                    
-                    <input id="NombreConductor" type="text" name="Nombre"
-                           value="<%= session.getAttribute("nombreconductor") != null ? session.getAttribute("nombreconductor") : "" %>" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '').replace(/\s+g, ' ').trim()" required/>
-                </div>
-                
-                <div class="form-group">
-                    <label for="Placa">Ingrese placa de vehículo: </label>
-                    <input id="Placa" type="text" name="Placa"
-                    value="<%= session.getAttribute("placaForm") != null ? session.getAttribute("placaForm") : "" %>"
-                    pattern="[A-Z]{3,4}[0-9]{3,4}"
-                    title="Formato: ABC123 o ABCD1234"
-                    required />
-                </div>
-                    
-                <div class="form-group">
-                    <label for="Remolque">Ingrese el numero del remolque: </label>
-                    <input id="Remolque" type="text" name="Remolque"
-                    value="<%= session.getAttribute("Remolque") != null ? session.getAttribute("Remolque") : "" %>"
-                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" 
-                    required/>
+                    <label for="Nitempresa">NIT de la Empresa Transportadora:</label>
+                    <input id="Nitempresa" type="text" maxlength="50" name="Nitempresa" value="<%= session.getAttribute("nitForm") != null ? session.getAttribute("nitForm") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
                 </div>
 
                 <div class="form-group">
-                    <label for="manifiesto">N° Autorización manifiesto: </label>
-                    <input id="manifiesto" type="text" maxlength="50" name="Manifiesto"
-                           value="<%= session.getAttribute("manifiestoForm") != null ? session.getAttribute("manifiestoForm") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
+                    <label for="Cedula">Cédula del Conductor:</label>
+                    <input id="Cedula" type="text" maxlength="20" name="Cedula" value="<%= session.getAttribute("cedulaForm") != null ? session.getAttribute("cedulaForm") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="tipoProducto">Tipo de producto:</label>
+                    <label for="NombreConductor">Nombre Completo del Conductor:</label>
+                    <input id="NombreConductor" type="text" name="Nombre" value="<%= session.getAttribute("nombreconductor") != null ? session.getAttribute("nombreconductor") : "" %>" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '').replace(/\s+/g, ' ').trim()" required/>
+                </div>
+
+                <div class="form-group">
+                    <label for="Placa">Placa del Vehículo:</label>
+                    <input id="Placa" type="text" name="Placa" value="<%= session.getAttribute("placaForm") != null ? session.getAttribute("placaForm") : "" %>" pattern="[A-Z]{3,4}[0-9]{3,4}" title="Formato: ABC123 o ABCD1234" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="Remolque">Número del Remolque:</label>
+                    <input id="Remolque" type="text" name="Remolque" value="<%= session.getAttribute("Remolque") != null ? session.getAttribute("Remolque") : "" %>" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" required/>
+                </div>
+
+                <div class="form-group">
+                    <label for="manifiesto">Número de Autorización del Manifiesto:</label>
+                    <input id="manifiesto" type="text" maxlength="50" name="Manifiesto" value="<%= session.getAttribute("manifiestoForm") != null ? session.getAttribute("manifiestoForm") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipoProducto">Seleccione el Tipo de Producto:</label>
+                    <%
+                        String tipoProductoSeleccionado = (String) session.getAttribute("tipoproducto");
+                    %>
                     <select id="tipoProducto" name="tipoProducto" required>
                         <option value="ninguna">Seleccione un producto</option>
                         <%
                             List<Producto> listaProductos = (List<Producto>) request.getAttribute("productos");
                             if (listaProductos != null) {
                                 for (Producto producto : listaProductos) {
+                                    String codProducto = producto.getCodProducto();
+                                    String descripcion = producto.getDescripcion();
+                                    String unidadMedida = producto.getUnidadMedida();
+                                    boolean esSeleccionado = codProducto != null && codProducto.equals(tipoProductoSeleccionado);
                         %>
-                            
-                            System.out.println(producto.getCodProducto());
-                            <option value="<%= producto.getCodProducto() %>">
-                                <%= producto.getDescripcion() %> (<%= producto.getUnidadMedida() %>)
+                            <option value="<%= codProducto %>" <%= esSeleccionado ? "selected" : "" %>>
+                                <%= descripcion %> (<%= unidadMedida %>)
                             </option>
                         <%
                                 }
@@ -494,56 +484,60 @@
                         %>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="CantidadProducto">Cantidad de producto en metros cubicos: </label>
-                    <input id="CantidadProducto" type="text" name="CantidadProducto"
-                           value="<%= session.getAttribute("CantidadProducto") != null ? session.getAttribute("CantidadProducto") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
+                    <label for="CantidadProducto">Cantidad del Producto (en m³):</label>
+                    <input id="CantidadProducto" type="text" name="CantidadProducto" value="<%= session.getAttribute("CantidadProducto") != null ? session.getAttribute("CantidadProducto") : "" %>" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); calcularTotal();" required/>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="PesoProducto">Peso Bruto en KG: </label>
-                    <input id="PesoProducto" type="text" name="PesoProducto"
-                           value="<%= session.getAttribute("PesoProducto") != null ? session.getAttribute("PesoProducto") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
+                    <label for="PesoProducto">Peso Bruto del Producto (en KG):</label>
+                    <input id="PesoProducto" type="text" name="PesoProducto" value="<%= session.getAttribute("PesoProducto") != null ? session.getAttribute("PesoProducto") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="FacturaComercial">factura Comercial o Remision: </label>
-                    <input id="FacturaComercial" type="text" name="FacturaComercial"
-                           value="<%= session.getAttribute("FacturaComercial") != null ? session.getAttribute("FacturaComercial") : "" %>" maxlength="30" oninput="this.value = this.value.replace(/[^0-9a-zA-Z]/g, '')"  required/>
+                    <label for="FacturaComercial">Número de Factura Comercial o Remisión:</label>
+                    <input id="FacturaComercial" type="text" name="FacturaComercial" value="<%= session.getAttribute("FacturaComercial") != null ? session.getAttribute("FacturaComercial") : "" %>" maxlength="30" oninput="this.value = this.value.replace(/[^0-9a-zA-Z]/g, '')" required/>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="AdjuntoDeRemision">Adjunto remisión valorizada (PDF):</label>
-                    <input type="file" id="AdjuntoDeRemision" name="AdjuntoDeRemision"
-                           accept="application/pdf" required />
-                </div>        
-                
-                <div class="form-group">
-                    <label for="PrecioArticulo">Precio Unitario En Dolares: </label>
-                    <input id="PrecioArticulo" type="text" name="PrecioArticulo"
-                           value="<%= session.getAttribute("PrecioArticulo") != null ? session.getAttribute("PrecioArticulo") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
+                    <label for="AdjuntoDeRemision">Adjuntar Remisión Valorizada (PDF):</label>
+                    <input type="file" id="AdjuntoDeRemision" name="AdjuntoDeRemision" accept="application/pdf" required />
                 </div>
-                                                
+
                 <div class="form-group">
-                    <label for="Observaciones">Observaciones: </label>
-                    <textarea id="Observaciones" name="Observaciones" rows="4" cols="50" required
-                              oninput="this.value = this.value.replace(/[^0-9a-zA-Z\s]/g, '')"><%= session.getAttribute("Observaciones") != null ? session.getAttribute("Observaciones") : session.getAttribute("operacionSeleccionada") != null ? session.getAttribute("operacionSeleccionada") : ""  %></textarea>
+                    <label for="PrecioArticulo">Precio Unitario en USD:</label>
+                    <input id="PrecioArticulo" type="text" name="PrecioArticulo" value="<%= session.getAttribute("PrecioArticulo") != null ? session.getAttribute("PrecioArticulo") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, ''); calcularTotal();" required/>
                 </div>
+
                 <div class="form-group">
-                                    </div>
-                
-               <!--Contenedor de camiones adicionales -->
+                    <label for="Observaciones">Observaciones Generales:</label>
+                    <textarea id="Observaciones" name="Observaciones" rows="4" cols="50" required oninput="this.value = this.value.replace(/[^0-9a-zA-Z\s]/g, '')"><%= session.getAttribute("Observaciones") != null ? session.getAttribute("Observaciones") : session.getAttribute("operacionSeleccionada") != null ? session.getAttribute("operacionSeleccionada") : ""  %></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="totalResultado">Valor FOB Total (USD):</label>
+                    <input id="totalResultado" type="text" name="totalResultado" value="" readonly />
+                </div>
+
+                <script>
+                    function calcularTotal() {
+                        const precio = parseFloat(document.getElementById('PrecioArticulo').value) || 0;
+                        const cantidad = parseFloat(document.getElementById('CantidadProducto').value) || 0;
+                        const total = precio * cantidad;
+                        document.getElementById('totalResultado').value = total.toFixed(2);
+                    }
+                    window.addEventListener('DOMContentLoaded', calcularTotal);
+                </script>
+
                 <div class="form-group-camiones-extra">
                     <div class="camiones-container" id="camionesExtras" style="display:none;"></div>
                 </div>
-                
-                
+
                 <div class="submit-group">
-                    <button type="button" id="btnAgregarCamion" style="display:none;" onclick="agregarCamposCamion()" class="btnAgregarCamion" >+ Agregar otro camión</button>
+                    <button type="button" id="btnAgregarCamion" style="display:none;" onclick="agregarCamposCamion()" class="btnAgregarCamion">+ Agregar otro camión</button>
                     <input type="submit" value="Enviar" id="btnEnviar"/>
-                    <!-- Loader personalizado (inicialmente oculto) -->
-                    <div class="loader" id="activar" style="display: none;"/> 
+                    <div class="loader" id="activar" style="display: none;"></div>
                 </div>
             </form>
         </div>

@@ -99,8 +99,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Actualizar Usuario</title>
+        <meta charset="UTF-8">
+        <title>Actualizar usuario</title>
         <link rel="stylesheet" href="../CSS/Login.css"/>
         <link rel="stylesheet" href="../CSS/Styles_modal.css"/>
     </head>
@@ -108,88 +108,77 @@
         Cookie[] cookies = request.getCookies();
         response.setContentType("text/html");
 
-        boolean seccionIniciada = false;
+        boolean sesionIniciada = false;
 
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("SeccionIniciada")) {
-                    seccionIniciada = true;
+                if ("SeccionIniciada".equals(cookie.getName())) {
+                    sesionIniciada = true;
                 }
             }
         }
 
-        if (!seccionIniciada) {
+        if (!sesionIniciada) {
             response.sendRedirect(request.getContextPath());
         }
     %>
     <header>
-       <div class="logo">
-           <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
-       </div>
-       <div class="button-container">
-            <input type="submit" value="HOME" onclick="navegarInternamente('https://spdique.com/')"/>
-           <%
+        <div class="logo">
+            <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo Sociedad Portuaria del Dique"/>
+        </div>
+        <div class="button-container">
+            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
+            <%
                 Object rolObj = session.getAttribute("Rol");
                 if (rolObj != null && ((Integer) rolObj) == 1) {
             %>
-                <input type="submit" value="CREAR USUARIO" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                <input type="submit" value="LISTAR USUARIOS" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
+                <input type="submit" value="Crear usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
+                <input type="submit" value="Listar usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <%
                 }
             %>
-            <input type="submit" value="LISTADOS DE CITAS" onclick="navegarInternamente('./Listados_Citas.jsp')"/>
-            <input type="submit" value="CERRAR SESIÓN" onclick="window.location.href='../CerrarSeccion'"/>
+            <input type="submit" value="Listados de citas" onclick="navegarInternamente('./Listados_Citas.jsp')"/>
+            <input type="submit" value="Cerrar sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
-   </header>
+    </header>
     <body>
         <div class="Contenedor">
             <div class="version">
-                <h1>ACTUALIZAR USUARIO</h1>
+                <h1>Actualizar usuario</h1>
             </div>
             <form name="LoginForm" action="../ActualizarUsuarioServlet" method="POST" class="Formulario">
-                <label for="Usuario">Nombre de usuario: </label>
-                <input type="text" id="Usuario" name="Usuario" value="<%= usuario %>" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" required />
-                
-                <label for="Contrasena">Contraseña</label>
+                <label for="Usuario">Nombre de usuario:</label>
+                <input type="text" id="Usuario" name="Usuario" value="<%= usuario %>" 
+                       oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" required/>
+
+                <label for="Contrasena">Contraseña:</label>
                 <input type="text" id="Contrasena" name="Contrasena" required/>
-                
-                <label for="Codigo">Codigo Usuario</label>
-                <input type="text" id="Codigo" name="Codigo" value="<%= CodigoUsuario %>" required />
-                
-                <label for="NitCliente">Nit cliente</label>
-                <input type="text" id="NitCliente" name="NitCliente"  value="<%= nit %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
-                
-                <label for="Email">Correro</label>
-                <input type="email" id="Email" name="Email" value="<%= correo %>" required>
-                
-                <label for="Rol">Rol (Administrador - Usuario)</label>
-                <% 
-                    String RolText = "";
-                    if(Rol == 1){
-                        RolText = "Administrador";
-                    }else{
-                        RolText = "Usuario";
-                    }
-                %>
-                
-                <input type="text" name="Rol" value="<%= RolText %>" required/>
-                
-                <label for="Estado">Estado (Activo - Inactivo)</label>
-                
+
+                <label for="Codigo">Código del usuario:</label>
+                <input type="text" id="Codigo" name="Codigo" value="<%= CodigoUsuario %>" required/>
+
+                <label for="NitCliente">Nit del cliente:</label>
+                <input type="text" id="NitCliente" name="NitCliente" value="<%= nit %>" 
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
+
+                <label for="Email">Correo electrónico:</label>
+                <input type="email" id="Email" name="Email" value="<%= correo %>" required/>
+
+                <label for="Rol">Rol (Administrador / Usuario):</label>
                 <%
-                    String EstadoTexto = "";
-                    if(Estado == 0){
-                        EstadoTexto = "Activo";
-                    }else{
-                        EstadoTexto = "Inactivo";
-                    }
+                    String RolText = (Rol == 1) ? "Administrador" : "Usuario";
                 %>
-                
-                <input type="text" name="Estado" value="<%= EstadoTexto %>" required/>
-                <input type="submit" value="Actualizar Usuario" />
-                
+                <input type="text" id="Rol" name="Rol" value="<%= RolText %>" required/>
+
+                <label for="Estado">Estado (Activo / Inactivo):</label>
+                <%
+                    String EstadoTexto = (Estado == 0) ? "Activo" : "Inactivo";
+                %>
+                <input type="text" id="Estado" name="Estado" value="<%= EstadoTexto %>" required/>
+
+                <input type="submit" value="Actualizar usuario"/>
             </form>
-            
         </div>
     </body>
 </html>
+
