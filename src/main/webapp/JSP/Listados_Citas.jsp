@@ -4,6 +4,7 @@
     Author     : braya
 --%>
 
+<%@page import="com.spd.Model.Cliente"%>
 <%@page import="java.util.Locale"%>
 <%@page import="com.spd.CItasDB.ListaVehiculos"%>
 <%@page import="java.time.LocalDate"%>
@@ -307,7 +308,6 @@
                                             }
                                         %>
                                     </div>
-
                                     <div id="tab-camiones" class="tab-content active">
                                      
 
@@ -337,6 +337,7 @@
                                         <tbody>
                                             <%
                                                 for (ListadoCItas listado : ListadoCitas2) {
+                                                    
                                                     // Convertir a OffsetDateTime (zona UTC, puedes cambiar el offset si deseas)
                                                     OffsetDateTime offsetDateTime = Instant.ofEpochMilli(listado.getFeAprobacion()).atOffset(ZoneOffset.UTC);
 
@@ -421,6 +422,33 @@
                                                 for (ListadoCItas listado : ListadoCitas) {
                                                     String nit_final = nit.replace("-", "");
                                                     
+                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                    List<Cliente> clientes = Arrays.asList(
+                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                    );
+                                                    
+                                                    String empresaUsuario = null;
+
+                                                    // Buscar la empresa asociada al NIT
+                                                    for (Cliente cliente : clientes) {
+                                                        if (cliente.getNit().equals(listado.getNit())) {
+                                                            empresaUsuario = cliente.getEmpresa();
+                                                            break;
+                                                        }
+                                                    }
+                                                    System.out.println("empresa: " + empresaUsuario);
+                                                    
                                                     System.out.println(listado.getNit() + " " + nit_final);
                                                     if (listado.getNit().equals(nit_final)) {
                                                         OffsetDateTime odt = OffsetDateTime.parse(listado.getFecha_Creacion_Cita());
@@ -430,7 +458,7 @@
                                             <tr>
                                                 <td><%= listado.getNit() %></td>
                                                 <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                <td><%= listado.getNombre_Empresa() %></td>
+                                                <td><%= empresaUsuario %></td>
                                                 <td><%= listado.getTipo_Operacion() %></td>
                                                 <td><%= listado.getCantidad_Vehiculos() %></td>
                                                 <td><%= fechaSinZona %></td>
@@ -467,6 +495,32 @@
                                         <tbody>
                                             <%
                                                 for (ListadoCItas listado : ListadoCitas) {
+                                                
+                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                    List<Cliente> clientes = Arrays.asList(
+                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                    );
+                                                    
+                                                    String empresaUsuario = null;
+
+                                                    // Buscar la empresa asociada al NIT
+                                                    for (Cliente cliente : clientes) {
+                                                        if (cliente.getNit().equals(listado.getNit())) {
+                                                            empresaUsuario = cliente.getEmpresa();
+                                                            break;
+                                                        }
+                                                    }
                                                     String fechaCreacion = listado.getFecha_Creacion_Cita();
                                                     if (fechaCreacion != null && !fechaCreacion.isEmpty()) {
                                                         OffsetDateTime odt = OffsetDateTime.parse(listado.getFecha_Creacion_Cita());
@@ -477,7 +531,7 @@
                                             <tr>
                                                 <td><%= listado.getNit() %></td>
                                                 <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                <td><%= listado.getNombre_Empresa() %></td>
+                                                <td><%= empresaUsuario %></td>
                                                 <td><%= listado.getTipo_Operacion() %></td>
                                                 <td><%= listado.getCantidad_Vehiculos() %></td>
                                                 <td><%= fechaSinZona %></td>
@@ -523,6 +577,31 @@
                                                             for(ListadoCItas listado: ListadoCitas2){
                                                                 if (listado.getNombre_Empresa().equals(usuario))
                                                                 {
+                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                                    List<Cliente> clientes = Arrays.asList(
+                                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                                        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                                        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                    );
+
+                                                                    String empresaUsuario = null;
+
+                                                                    // Buscar la empresa asociada al NIT
+                                                                    for (Cliente cliente : clientes) {
+                                                                        if (cliente.getNit().equals(listado.getNit())) {
+                                                                            empresaUsuario = cliente.getEmpresa();
+                                                                            break;
+                                                                        }
+                                                                    }
                                                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
                                                                     OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
                                                                     LocalDateTime ldt = odt.toLocalDateTime();
@@ -544,7 +623,7 @@
                                                 <tr>
                                                     <td><%= listado.getNit() %></td>
                                                     <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                    <td><%= listado.getNombre_Empresa() %></td>
+                                                    <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
                                                     <td><%= listado.getCantidad_Vehiculos() %></td>
                                                     <td><%= fechaSinZona %></td>
@@ -561,6 +640,32 @@
                                                 %>
                                                         <%
                                                             for(ListadoCItas listado: ListadoCitas2){
+                                                                    
+                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                                    List<Cliente> clientes = Arrays.asList(
+                                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                                        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                                        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                    );
+
+                                                                    String empresaUsuario = null;
+
+                                                                    // Buscar la empresa asociada al NIT
+                                                                    for (Cliente cliente : clientes) {
+                                                                        if (cliente.getNit().equals(listado.getNit())) {
+                                                                            empresaUsuario = cliente.getEmpresa();
+                                                                            break;
+                                                                        }
+                                                                    }
                                                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
                                                                     OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
                                                                     LocalDateTime ldt = odt.toLocalDateTime();
@@ -581,7 +686,7 @@
                                                                         <tr>
                                                                             <td><%= listado.getNit() %></td>
                                                                             <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                                            <td><%= listado.getNombre_Empresa() %></td>
+                                                                            <td><%= empresaUsuario %></td>
                                                                             <td><%= listado.getTipo_Operacion() %></td>
                                                                             <td><%= listado.getCantidad_Vehiculos() %></td>
                                                                             <td><%= fechaSinZona %></td>
@@ -631,6 +736,32 @@
                                                                 System.out.println(listado.getNit() + " " + nit_final);
                                                                 if (listado.getNit().equals(nit_final))
                                                                 {
+                                                                
+                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                                    List<Cliente> clientes = Arrays.asList(
+                                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                                        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                                        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                    );
+
+                                                                    String empresaUsuario = null;
+
+                                                                    // Buscar la empresa asociada al NIT
+                                                                    for (Cliente cliente : clientes) {
+                                                                        if (cliente.getNit().equals(listado.getNit())) {
+                                                                            empresaUsuario = cliente.getEmpresa();
+                                                                            break;
+                                                                        }
+                                                                    }
                                                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
                                                                     OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
                                                                     LocalDateTime ldt = odt.toLocalDateTime();
@@ -650,7 +781,7 @@
                                                 <tr>
                                                     <td><%= listado.getNit() %></td>
                                                     <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                    <td><%= listado.getNombre_Empresa() %></td>
+                                                    <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
                                                     <td><%= listado.getCantidad_Vehiculos() %></td>
                                                     <td><%= fechaSinZona %></td>
@@ -667,6 +798,32 @@
                                                 %>
                                                         <%
                                                             for(ListadoCItas listado: ListadoCitas2){
+                                                                    
+                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                                    List<Cliente> clientes = Arrays.asList(
+                                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                                        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                                        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                    );
+
+                                                                    String empresaUsuario = null;
+
+                                                                    // Buscar la empresa asociada al NIT
+                                                                    for (Cliente cliente : clientes) {
+                                                                        if (cliente.getNit().equals(listado.getNit())) {
+                                                                            empresaUsuario = cliente.getEmpresa();
+                                                                            break;
+                                                                        }
+                                                                    }
                                                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
                                                                     OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
                                                                     LocalDateTime ldt = odt.toLocalDateTime();
@@ -687,7 +844,7 @@
                                                                         <tr>
                                                                             <td><%= listado.getNit() %></td>
                                                                             <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                                            <td><%= listado.getNombre_Empresa() %></td>
+                                                                            <td><%= empresaUsuario %></td>
                                                                             <td><%= listado.getTipo_Operacion() %></td>
                                                                             <td><%= listado.getCantidad_Vehiculos() %></td>
                                                                             <td><%= fechaSinZona %></td>
@@ -732,7 +889,31 @@
                                                  
                                                             for(ListadoCItas listado: ListadoCitas2){
                                                                 String nit_final = nit.replace("-", "");
-                                                    
+                                                                // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                                   List<Cliente> clientes = Arrays.asList(
+                                                                       new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                                       new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                       new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                       new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                       new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                       new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                                       new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                       new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                       new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                                       new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                       new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                       new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                   );
+
+                                                                   String empresaUsuario = null;
+
+                                                                   // Buscar la empresa asociada al NIT
+                                                                   for (Cliente cliente : clientes) {
+                                                                       if (cliente.getNit().equals(listado.getNit())) {
+                                                                           empresaUsuario = cliente.getEmpresa();
+                                                                           break;
+                                                                       }
+                                                                   }
                                                                 System.out.println(listado.getNit() + " " + nit_final);
                                                                 if (listado.getNit().equals(nit_final))
                                                                 {
@@ -755,7 +936,7 @@
                                                 <tr>
                                                     <td><%= listado.getNit() %></td>
                                                     <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                    <td><%= listado.getNombre_Empresa() %></td>
+                                                    <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
                                                     <td><%= listado.getCantidad_Vehiculos() %></td>
                                                     <td><%= fechaSinZona %></td>
@@ -772,6 +953,31 @@
                                                 %>
                                                         <%
                                                             for(ListadoCItas listado: ListadoCitas2){
+                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                                   List<Cliente> clientes = Arrays.asList(
+                                                                       new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                                       new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                       new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                       new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                       new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                       new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                                       new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                       new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                       new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                                       new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                       new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                       new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                   );
+
+                                                                   String empresaUsuario = null;
+
+                                                                   // Buscar la empresa asociada al NIT
+                                                                   for (Cliente cliente : clientes) {
+                                                                       if (cliente.getNit().equals(listado.getNit())) {
+                                                                           empresaUsuario = cliente.getEmpresa();
+                                                                           break;
+                                                                       }
+                                                                   }
                                                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
                                                                     OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
                                                                     LocalDateTime ldt = odt.toLocalDateTime();
@@ -792,7 +998,7 @@
                                                                         <tr>
                                                                             <td><%= listado.getNit() %></td>
                                                                             <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                                            <td><%= listado.getNombre_Empresa() %></td>
+                                                                            <td><%= empresaUsuario %></td>
                                                                             <td><%= listado.getTipo_Operacion() %></td>
                                                                             <td><%= listado.getCantidad_Vehiculos() %></td>
                                                                             <td><%= fechaSinZona %></td>
@@ -837,7 +1043,31 @@
                                                  
                                                             for(ListadoCItas listado: ListadoCitas2){
                                                                 String nit_final = nit.replace("-", "");
-                                                    
+                                                                // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                                   List<Cliente> clientes = Arrays.asList(
+                                                                       new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                                       new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                       new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                       new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                       new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                       new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                                       new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                       new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                       new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                                       new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                       new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                       new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                   );
+
+                                                                   String empresaUsuario = null;
+
+                                                                   // Buscar la empresa asociada al NIT
+                                                                   for (Cliente cliente : clientes) {
+                                                                       if (cliente.getNit().equals(listado.getNit())) {
+                                                                           empresaUsuario = cliente.getEmpresa();
+                                                                           break;
+                                                                       }
+                                                                   }
                                                                 System.out.println(listado.getNit_Empresa_Transportadora() + " " + nit_final);
                                                                 if (listado.getNit_Empresa_Transportadora().equals(nit_final) && listado.getEstado().equals("AGENDADA"))
                                                                 {
@@ -860,7 +1090,7 @@
                                                 <tr>
                                                     <td><%= listado.getNit() %></td>
                                                     <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                    <td><%= listado.getNombre_Empresa() %></td>
+                                                    <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
                                                     <td><%= listado.getCantidad_Vehiculos() %></td>
                                                     <td><%= fechaSinZona %></td>
@@ -877,6 +1107,31 @@
                                                 %>
                                                         <%
                                                             for(ListadoCItas listado: ListadoCitas2){
+                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                                   List<Cliente> clientes = Arrays.asList(
+                                                                       new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                                       new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                       new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                       new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                       new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                       new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                                       new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                       new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                       new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                                       new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                       new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                       new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                   );
+
+                                                                   String empresaUsuario = null;
+
+                                                                   // Buscar la empresa asociada al NIT
+                                                                   for (Cliente cliente : clientes) {
+                                                                       if (cliente.getNit().equals(listado.getNit())) {
+                                                                           empresaUsuario = cliente.getEmpresa();
+                                                                           break;
+                                                                       }
+                                                                   }
                                                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
                                                                     OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
                                                                     LocalDateTime ldt = odt.toLocalDateTime();
@@ -897,7 +1152,7 @@
                                                                         <tr>
                                                                             <td><%= listado.getNit() %></td>
                                                                             <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                                            <td><%= listado.getNombre_Empresa() %></td>
+                                                                            <td><%= empresaUsuario %></td>
                                                                             <td><%= listado.getTipo_Operacion() %></td>
                                                                             <td><%= listado.getCantidad_Vehiculos() %></td>
                                                                             <td><%= fechaSinZona %></td>
