@@ -147,9 +147,12 @@
                 <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
                 <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <%
-                }
+                } else if (rolObj != null && ((Integer) rolObj) != 5){
             %>
             <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+            <%
+                }
+            %>
             <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
             <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
@@ -281,9 +284,12 @@
                                 <div class="content-container">
                                 <div class="tab-container">
                                     <div class="tab-header">
-                                        <button class="tab-button active" data-tab="camiones" onclick="mostrarTab(this)">📁 Citas camiones</button>
                                         <%
-                                            if (rolObj != null && ((Integer) rolObj) != 0 && ((Integer) rolObj) != 2) {
+                                            if (rolObj != null && ((Integer) rolObj) != 5) {
+                                        %>
+                                            <button class="tab-button active" data-tab="camiones" onclick="mostrarTab(this)">📁 Citas camiones</button>
+                                        <%
+                                            }else if (rolObj != null && ((Integer) rolObj) != 0 && ((Integer) rolObj) != 2 && ((Integer) rolObj) != 5) {
                                         %>
                                             <button class="tab-button" data-tab="camiones-sin-terminar" onclick="mostrarTab(this)">📁 Citas camiones sin terminar</button>
                                             <button class="tab-button" data-tab="camiones-por-finalizar" onclick="mostrarTab(this)">📁 Citas camiones por finalizar</button>
@@ -293,6 +299,10 @@
                                         %>
                                             <button class="tab-button" data-tab="camiones-por-finalizar" onclick="mostrarTab(this)">📁 Citas camiones aprobadas</button>
                                             <button class="tab-button" data-tab="barcazas" onclick="mostrarTab(this)">📁 Citas barcazas</button>
+                                        <%
+                                            }else if (rolObj != null && ((Integer) rolObj) == 5) { 
+                                        %>
+                                            <button class="tab-button" data-tab="camiones-por-finalizar" onclick="mostrarTab(this)">📁 Citas camiones aprobadas</button>
                                         <%
                                             }
                                         %>
@@ -592,7 +602,7 @@
                                             </tbody>
                                         </table>
                                     </div>        
-                                    <% if (rolObj != null && ((Integer) rolObj) != 2)
+                                    <% if (rolObj != null && ((Integer) rolObj) != 2 && ((Integer) rolObj) != 5)
                                     {
                                     %>
                                         <div id="tab-camiones-por-finalizar" class="tab-content">
@@ -647,7 +657,7 @@
                                                     <td>
                                                         <div class="Botones_tabla">
                                                             <input type="button"
-                                                                   onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>'"
+                                                                   onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
                                                                    value="📋 Ver">
                                                         </div>
                                                     </td>
@@ -684,7 +694,7 @@
                                                                             <td>
                                                                                 <div class="Botones_tabla">
                                                                                     <input type="button"
-                                                                                           onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>'"
+                                                                                           onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
                                                                                            value="📋 Ver">
                                                                                 </div>
                                                                             </td>
@@ -698,7 +708,7 @@
                                             </tbody>
                                         </table>
                                     <%
-                                        }else {
+                                        }else if (rolObj != null && ((Integer) rolObj) != 5){
                                     %>
                                         <div id="tab-camiones-por-finalizar" class="tab-content">
                                             <!-- Aquí irá la tabla de camiones -->
@@ -789,7 +799,112 @@
                                                                             <td>
                                                                                 <div class="Botones_tabla">
                                                                                     <input type="button"
-                                                                                           onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>'"
+                                                                                           onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
+                                                                                           value="📋 Ver">
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                   <%
+                                                                       }
+                                                                   %>
+                                                <%
+                                                    }
+                                                %>
+                                            </tbody>
+                                        </table>
+                                    <%
+                                        }else{
+                                    %>
+                                        <div id="tab-camiones-por-finalizar" class="tab-content">
+                                            <!-- Aquí irá la tabla de camiones -->
+                                            <h3>📋 Lista de citas de camiones aprobados empresa transportadora</h3>
+                                            <table id="myTable4" class="display">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nit</th>
+                                                        <th>Empresa transportadora</th>
+                                                        <th>Empresa</th>
+                                                        <th>Tipo operación</th>
+                                                        <th>Cantidad vehiculos</th>
+                                                        <th>Fecha creación</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                
+                                                <%
+                                                    if (rolObj != null && ((Integer) rolObj) == 5){
+                                                 
+                                                            for(ListadoCItas listado: ListadoCitas2){
+                                                                String nit_final = nit.replace("-", "");
+                                                    
+                                                                System.out.println(listado.getNit_Empresa_Transportadora() + " " + nit_final);
+                                                                if (listado.getNit_Empresa_Transportadora().equals(nit_final) && listado.getEstado().equals("AGENDADA"))
+                                                                {
+                                                                    String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
+                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
+                                                                    LocalDateTime ldt = odt.toLocalDateTime();
+                                                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                                                    String fecha = ldt.format(formatter1);
+                                                                    String fechaSinZona = ldt.format(formatter);
+
+                                                                    Date fecha_actual = new Date();
+                                                                    LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                                                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                                                    String fechaactual = ldt1.format(formatter2);
+                                                                    
+                                                                    
+
+                                                %>
+                                                <tr>
+                                                    <td><%= listado.getNit() %></td>
+                                                    <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                    <td><%= listado.getNombre_Empresa() %></td>
+                                                    <td><%= listado.getTipo_Operacion() %></td>
+                                                    <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                    <td><%= fechaSinZona %></td>
+                                                    <td>
+                                                        <div class="Botones_tabla">
+                                                            <input type="button"
+                                                                   onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
+                                                                   value="📋 Ver">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <%
+                                                    }}} else if (rolObj != null && ((Integer) rolObj) == 1){
+                                                %>
+                                                        <%
+                                                            for(ListadoCItas listado: ListadoCitas2){
+                                                                    String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
+                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
+                                                                    LocalDateTime ldt = odt.toLocalDateTime();
+                                                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                                                    String fecha = ldt.format(formatter1);
+                                                                    String fechaSinZona = ldt.format(formatter);
+
+                                                                    Date fecha_actual = new Date();
+                                                                    LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                                                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                                                    String fechaactual = ldt1.format(formatter2);
+
+                                                                    System.out.println(fechaSinZona); // Resultado: 2025-04-26 10:00:00
+
+ 
+                                                        %>
+                                                                        <tr>
+                                                                            <td><%= listado.getNit() %></td>
+                                                                            <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                                            <td><%= listado.getNombre_Empresa() %></td>
+                                                                            <td><%= listado.getTipo_Operacion() %></td>
+                                                                            <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                                            <td><%= fechaSinZona %></td>
+                                                                            <td>
+                                                                                <div class="Botones_tabla">
+                                                                                    <input type="button"
+                                                                                           onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
                                                                                            value="📋 Ver">
                                                                                 </div>
                                                                             </td>

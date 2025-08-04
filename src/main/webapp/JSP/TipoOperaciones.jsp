@@ -104,9 +104,12 @@
                 <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
                 <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <%
-                }
+                }else if(rolObj != null && ((Integer) rolObj) != 5){
             %>
             <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+            <%
+                }
+            %>
             <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
             <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
@@ -114,7 +117,7 @@
     
     <%
         Object rolObject1 = session.getAttribute("Rol");
-        if (rolObject1 != null && ((Integer) rolObject1) == 0){
+        if (rolObject1 != null && ((Integer) rolObject1) == 0 || ((Integer) rolObject1) == 5){
     %>
     <body>
         <div class="contenedor">

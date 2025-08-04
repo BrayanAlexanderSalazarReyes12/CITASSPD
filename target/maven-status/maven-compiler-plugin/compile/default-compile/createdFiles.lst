@@ -42,6 +42,7 @@ com\spd\Productos\Producto.class
 com\spd\Model\Usuarios_Tanques.class
 com\spd\CrearUsuarioJson\ActualizarUsuarioCompleto.class
 com\spd\Servlets\Finalizarcita.class
+com\spd\CreacionUsuarioNit\CreacionUsuarioEmpresaTransportadora.class
 com\spd\Servlets\CerrarSeccion.class
 com\spd\CrearUsuarioJson\CrearUsuarioClass.class
 com\spd\Servlets\AsignarCitaCamiones.class

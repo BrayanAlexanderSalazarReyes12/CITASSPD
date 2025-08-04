@@ -124,8 +124,34 @@
             <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
     </header>
+            <style>
+                .content-container {
+                    max-width: 1200px; /* puedes ajustarlo a 100%, 90vw, etc. */
+                    margin: 0 auto;
+                    margin-top: 20px;
+                    margin-bottom: 20px;
+                    padding: 20px;
+                    background-color: #f5f5f5;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    overflow-x: auto;
+                }
+
+                /* Responsive ajustes */
+                @media (max-width: 768px) {
+                    .content-container {
+                        padding: 15px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .content-container {
+                        padding: 10px;
+                    }
+                }
+            </style>
     <body>
-        <div class="Content">
+        <div class="content-container">
             <table id="myTable" class="display">
                 <%
                     ListadoUsuarios lu = new ListadoUsuarios();
@@ -160,7 +186,7 @@
                             <td data-label="Código usuario"><%= usuario.getCodcia_user() %></td>
                             <td data-label="Correo"><%= usuario.getEmail() %></td>
                             <td data-label="Rol">
-                                <%= usuario.getRol() == 2 ? "Operador" : (usuario.getRol() == 1 ? "Administrador" : "Portería") %>
+                                <%= usuario.getRol() == 2 ? "Operador" : (usuario.getRol() == 1 ? "Administrador" : (usuario.getRol() == 0 ? "Porteria":"Consultor transportadora")) %>
                             </td>
                             <td data-label="Estado"><%= usuario.getEstado() == 0 ? "Activo" : "Inactivo" %></td>
                             <td>

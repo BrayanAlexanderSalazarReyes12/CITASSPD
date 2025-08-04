@@ -6,6 +6,7 @@ package com.spd.Servlets;
 
 import com.google.gson.Gson;
 import com.spd.API.Usuario_Insert;
+import com.spd.CreacionUsuarioNit.CreacionUsuarioEmpresaTransportadora;
 import com.spd.CrearUsuarioJson.CrearUsuarioClass;
 import com.spd.CrearUsuarioJson.CrearUsuarioCompleto;
 import com.spd.CrearUsuarioJson.UsuarioLogin;
@@ -13,6 +14,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -80,24 +84,36 @@ public class CrearUsuarioServlet extends HttpServlet {
         
         Usuario_Insert usuario_Insert = new Usuario_Insert();
         
-        
-        String url="http://www.siza.com.co/spdcitas-1.0/api/citas/usuario";
-        
-        try {
-            String response1 = usuario_Insert.Insert(url, json);
-            System.out.println("Respuesta del servidor: " + response1);
-            
-            
-            if(!"".equals(response1)){
-                System.out.println("Solicitud exitosa.");
+        if(Rol.equals("5"))
+        {
+            try {
+                CreacionUsuarioEmpresaTransportadora.inicializarDesdeContexto(getServletContext());
+                CreacionUsuarioEmpresaTransportadora.insertarUsuario(usuario, contrasena, nitCliente, "401", correo, Rol, "1");
                 session.setAttribute("Error", "USUARIO CREADO CON EXITO");
                 session.setAttribute("Activo", true);
                 response.sendRedirect("JSP/CrearUsuario.jsp");
+            } catch (SQLException ex) {
+                Logger.getLogger(CrearUsuarioServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
+        }else{
+            String url="http://www.siza.com.co/spdcitas-1.0/api/citas/usuario";
+
+            try {
+                String response1 = usuario_Insert.Insert(url, json);
+                System.out.println("Respuesta del servidor: " + response1);
+
+
+                if(!"".equals(response1)){
+                    System.out.println("Solicitud exitosa.");
+                    session.setAttribute("Error", "USUARIO CREADO CON EXITO");
+                    session.setAttribute("Activo", true);
+                    response.sendRedirect("JSP/CrearUsuario.jsp");
+                }
+
+
+            } catch (IOException e) {
+                System.out.println("Error: " + e);
+            }
         }
     }
 
