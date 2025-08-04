@@ -149,7 +149,7 @@
             <%
                 } else if (rolObj != null && ((Integer) rolObj) != 5){
             %>
-            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+                <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
             <%
                 }
             %>
@@ -289,7 +289,7 @@
                                         %>
                                             <button class="tab-button active" data-tab="camiones" onclick="mostrarTab(this)">📁 Citas camiones</button>
                                         <%
-                                            }else if (rolObj != null && ((Integer) rolObj) != 0 && ((Integer) rolObj) != 2 && ((Integer) rolObj) != 5) {
+                                            }if (rolObj != null && ((Integer) rolObj) != 0 && ((Integer) rolObj) != 2 && ((Integer) rolObj) != 5) {
                                         %>
                                             <button class="tab-button" data-tab="camiones-sin-terminar" onclick="mostrarTab(this)">📁 Citas camiones sin terminar</button>
                                             <button class="tab-button" data-tab="camiones-por-finalizar" onclick="mostrarTab(this)">📁 Citas camiones por finalizar</button>

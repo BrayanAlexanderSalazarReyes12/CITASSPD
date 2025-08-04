@@ -138,8 +138,10 @@
                             <th>Estado</th>
                             <th>Fecha</th>
                             <th>Remision</th>
-                            <th>Cancelar</th>
-                            <th>Selecionar</th>
+                            <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
+                                <th>Cancelar</th>
+                                <th>Selecionar</th>
+                            <% System.out.println(rolObj);} %>
                         </tr>
                     </thead>
                     <tbody>
@@ -184,6 +186,7 @@
                                            value="Remision valorizada"
                                            onclick="descargarPDF('<%= listado.getFacturaRemision() %>.pdf', '<%= listado.getArchivo().replaceAll("\n", "").replaceAll("\r", "").replaceAll("'", "\\\\'") %>')">
                                 </td>
+                                <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
                                 <td>
                                     <input type="button" 
                                     onclick="cancelarCita(
@@ -204,6 +207,7 @@
                                            data-cedula="<%= vehiculo.getConductorCedulaCiudadania() %>"
                                            value="<%= vehiculo.getVehiculoNumPlaca() %>">
                                 </td>
+                                <% } %>
                             </tr>
                         <%
                                         }

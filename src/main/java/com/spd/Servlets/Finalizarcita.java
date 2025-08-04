@@ -50,6 +50,8 @@ public class Finalizarcita extends HttpServlet {
         String fechasal = request.getParameter("fechasal");
         String psalida = request.getParameter("psalida");
         String fechainside = request.getParameter("fechacitainside");
+        String registro = request.getParameter("registro");
+        String formulario = request.getParameter("formulario");
         System.out.println(fechainside);
         FormularioPost fp = new FormularioPost();
         //variables de entorno
@@ -132,10 +134,25 @@ public class Finalizarcita extends HttpServlet {
             finalJson.put("acceso", acceso);
             finalJson.put("variables", variables);
 
+            // Construir lista de objetos completos
+            List<Map<String, Object>> listaFinal = new ArrayList<>();
+            System.out.println(fecha);
+            Map<String, Object> data = new HashMap<>();
+            data.put("codcita", registro);
+            data.put("placa", vehiculosMap.get("vehiculoNumPlaca"));
+            data.put("manifiesto", vehiculosMap.get("numManifiestoCarga"));
+            listaFinal.add(data);
+            
+            
             Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
             String jsonResponse = gsonPretty.toJson(finalJson);
+            String jsonResponse1 = gsonPretty.toJson(listaFinal);
             
             String url = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
+            
+            String apiUrl1 = "http://www.siza.com.co/spdcitas-1.0/api/citas/finalizacion";
+            
+            
             String response1 = fp.Post(url, jsonResponse);
             
             if(response1 != null && !response1.isEmpty()){
@@ -154,6 +171,8 @@ public class Finalizarcita extends HttpServlet {
                         HttpSession session = request.getSession();
                         session.setAttribute("Error", "Error: " + jsonresponse.optString("ErrorText", "Sin detalle"));
                         session.setAttribute("Activo", true);
+                        
+                        String response2 = fp.Post(apiUrl1, jsonResponse1);
                         
                         response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
                         

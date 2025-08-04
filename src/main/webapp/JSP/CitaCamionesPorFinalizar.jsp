@@ -68,11 +68,15 @@
                     <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
                     <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
                 <%
-                    }
+                    }else if (rolObj != null && ((Integer) rolObj) != 5) {
                 %>
                 <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+                <%
+                    }
+                %>
                 <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
                 <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
+                
             </div>
         </header>
         <div>
@@ -193,7 +197,9 @@
                                                data-cedula="<%= vehiculo.getConductorCedulaCiudadania() %>"
                                                data-manifiesto="<%= vehiculo.getNumManifiestoCarga() %>"
                                                value="<%= vehiculo.getVehiculoNumPlaca() %>"
-                                               data-fecha="<%= formattedDate %>">
+                                               data-fecha="<%= formattedDate %>"
+                                               data-nombreconductor="<%= vehiculo.getNombreConductor() %>"
+                                               data-formulario="<%= listado.getFmm() %>">
                                     </td>
                                 </tr>
                             <%
@@ -436,7 +442,9 @@
                             vehiculoNumPlaca: cb.value || cb.dataset.placa || "", // fallback si value no tiene la placa
                             conductorCedulaCiudadania: cb.dataset.cedula || "",
                             fechaOfertaSolicitud: cb.dataset.fecha || "",
-                            numManifiestoCarga: cb.dataset.manifiesto || ""
+                            numManifiestoCarga: cb.dataset.manifiesto || "",
+                            nombreconductor: cb.dataset.nombreconductor || "",
+                            formulario: cb.dataset.formulario || ""
                         });
                     });
 
@@ -450,6 +458,7 @@
                     params.append('fechasal', fechasal);
                     params.append('psalida', psalida);
                     params.append('fechacitainside', fechacitainside);
+                    params.append('registro', registro);
 
                     window.location.href = '../Finalizarcita?' + params.toString();
 
