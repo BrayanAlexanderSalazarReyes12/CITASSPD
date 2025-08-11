@@ -36,6 +36,7 @@ com\spd\CItasDB\BarcazaCita.class
 com\spd\ClasesJsonFormularioMinisterio\Variables.class
 com\spd\API\LoginPost.class
 com\spd\ClasesJsonFormularioMinisterio\FormularioCompleto.class
+com\spd\CargarBarcazas\CargarBarcazas.class
 com\spd\Servlets\Finalizarcita$1.class
 com\spd\DAO\ListadoDAO.class
 com\spd\DAO\ListadoDAO$2.class

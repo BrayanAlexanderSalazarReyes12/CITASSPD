@@ -4,6 +4,9 @@
     Author     : braya
 --%>
 
+<%@page import="org.json.JSONObject"%>
+<%@page import="com.spd.CargarBarcazas.CargarBarcazas"%>
+<%@page import="org.json.JSONArray"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <script>
@@ -140,6 +143,23 @@
 
 
                             </form>
+                            <%
+                                CargarBarcazas.inicializarDesdeContexto(application);
+                                JSONArray barcazas = new JSONArray();
+                                JSONArray nombresBarcazas = new JSONArray(); // solo nombres
+
+                                try {
+                                    barcazas = new CargarBarcazas().carguebarcaza();
+                                    for (int i = 0; i < barcazas.length(); i++) {
+                                        JSONObject b = barcazas.getJSONObject(i);
+                                        if (b.has("BARCAZA")) {
+                                            nombresBarcazas.put(b.getString("BARCAZA"));
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            %>
                             <script>
                                 
                                 const cookies = document.cookie;
@@ -307,40 +327,88 @@
                                     extras.appendChild(labelTanque);
                                     extras.appendChild(selectTanque);
                                   }
+                                    // Ahora solo tienes los nombres como un array de strings en JS
+                                    var nombresBarcazas = <%= nombresBarcazas.toString() %>;
 
                                     if (tipo === "Barcaza - Barcaza") {
+                                        // Origen
                                         const labelBarcazaOrigen = document.createElement("label");
                                         labelBarcazaOrigen.innerText = "Nombre de la barcaza de origen (op #" + index + "):";
 
-                                        const inputBarcazaOrigen = document.createElement("input");
-                                        inputBarcazaOrigen.type = "text";
-                                        inputBarcazaOrigen.name = "barcaza_origen_" + index;
-                                        inputBarcazaOrigen.required = true;
+                                        const selectBarcazaOrigen = document.createElement("select");
+                                        selectBarcazaOrigen.name = "barcaza_origen_" + index;
+                                        selectBarcazaOrigen.required = true;
 
+                                        const optionDefaultOrigen = document.createElement("option");
+                                        optionDefaultOrigen.value = "";
+                                        optionDefaultOrigen.text = "Seleccione una barcaza";
+                                        optionDefaultOrigen.disabled = true;
+                                        optionDefaultOrigen.selected = true;
+                                        selectBarcazaOrigen.appendChild(optionDefaultOrigen);
+
+                                        nombresBarcazas.forEach(nombre => {
+                                            const option = document.createElement("option");
+                                            option.value = nombre;
+                                            option.text = nombre;
+                                            selectBarcazaOrigen.appendChild(option);
+                                        });
+
+                                        // Destino
                                         const labelBarcazaDestino = document.createElement("label");
                                         labelBarcazaDestino.innerText = "Nombre de la barcaza de destino (op #" + index + "):";
 
-                                        const inputBarcazaDestino = document.createElement("input");
-                                        inputBarcazaDestino.type = "text";
-                                        inputBarcazaDestino.name = "barcaza_destino_" + index;
-                                        inputBarcazaDestino.required = true;
+                                        const selectBarcazaDestino = document.createElement("select");
+                                        selectBarcazaDestino.name = "barcaza_destino_" + index;
+                                        selectBarcazaDestino.required = true;
+
+                                        const optionDefaultDestino = document.createElement("option");
+                                        optionDefaultDestino.value = "";
+                                        optionDefaultDestino.text = "Seleccione una barcaza";
+                                        optionDefaultDestino.disabled = true;
+                                        optionDefaultDestino.selected = true;
+                                        selectBarcazaDestino.appendChild(optionDefaultDestino);
+
+                                        nombresBarcazas.forEach(nombre => {
+                                            const option = document.createElement("option");
+                                            option.value = nombre;
+                                            option.text = nombre;
+                                            selectBarcazaDestino.appendChild(option);
+                                        });
 
                                         extras.appendChild(labelBarcazaOrigen);
-                                        extras.appendChild(inputBarcazaOrigen);
+                                        extras.appendChild(selectBarcazaOrigen);
                                         extras.appendChild(labelBarcazaDestino);
-                                        extras.appendChild(inputBarcazaDestino);
+                                        extras.appendChild(selectBarcazaDestino);
+
                                     } else if (tipo.includes("Barcaza")) {
+
                                         const labelBarcaza = document.createElement("label");
                                         labelBarcaza.innerText = "Nombre de la barcaza (op #" + index + "):";
 
-                                        const inputBarcaza = document.createElement("input");
-                                        inputBarcaza.type = "text";
-                                        inputBarcaza.name = "barcaza_" + index;
-                                        inputBarcaza.required = true;
+                                        const selectBarcaza = document.createElement("select");
+                                        selectBarcaza.name = "barcaza_" + index;
+                                        selectBarcaza.required = true;
+
+                                        // Opción vacía inicial
+                                        const optionDefault = document.createElement("option");
+                                        optionDefault.value = "";
+                                        optionDefault.text = "Seleccione una barcaza";
+                                        optionDefault.disabled = true;
+                                        optionDefault.selected = true;
+                                        selectBarcaza.appendChild(optionDefault);
+
+                                        // Llenar con las barcazas del JSON
+                                        nombresBarcazas.forEach(nombre => {
+                                            const option = document.createElement("option");
+                                            option.value = nombre;
+                                            option.text = nombre;
+                                            selectBarcaza.appendChild(option);
+                                        });
 
                                         extras.appendChild(labelBarcaza);
-                                        extras.appendChild(inputBarcaza);
+                                        extras.appendChild(selectBarcaza);
                                     }
+
 
                                 }
                             </script>

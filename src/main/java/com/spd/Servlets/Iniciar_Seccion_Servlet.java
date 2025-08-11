@@ -20,6 +20,7 @@ import javax.servlet.http.HttpSession;
 import org.json.JSONObject;
 
 import com.google.gson.reflect.TypeToken;
+import com.spd.CargarBarcazas.CargarBarcazas;
 import com.spd.Model.Usuario;
 
 import java.lang.reflect.Type;
@@ -124,7 +125,7 @@ try {
             System.out.println("rol: " + rol);
             
             session.setAttribute("Rol", rol);
-
+            
             response.sendRedirect("JSP/TipoOperaciones.jsp");
             break;
 
