@@ -52,6 +52,10 @@
         <servlet-name>Finalizarcita</servlet-name>
         <servlet-class>com.spd.Servlets.Finalizarcita</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>MapaBarcazasServelet</servlet-name>
+        <servlet-class>com.spd.Servlets.MapaBarcazasServelet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <url-pattern>/Iniciar_Seccion_Servlet</url-pattern>
@@ -103,6 +107,10 @@
     <servlet-mapping>
         <servlet-name>Finalizarcita</servlet-name>
         <url-pattern>/Finalizarcita</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MapaBarcazasServelet</servlet-name>
+        <url-pattern>/MapaBarcazasServelet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

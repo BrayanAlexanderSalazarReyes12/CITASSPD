@@ -1,0 +1,46 @@
+{
+  "barcazas_disponibles": [
+    {
+      "id": "b1",
+      "nombre": "Barcaza A",
+      "manga": 10,
+      "eslora": 30
+    },
+    {
+      "id": "b2",
+      "nombre": "Barcaza B",
+      "manga": 12,
+      "eslora": 28
+    },
+    {
+      "id": "b3",
+      "nombre": "Barcaza C",
+      "manga": 11,
+      "eslora": 130
+    }
+  ],
+  "mapa": {
+    "elementos_colocados": [
+      {
+        "id": "op1",
+        "tipo": "puesto_operacion",
+        "nombre": "Puesto Norte",
+        "manga": 15,
+        "eslora": 20,
+        "posX": 50,
+        "posY": 100,
+        "movible": false
+      },
+      {
+        "id": "b2",
+        "tipo": "barcaza",
+        "nombre": "Barcaza B",
+        "manga": 12,
+        "eslora": 28,
+        "posX": 100,
+        "posY": 200,
+        "movible": false
+      }
+    ]
+  }
+}
