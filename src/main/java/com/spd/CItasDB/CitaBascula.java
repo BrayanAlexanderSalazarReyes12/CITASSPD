@@ -23,7 +23,7 @@ public class CitaBascula {
     private String estado;
     private int variosVehiculos;
     private String producto;
-    private int cantProducto;
+    private Float cantProducto;
     private String facturaRemision;
     private double precioUsd;
     private String archivo;
@@ -37,7 +37,7 @@ public class CitaBascula {
     public CitaBascula() {
     }
     
-    public CitaBascula(String nitEmpBascula, String usuCreacion, String placa, String cedConductor, String nomConductor, String fechaCita, String manifiesto, int nmformZf, String nitTransportadora, String estado, int variosVehiculos, String producto, int cantProducto, String facturaRemision, double precioUsd, String archivo, String observaciones, String operacion, String remolque, String barcaza, String tanque, List<VehiculoDB> vehiculos) {
+    public CitaBascula(String nitEmpBascula, String usuCreacion, String placa, String cedConductor, String nomConductor, String fechaCita, String manifiesto, int nmformZf, String nitTransportadora, String estado, int variosVehiculos, String producto, Float cantProducto, String facturaRemision, double precioUsd, String archivo, String observaciones, String operacion, String remolque, String barcaza, String tanque, List<VehiculoDB> vehiculos) {
         this.nitEmpBascula = nitEmpBascula;
         this.usuCreacion = usuCreacion;
         this.placa = placa;
@@ -167,11 +167,11 @@ public class CitaBascula {
         this.producto = producto;
     }
 
-    public int getCantProducto() {
+    public Float getCantProducto() {
         return cantProducto;
     }
 
-    public void setCantProducto(int cantProducto) {
+    public void setCantProducto(Float cantProducto) {
         this.cantProducto = cantProducto;
     }
 
