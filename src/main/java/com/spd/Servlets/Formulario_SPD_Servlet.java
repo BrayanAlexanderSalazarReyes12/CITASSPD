@@ -175,7 +175,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
             for (int i = 0; i < cedulasExtras.length; i++) {
                 Vehiculo vehiculoExtra = new Vehiculo(placasExtras[i], cedulasExtras[i], fecha, manifiestosExtras[i], remolqueExtras[i]);
                 VehiculoDB vdb = new VehiculoDB(placasExtras[i], cedulasExtras[i], nombreconductorExtras[i], fecha, manifiestosExtras[i]);
-                vehiculos.add(vehiculoExtra);
+                //vehiculos.add(vehiculoExtra);
                 vehiculosDB.add(vdb);
             }
         }
@@ -445,6 +445,34 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                             operacionesPermitidas.remove(operacionTerminada); // Marcar como finalizada
                             session.setAttribute("Operacionespermitadas", operacionesPermitidas);
                         }
+                        
+                        // Ahora enviar cada vehículo extra por separado
+                        if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
+                            for (int i = 0; i < cedulasExtras.length; i++) {
+                                Vehiculo vehiculoExtra = new Vehiculo(placasExtras[i], cedulasExtras[i], fecha, manifiestosExtras[i], remolqueExtras[i]);
+                                List<Vehiculo> listaVehiculoIndividual = new ArrayList<>();
+                                listaVehiculoIndividual.add(vehiculoExtra);
+
+                                Variables variablesIndividual = new Variables(sistemaEnturnamiento, identificador, Nitempresa, listaVehiculoIndividual);
+                                FormularioCompleto formularioIndividual = new FormularioCompleto(acceso, variablesIndividual);
+
+                                String jsonIndividual = gson.toJson(formularioIndividual);
+                                String responseIndividual = fp.Post(URL, jsonIndividual);
+
+                                if (responseIndividual != null && !responseIndividual.isEmpty()) {
+                                    // Respuesta no nula ni vacía: esperar antes del siguiente envío
+                                    try {
+                                        Thread.sleep(3000); // espera 1 segundo
+                                    } catch (InterruptedException e) {
+                                        Thread.currentThread().interrupt();
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    // Manejo simple de error
+                                    System.out.println("Error: respuesta vacía o nula al enviar vehículo con placa " + placasExtras[i]);
+                                }
+                            }
+                        }
 
                         response3 = fp.FormDB(URL1, json2);
                         response4 = fp.CitaBarcaza(URL2, json3);
@@ -571,6 +599,34 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                         if (operacionesPermitidas != null && operacionTerminada != null) {
                             operacionesPermitidas.remove(operacionTerminada); // Marcar como finalizada
                             session.setAttribute("Operacionespermitadas", operacionesPermitidas);
+                        }
+                        
+                        // Ahora enviar cada vehículo extra por separado
+                        if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
+                            for (int i = 0; i < cedulasExtras.length; i++) {
+                                Vehiculo vehiculoExtra = new Vehiculo(placasExtras[i], cedulasExtras[i], fecha, manifiestosExtras[i], remolqueExtras[i]);
+                                List<Vehiculo> listaVehiculoIndividual = new ArrayList<>();
+                                listaVehiculoIndividual.add(vehiculoExtra);
+
+                                Variables variablesIndividual = new Variables(sistemaEnturnamiento, identificador, Nitempresa, listaVehiculoIndividual);
+                                FormularioCompleto formularioIndividual = new FormularioCompleto(acceso, variablesIndividual);
+
+                                String jsonIndividual = gson.toJson(formularioIndividual);
+                                String responseIndividual = fp.Post(URL, jsonIndividual);
+
+                                if (responseIndividual != null && !responseIndividual.isEmpty()) {
+                                    // Respuesta no nula ni vacía: esperar antes del siguiente envío
+                                    try {
+                                        Thread.sleep(3000); // espera 1 segundo
+                                    } catch (InterruptedException e) {
+                                        Thread.currentThread().interrupt();
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    // Manejo simple de error
+                                    System.out.println("Error: respuesta vacía o nula al enviar vehículo con placa " + placasExtras[i]);
+                                }
+                            }
                         }
 
                         response3 = fp.FormDB(URL1, json2);

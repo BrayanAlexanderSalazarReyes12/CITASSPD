@@ -501,9 +501,36 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="AdjuntoDeRemision">Adjuntar Remisión Valorizada (PDF):</label>
-                    <input type="file" id="AdjuntoDeRemision" name="AdjuntoDeRemision" accept="application/pdf" required />
-                </div>
+                <label for="AdjuntoDeRemision">Adjuntar Remisión Valorizada (PDF):</label>
+                <input 
+                    type="file" 
+                    id="AdjuntoDeRemision" 
+                    name="AdjuntoDeRemision" 
+                    accept="application/pdf" 
+                    required 
+                    onchange="validarTamañoArchivo(this)"
+                />
+                <small id="errorArchivo" style="color: red; display: none;">
+                    El archivo supera el tamaño máximo permitido de 200 KB.
+                </small>
+            </div>
+
+            <script>
+            function validarTamañoArchivo(input) {
+                const archivo = input.files[0];
+                const maxTamaño = 200 * 1024; // 200 KB en bytes
+
+                const mensajeError = document.getElementById("errorArchivo");
+
+                if (archivo && archivo.size > maxTamaño) {
+                    mensajeError.style.display = "block";
+                    input.value = ""; // Limpia el archivo seleccionado
+                } else {
+                    mensajeError.style.display = "none";
+                }
+            }
+            </script>
+
 
                 <div class="form-group">
                     <label for="PrecioArticulo">Precio Unitario en USD:</label>

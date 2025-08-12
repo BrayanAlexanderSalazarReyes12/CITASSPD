@@ -172,10 +172,11 @@ public class Finalizarcita extends HttpServlet {
                         session.setAttribute("Error", "Error: " + jsonresponse.optString("ErrorText", "Sin detalle"));
                         session.setAttribute("Activo", true);
                         
-                        String response2 = fp.Post(apiUrl1, jsonResponse1);
+                        String response2 = fp.FinalizarCita(apiUrl1, jsonResponse1);
                         
                         response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
-                        
+
+                        //out.println(response2);
                         return;
                         
                     }else{
@@ -187,6 +188,10 @@ public class Finalizarcita extends HttpServlet {
                     session.setAttribute("Activo", true);
                     session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
                     response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
+                    String response2 = fp.FinalizarCita(apiUrl1, jsonResponse1);
+                        
+                    response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
+
                     return;
                 }
             }
