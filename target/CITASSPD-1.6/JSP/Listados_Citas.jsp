@@ -354,15 +354,6 @@
 
                                                         if (mostrar) {
                                             %>
-                                            <tr>
-                                                <td><%= listado.getPlaca() %></td>
-                                                <td><%= listado.getCedConductor() %></td>
-                                                <td><%= listado.getNomConductor() %></td>
-                                                <td><%= listado.getManifiesto() %></td>
-                                                <td><%= listado.getEstado() %></td>
-                                                <td><%= fechaConHora %></td>
-                                                <td><%= listado.getFmm() %></td>
-                                            </tr>
                                             <%
                                                         }
                                                     }
@@ -374,6 +365,9 @@
                                                             String fechaStr = v.getFechaOfertaSolicitud();
                                                             if (fechaStr != null && !fechaStr.isEmpty()) {
                                                                 LocalDateTime fechaVehiculo = LocalDateTime.parse(fechaStr, DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm:ss a", Locale.ENGLISH));
+                                                                // Formatear sin la T
+                                                                String fechaFormateada = fechaVehiculo.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
+                                                                System.out.println(fechaFormateada);
                                                                 if (fechaVehiculo.toLocalDate().equals(hoy)) {
                                                                     boolean mostrarVehiculo = filtro == null ||
                                                                         (v.getVehiculoNumPlaca() != null && v.getVehiculoNumPlaca().toLowerCase().contains(filtro)) ||
@@ -387,7 +381,7 @@
                                                 <td><%= v.getNombreConductor() %></td>
                                                 <td><%= v.getNumManifiestoCarga() %></td>
                                                 <td><%= listado.getEstado() %></td>
-                                                <td><%= v.getFechaOfertaSolicitud() %></td>
+                                                <td><%= fechaFormateada %></td>
                                                 <td><%= listado.getFmm() %></td>
                                             </tr>
                                             <%
@@ -435,7 +429,7 @@
                                                         new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                         new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                         new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                        new Cliente("9018263370", "CONQUERS ZF")
                                                     );
                                                     
                                                     String empresaUsuario = null;
@@ -509,7 +503,7 @@
                                                         new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                         new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                         new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                        new Cliente("9018263370", "CONQUERS ZF")
                                                     );
                                                     
                                                     String empresaUsuario = null;
@@ -590,7 +584,7 @@
                                                                         new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                                         new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                                         new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                        new Cliente("9018263370", "CONQUERS ZF")
                                                                     );
 
                                                                     String empresaUsuario = null;
@@ -654,7 +648,7 @@
                                                                         new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                                         new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                                         new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                        new Cliente("9018263370", "CONQUERS ZF")
                                                                     );
 
                                                                     String empresaUsuario = null;
@@ -750,7 +744,7 @@
                                                                         new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                                         new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                                         new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                        new Cliente("9018263370", "CONQUERS ZF")
                                                                     );
 
                                                                     String empresaUsuario = null;
@@ -812,7 +806,7 @@
                                                                         new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                                         new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                                         new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                        new Cliente("9018263370", "CONQUERS ZF")
                                                                     );
 
                                                                     String empresaUsuario = null;
@@ -902,7 +896,7 @@
                                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                       new Cliente("9018263370", "CONQUERS ZF")
                                                                    );
 
                                                                    String empresaUsuario = null;
@@ -966,7 +960,7 @@
                                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                       new Cliente("9018263370", "CONQUERS ZF")
                                                                    );
 
                                                                    String empresaUsuario = null;
@@ -1056,7 +1050,7 @@
                                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                       new Cliente("9018263370", "CONQUERS ZF")
                                                                    );
 
                                                                    String empresaUsuario = null;
@@ -1120,7 +1114,7 @@
                                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
                                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
                                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S")
+                                                                       new Cliente("9018263370", "CONQUERS ZF")
                                                                    );
 
                                                                    String empresaUsuario = null;
