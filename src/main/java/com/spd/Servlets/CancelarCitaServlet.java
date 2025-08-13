@@ -69,11 +69,20 @@ public class CancelarCitaServlet extends HttpServlet {
             String manifiesto = request.getParameter("manifiesto");
             String fechaIso = request.getParameter("fechaOfertaSolicitud");
             String fechaFormateada1 = "";
-
+            
+            System.err.println("fecha: " +fechaIso);
+            
             if (fechaIso != null && !fechaIso.trim().isEmpty() && !"null".equalsIgnoreCase(fechaIso.trim())) {
                 try {
-                    OffsetDateTime offsetDateTime = OffsetDateTime.parse(fechaIso);
-                    LocalDateTime fechaSinZona = offsetDateTime.toLocalDateTime();
+                    // Reemplazar espacio por 'T' para cumplir formato ISO_LOCAL_DATE_TIME
+                    String fechaConT = fechaIso.replace(" ", "T");
+
+                    LocalDateTime fechaSinZona = LocalDateTime.parse(fechaConT, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+                    // Adelantar 5 horas
+                    fechaSinZona = fechaSinZona.minusHours(5);;
+
+                    // Formatear conservando la 'T'
                     fechaFormateada1 = fechaSinZona.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
                     System.out.println("Fecha formateada: " + fechaFormateada1);
@@ -84,6 +93,7 @@ public class CancelarCitaServlet extends HttpServlet {
                 System.out.println("Parámetro 'fechaOfertaSolicitud' no proporcionado o es inválido.");
             }
 
+
             String operacion = request.getParameter("tipooperacion");
             // Valores fijos o simulados (ajústalos según tu sistema)
             String usuario = USUARIOMINTRASPOR;
@@ -92,6 +102,7 @@ public class CancelarCitaServlet extends HttpServlet {
             String terminalPortuariaNit = TERMINALPORTUARIANIT;
             String sistemaEnturnamientoId = SISTEMAENTURNAMIENTOID;
             String tipoOperacionId = operacion;
+            System.out.println(causalid);
             String quien = obtenerResponsablePorCodigo(causalid);
             String descripcion = obtenerDescripcionPorCodigo(causalid);
 
@@ -111,8 +122,8 @@ public class CancelarCitaServlet extends HttpServlet {
             variables.put("empresaTransportadoraNit", empresaNit);
             variables.put("vehiculoNumPlaca", placa);
             variables.put("conductorCedulaCiudadania", cedula);
-            variables.put("fechaOfertaSolicitud", fechaFormateada);
-            variables.put("quien", quien);
+            variables.put("fechaOfertaSolicitud", fechaFormateada1);
+            variables.put("quien", "P");
             variables.put("causalid", causalid);
             variables.put("descripcion", descripcion);
 
@@ -120,9 +131,11 @@ public class CancelarCitaServlet extends HttpServlet {
             finalJson.put("acceso", acceso);
             finalJson.put("variables", variables);
             
+            
             // Convertir a JSON con Gson
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(finalJson);
+
             
             Map<String, Object> cancelacioncita = new LinkedHashMap<>();
             cancelacioncita.put("codcita", registro);
@@ -160,15 +173,19 @@ public class CancelarCitaServlet extends HttpServlet {
                             HttpSession session = request.getSession();
                             session.setAttribute("Error", "Error: " + jsonresponse.optString("ErrorText", "Sin detalle"));
                             session.setAttribute("Activo", true);
-
+                            //out.println(json1);
                             response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
 
                             return;
 
                         }else{
+                            // Imprimir o enviar el JSON
+                             out.println(json1);
                             System.out.println("✅ Todo correcto.");
                         }
                     }else {
+                        // Imprimir o enviar el JSON
+                        out.println(json1);
                         System.out.println("⚠️ Respuesta vacía.");
                         HttpSession session = request.getSession();
                         session.setAttribute("Activo", true);
@@ -196,19 +213,14 @@ public class CancelarCitaServlet extends HttpServlet {
             case "14": return "Problemas Operativos en la terminal";
             case "15": return "Confirmación tardía de la cita";
             case "16": return "Problemas de atraque de la Motonave";
-            case "29": return "Otros";
             case "31": return "Daño mecánico del vehículo";
             case "32": return "Enfermedad del Conductor";
             case "33": return "Inocuidad del vehículo o del producto";
             case "34": return "Error en la digitación de la información";
-            case "49": return "Otros";
             case "51": return "Problemas de Nacionalización o Liberación";
-            case "69": return "Otros";
             case "71": return "Problemas de Infraestructura en la Vía";
             case "72": return "Problemas ocasionados por la comunidad";
-            case "89": return "Otros";
             case "91": return "Situación climática - Lluvia";
-            case "99": return "Otros";
             default: return "Causal desconocida";
         }
     }

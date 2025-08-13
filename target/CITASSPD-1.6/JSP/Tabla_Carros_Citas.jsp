@@ -139,7 +139,6 @@
                             <th>Fecha</th>
                             <th>Remision</th>
                             <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
-                                <th>Cancelar</th>
                                 <th>Selecionar</th>
                             <% System.out.println(rolObj);} %>
                         </tr>
@@ -180,27 +179,13 @@
                                 <td><%= vehiculo.getNumManifiestoCarga() %></td>
                                 <td><%= listado.getEstado() %></td>
                                 <td><%= vehiculo.getFechaOfertaSolicitud() == null ? fechaSinZona : vehiculo.getFechaOfertaSolicitud() %></td>
-                                
+                                <% System.out.println(fechaSinZona + "" + vehiculo.getFechaOfertaSolicitud()); %>
                                 <td>
                                     <input type="button" 
                                            value="Remision valorizada"
                                            onclick="descargarPDF('<%= listado.getFacturaRemision() %>.pdf', '<%= listado.getArchivo().replaceAll("\n", "").replaceAll("\r", "").replaceAll("'", "\\\\'") %>')">
                                 </td>
                                 <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
-                                <td>
-                                    <input type="button" 
-                                    onclick="cancelarCita(
-                                        '<%= listado.getCodCita() %>',
-                                        '<%= listado.getNit_Empresa_Transportadora() %>',
-                                        '<%= vehiculo.getVehiculoNumPlaca() %>',
-                                        '<%= vehiculo.getConductorCedulaCiudadania() %>',
-                                        '<%= vehiculo.getFechaOfertaSolicitud() %>',
-                                        '<%= operacion %>',
-                                        '<%= registro %>',
-                                        '<%= vehiculo.getNumManifiestoCarga() %>'
-                                    )"
-                                    value="🗑 Cancelar">
-                                </td>
                                 <td>
                                     <input type="checkbox" name="vehiculos"
                                            data-nombre="<%= vehiculo.getNombreConductor() %>"
@@ -403,87 +388,7 @@
 
         
 
-        function cancelarCita(codigoCita, empresaNit, placa, cedula, fechaOferta, operacion, registro, manifiesto) {
-            const causales = [
-                { codigo: '11', descripcion: 'Finalización del Buque - Finalización de la carga', responsable: 'PUERTO' },
-                { codigo: '12', descripcion: 'Obstáculo por movilidad en última milla', responsable: 'PUERTO' },
-                { codigo: '13', descripcion: 'Problemas técnicos en la plataforma de la Terminal Portuaria', responsable: 'PUERTO' },
-                { codigo: '14', descripcion: 'Problemas operativos en la terminal portuaria (daños mecánicos equipos)', responsable: 'PUERTO' },
-                { codigo: '15', descripcion: 'Confirmación tardía de la cita', responsable: 'PUERTO' },
-                { codigo: '16', descripcion: 'Problemas de atraque de la Motonave', responsable: 'PUERTO' },
-                { codigo: '29', descripcion: 'Otros', responsable: 'PUERTO' },
-                { codigo: '31', descripcion: 'Daño mecánico del vehículo', responsable: 'TRANSPORTADOR' },
-                { codigo: '32', descripcion: 'Enfermedad del Conductor', responsable: 'TRANSPORTADOR' },
-                { codigo: '33', descripcion: 'Inocuidad del vehículo o del producto transportado', responsable: 'TRANSPORTADOR' },
-                { codigo: '34', descripcion: 'Error en la digitación de la información', responsable: 'TRANSPORTADOR' },
-                { codigo: '49', descripcion: 'Otros', responsable: 'TRANSPORTADOR' },
-                { codigo: '51', descripcion: 'Problemas de Nacionalización o Liberación de la Carga', responsable: 'GENERADOR' },
-                { codigo: '69', descripcion: 'Otros', responsable: 'GENERADOR' },
-                { codigo: '72', descripcion: 'Obstáculo por comunidad', responsable: 'ESTADO' },
-                { codigo: '71', descripcion: 'Obstáculo por infraestructura en la vía', responsable: 'ESTADO' },
-                { codigo: '89', descripcion: 'Otros', responsable: 'ESTADO' },
-                { codigo: '91', descripcion: 'Situación climática - Lluvia', responsable: 'INDETERMINADO' },
-                { codigo: '99', descripcion: 'Otros', responsable: 'INDETERMINADO' }
-            ];
-            
-            const sufijos = {
-                '29': 'Puerto',
-                '49': 'Transportador',
-                '69': 'Generador',
-                '89': 'Estado',
-                '99': 'Indeterminado'
-            };
-
-            const opcionesHtml = causales.map(c => {
-                const sufijo = sufijos[c.codigo] ? ' - '+ sufijos[c.codigo]+'' : '';
-                return '<option value="'+c.codigo+'">'+c.codigo+' - '+c.descripcion+''+sufijo+'</option>';
-            }).join('');
-
-
-
-            Swal.fire({
-                title: '🗑 Cancelar Cita',
-                html: 
-                    '<div class="swal2-html-container" id="swal2-html-container" style="display: flex;">'+
-
-                    '<label for="causalSelect"><strong>Selecciona una causal de cancelación:</strong></label><br>' +
-                    '<select id="causalSelect" class="swal2-select" style=" font-size: 16px; padding: 10px; border-radius: 5px;">' +
-                        '<option value="">-- Selecciona una opción --</option>' +
-                        opcionesHtml +
-                    '</select>'+
-                    '</div>',
-
-                showCancelButton: true,
-                confirmButtonText: 'Cancelar Cita',
-                cancelButtonText: 'Salir',
-                preConfirm: () => {
-                    const causal = document.getElementById('causalSelect').value;
-                    if (!causal) {
-                        Swal.showValidationMessage('⚠ Debes seleccionar una causal');
-                        return false;
-                    }
-                    return { causal };
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const causal = result.value.causal;
-
-                    // Construir URL con parámetros
-                    const params = new URLSearchParams({
-                        codigo: codigoCita,
-                        causal: causal,
-                        empresaTransportadoraNit: empresaNit,
-                        vehiculoNumPlaca: placa,
-                        conductorCedulaCiudadania: cedula,
-                        fechaOfertaSolicitud: fechaOferta,
-                        tipooperacion: operacion,
-                        registro:registro,
-                        manifiesto:manifiesto
-                    });
-                    window.location.href = '../CancelarCitaServlet?' + params.toString();
-                }
-            });
-        }
+        
 
         // Cierre de pestaña o salir del sitio
         sessionStorage.setItem("ventanaActiva", "true");

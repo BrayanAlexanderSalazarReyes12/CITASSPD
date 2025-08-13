@@ -32,6 +32,9 @@ import com.spd.Model.Cliente;
 
 import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Base64;
 import javax.servlet.annotation.MultipartConfig;
@@ -117,6 +120,28 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         }
         
         String fecha = request.getParameter("fecha")+":00-05:00";
+        String fechamini = request.getParameter("fecha")+":00Z";
+        String fechaFormateada1 = "";
+        if (fechamini != null && !fechamini.trim().isEmpty() && !"null".equalsIgnoreCase(fechamini.trim())) {
+            try {
+                // Parsear con zona horaria (Z = UTC)
+                OffsetDateTime fechaUtc = OffsetDateTime.parse(fechamini, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+                // Restar 5 horas
+                OffsetDateTime fechaAjustada = fechaUtc.minusHours(5);
+
+                // Formatear conservando la 'Z' al final
+                fechaFormateada1 = fechaUtc.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+                System.out.println("Fecha ajustada: " + fechaFormateada1);
+
+            } catch (DateTimeParseException e) {
+                System.out.println("Error al parsear fecha: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Parámetro 'fechaOfertaSolicitud' no proporcionado o es inválido.");
+        }
+
         String Cedula = request.getParameter("Cedula");
         String placa = request.getParameter("Placa");
         String Manifiesto = request.getParameter("Manifiesto");
@@ -167,7 +192,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         List<VehiculoDB> vehiculosDB = new ArrayList<VehiculoDB>();
 
         // Vehículo principal
-        Vehiculo vehiculoPrincipal = new Vehiculo(placa, Cedula, fecha, Manifiesto, Remolque);
+        Vehiculo vehiculoPrincipal = new Vehiculo(placa, Cedula, fechaFormateada1, Manifiesto, Remolque);
         vehiculos.add(vehiculoPrincipal);
 
         // Vehículos adicionales

@@ -164,7 +164,7 @@ public class Finalizarcita extends HttpServlet {
                     if (errorCode != 0) {
                         
                         // Manejo del error
-                        System.out.println("❌ Error detectado: " + jsonresponse.optString("ErrorText", "Sin detalle"));
+                        System.out.println("❌ Error detectado1: " + jsonresponse.optString("ErrorText", "Sin detalle"));
                         //aqui tiene que estar los valores que le entrar al modal
                         
                         //variable de seccion
