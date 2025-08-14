@@ -4,6 +4,8 @@
     Author     : braya
 --%>
 
+<%@page import="org.json.JSONArray"%>
+<%@page import="com.spd.CItasDB.ListaCitasBarcaza"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -108,14 +110,31 @@
 
 <div id="tooltip" class="tooltip"></div>
 
-<script>
-    const dataBarcazas = [
-        { "id": 1, "nombre": "Barcaza 1", "manga": 10, "eslora": 10, "fechaCita": null, "horaCita": null },
-        { "id": 2, "nombre": "Barcaza 2", "manga": 8,  "eslora": 18, "fechaCita": null, "horaCita": null },
-        { "id": 3, "nombre": "Barcaza 3", "manga": 9,  "eslora": 40, "fechaCita": null, "horaCita": null },
-        { "id": 4, "nombre": "Barcaza 4", "manga": 12, "eslora": 140,"fechaCita": null, "horaCita": null }
-    ];
+<%
+    ListaCitasBarcaza.inicializarDesdeContexto(application);
+    JSONArray barcaza = new JSONArray();
+    try {
+        barcaza = new ListaCitasBarcaza().filtroBarcaza();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+%>
 
+
+<script>
+    var barcazaslist = <%= barcaza.toString() %>; 
+    
+    const dataBarcazas = barcazaslist.map((item, index) => ({
+        id: index + 1,
+        nombre: item.BARCAZA,
+        manga: item.MANGA,
+        eslora: item.ESLORA,
+        fechaCita: null,
+        horaCita: null
+    }));
+
+    console.log(dataBarcazas);
+    
     const panel = document.getElementById('panel-barcazas');
     const celdas = document.querySelectorAll('.celda');
     const tooltip = document.getElementById('tooltip');

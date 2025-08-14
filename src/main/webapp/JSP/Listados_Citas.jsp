@@ -4,6 +4,8 @@
     Author     : braya
 --%>
 
+<%@page import="java.nio.charset.StandardCharsets"%>
+<%@page import="java.net.URLDecoder"%>
 <%@page import="com.spd.Model.Cliente"%>
 <%@page import="java.util.Locale"%>
 <%@page import="com.spd.CItasDB.ListaVehiculos"%>
@@ -125,7 +127,7 @@
                     usuario = cookie.getValue();
                 }
                 if (cookie.getName().equals("DATA")){
-                    nit = cookie.getValue();
+                    nit = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8.name());
                 }
             }
         }
@@ -402,8 +404,7 @@
                                     <table id="myTable" class="display">
                                         <thead>
                                             <tr>
-                                                <th>Nit</th>
-                                                <th>Empresa transportadora</th>
+                                                <th>CODCITA</th>
                                                 <th>Empresa</th>
                                                 <th>Tipo operación</th>
                                                 <th>Cantidad vehiculos</th>
@@ -414,7 +415,7 @@
                                         <tbody>
                                             <%
                                                 for (ListadoCItas listado : ListadoCitas) {
-                                                    String nit_final = nit.replace("-", "");
+                                                    String nit_final = nit.replaceAll("[^0-9]", "");
                                                     
                                                     // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
                                                     List<Cliente> clientes = Arrays.asList(
@@ -450,8 +451,7 @@
                                                         
                                             %>
                                             <tr>
-                                                <td><%= listado.getNit() %></td>
-                                                <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                <td><%= listado.getCodCita() %></td>
                                                 <td><%= empresaUsuario %></td>
                                                 <td><%= listado.getTipo_Operacion() %></td>
                                                 <td><%= listado.getCantidad_Vehiculos() %></td>
@@ -477,8 +477,7 @@
                                     <table id="myTable" class="display">
                                         <thead>
                                             <tr>
-                                                <th>Nit</th>
-                                                <th>Empresa transportadora</th>
+                                                <th>CODCITA</th>
                                                 <th>Empresa</th>
                                                 <th>Tipo operación</th>
                                                 <th>Cantidad vehiculos</th>
@@ -523,8 +522,7 @@
                                                     
                                             %>
                                             <tr>
-                                                <td><%= listado.getNit() %></td>
-                                                <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                <td><%= listado.getCodCita() %></td>
                                                 <td><%= empresaUsuario %></td>
                                                 <td><%= listado.getTipo_Operacion() %></td>
                                                 <td><%= listado.getCantidad_Vehiculos() %></td>
@@ -554,8 +552,7 @@
                                         <table id="myTable" class="display">
                                             <thead>
                                                 <tr>
-                                                    <th>Nit</th>
-                                                    <th>Empresa transportadora</th>
+                                                    <th>CODCITA</th>
                                                     <th>Empresa</th>
                                                     <th>Tipo operación</th>
                                                     <th>Cantidad vehiculos</th>
@@ -569,6 +566,7 @@
                                                     if (rolObj != null && ((Integer) rolObj) == 2){
                                                  
                                                             for(ListadoCItas listado: ListadoCitas2){
+                                                                
                                                                 if (listado.getNombre_Empresa().equals(usuario))
                                                                 {
                                                                     // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
@@ -611,12 +609,10 @@
 
                                                                     System.out.println(fechaSinZona); // Resultado: 2025-04-26 10:00:00
 
-                                                                    if (fecha.equals(fechaactual)) {
 
                                                 %>
                                                 <tr>
-                                                    <td><%= listado.getNit() %></td>
-                                                    <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                    <td><%= listado.getCodCita() %></td>
                                                     <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
                                                     <td><%= listado.getCantidad_Vehiculos() %></td>
@@ -630,7 +626,7 @@
                                                     </td>
                                                 </tr>
                                                 <%
-                                                    }}}} else if (rolObj != null && ((Integer) rolObj) == 1){
+                                                    }}} else if (rolObj != null && ((Integer) rolObj) == 1){
                                                 %>
                                                         <%
                                                             for(ListadoCItas listado: ListadoCitas2){
@@ -678,8 +674,7 @@
  
                                                         %>
                                                                         <tr>
-                                                                            <td><%= listado.getNit() %></td>
-                                                                            <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                                            <td><%= listado.getCodCita() %></td>
                                                                             <td><%= empresaUsuario %></td>
                                                                             <td><%= listado.getTipo_Operacion() %></td>
                                                                             <td><%= listado.getCantidad_Vehiculos() %></td>
@@ -710,8 +705,7 @@
                                             <table id="myTable4" class="display">
                                                 <thead>
                                                     <tr>
-                                                        <th>Nit</th>
-                                                        <th>Empresa transportadora</th>
+                                                        <th>CODCITA</th>
                                                         <th>Empresa</th>
                                                         <th>Tipo operación</th>
                                                         <th>Cantidad vehiculos</th>
@@ -773,8 +767,7 @@
 
                                                 %>
                                                 <tr>
-                                                    <td><%= listado.getNit() %></td>
-                                                    <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                    <td><%= listado.getCodCita() %></td>
                                                     <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
                                                     <td><%= listado.getCantidad_Vehiculos() %></td>
@@ -836,8 +829,7 @@
  
                                                         %>
                                                                         <tr>
-                                                                            <td><%= listado.getNit() %></td>
-                                                                            <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                                            <td><%= listado.getCodCita() %></td>
                                                                             <td><%= empresaUsuario %></td>
                                                                             <td><%= listado.getTipo_Operacion() %></td>
                                                                             <td><%= listado.getCantidad_Vehiculos() %></td>
@@ -867,8 +859,7 @@
                                             <table id="myTable4" class="display">
                                                 <thead>
                                                     <tr>
-                                                        <th>Nit</th>
-                                                        <th>Empresa transportadora</th>
+                                                        <th>CODCITA</th>
                                                         <th>Empresa</th>
                                                         <th>Tipo operación</th>
                                                         <th>Cantidad vehiculos</th>
@@ -882,7 +873,7 @@
                                                     if (rolObj != null && ((Integer) rolObj) == 2){
                                                  
                                                             for(ListadoCItas listado: ListadoCitas2){
-                                                                String nit_final = nit.replace("-", "");
+                                                                String nit_final = nit.replaceAll("[^0-9]", "");
                                                                 // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
                                                                    List<Cliente> clientes = Arrays.asList(
                                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
@@ -908,9 +899,10 @@
                                                                            break;
                                                                        }
                                                                    }
-                                                                System.out.println(listado.getNit() + " " + nit_final);
                                                                 if (listado.getNit().equals(nit_final))
                                                                 {
+                                                                    
+                                                                    System.out.println(listado.getNit() + " " + nit_final);
                                                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
                                                                     OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
                                                                     LocalDateTime ldt = odt.toLocalDateTime();
@@ -924,12 +916,10 @@
                                                                     DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                                                                     String fechaactual = ldt1.format(formatter2);
                                                                     
-                                                                    if (fecha.equals(fechaactual)) {
 
                                                 %>
                                                 <tr>
-                                                    <td><%= listado.getNit() %></td>
-                                                    <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                    <td><%= listado.getCodCita() %></td>
                                                     <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
                                                     <td><%= listado.getCantidad_Vehiculos() %></td>
@@ -943,7 +933,7 @@
                                                     </td>
                                                 </tr>
                                                 <%
-                                                    }}}} else if (rolObj != null && ((Integer) rolObj) == 1){
+                                                    }}} else if (rolObj != null && ((Integer) rolObj) == 1){
                                                 %>
                                                         <%
                                                             for(ListadoCItas listado: ListadoCitas2){
@@ -1021,8 +1011,7 @@
                                             <table id="myTable4" class="display">
                                                 <thead>
                                                     <tr>
-                                                        <th>Nit</th>
-                                                        <th>Empresa transportadora</th>
+                                                        <th>CODCITA</th>
                                                         <th>Empresa</th>
                                                         <th>Tipo operación</th>
                                                         <th>Cantidad vehiculos</th>
@@ -1082,8 +1071,7 @@
 
                                                 %>
                                                 <tr>
-                                                    <td><%= listado.getNit() %></td>
-                                                    <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                                    <td><%= listado.getCodCita() %></td>
                                                     <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
                                                     <td><%= listado.getCantidad_Vehiculos() %></td>

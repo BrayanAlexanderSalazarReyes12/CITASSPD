@@ -1,3 +1,4 @@
+<%@page import="com.spd.Productos.Producto"%>
 <%@page import="java.time.LocalDateTime"%>
 <%@page import="java.time.OffsetDateTime"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
@@ -25,6 +26,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.css" />
     <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
             $(document).ready(function () {
@@ -138,9 +141,7 @@
                             <th>Estado</th>
                             <th>Fecha</th>
                             <th>Remision</th>
-                            <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
-                                <th>Selecionar</th>
-                            <% System.out.println(rolObj);} %>
+                            <th>Actualizar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -192,7 +193,13 @@
                                            data-cedula="<%= vehiculo.getConductorCedulaCiudadania() %>"
                                            value="<%= vehiculo.getVehiculoNumPlaca() %>">
                                 </td>
-                                <% } %>
+                                <% }else{ %>
+                                <td>
+                                    <input type="button" 
+                                           value="Actualizar Cita"
+                                           onclick="abrirFormulario()">
+                                </td>
+                                <%}%>
                             </tr>
                         <%
                                         }
@@ -203,6 +210,175 @@
                     </tbody>
                 </table>
             </form>
+                    
+            <script>
+                function abrirFormulario() {
+                    Swal.fire({
+                        title: 'Actualizar Producto',
+                        width: '95%',
+                        customClass: { popup: 'swal-wide' },
+                        html: `
+                            <style>
+                                .form-grid {
+                                    display: grid;
+                                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                                    gap: 15px;
+                                    padding: 10px;
+                                }
+                                .form-field {
+                                    background: #f9f9f9;
+                                    padding: 10px;
+                                    border-radius: 8px;
+                                    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                                    display: flex;
+                                    flex-direction: column;
+                                }
+                                .form-field label {
+                                    font-weight: 600;
+                                    font-size: 0.9rem;
+                                    margin-bottom: 5px;
+                                    color: #333;
+                                }
+                                .form-field input,
+                                .form-field select,
+                                .form-field textarea {
+                                    padding: 8px;
+                                    border: 1px solid #ccc;
+                                    border-radius: 6px;
+                                    font-size: 0.9rem;
+                                    outline: none;
+                                    transition: border 0.3s ease;
+                                }
+                                .form-field input:focus,
+                                .form-field select:focus,
+                                .form-field textarea:focus {
+                                    border-color: #007bff;
+                                }
+                                #valorFOB {
+                                    background-color: #e9f7ef;
+                                    color: #155724;
+                                    font-weight: bold;
+                                }
+                                textarea { resize: vertical; }
+                            </style>
+
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Tipo de Producto:</label>
+                                    <input type="text" id="tipoProducto">
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Cantidad del Producto (en m³):</label>
+                                    <input type="number" id="cantidadProducto" step="0.01">
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Peso Bruto del Producto (en KG):</label>
+                                    <input type="number" id="pesoBruto" step="0.01">
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Número de Factura Comercial o Remisión:</label>
+                                    <input type="text" id="numeroFactura">
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Adjuntar Remisión Valorizada (PDF):</label>
+                                    <input type="file" id="remisionPDF" accept="application/pdf">
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Precio Unitario en USD:</label>
+                                    <input type="number" id="precioUnitario" step="0.01">
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Valor FOB Total (USD):</label>
+                                    <input type="text" id="valorFOB" readonly value="0.00">
+                                </div>
+
+                                <div class="form-field" style="grid-column: 1 / -1;">
+                                    <label>Observaciones Generales:</label>
+                                    <textarea id="observaciones" rows="3"></textarea>
+                                </div>
+                            </div>
+                        `,
+                        focusConfirm: false,
+                        showCancelButton: true,
+                        confirmButtonText: '<i class="fas fa-save"></i> Guardar',
+                        cancelButtonText: 'Cancelar',
+                        didOpen: () => {
+                            const cantidad = document.getElementById('cantidadProducto');
+                            const precio = document.getElementById('precioUnitario');
+                            const valorFOB = document.getElementById('valorFOB');
+
+                            // Calcular FOB
+                            function actualizarFOB() {
+                                const c = parseFloat(cantidad.value) || 0;
+                                const p = parseFloat(precio.value) || 0;
+                                valorFOB.value = (c * p).toFixed(2);
+                            }
+                            cantidad.addEventListener('input', actualizarFOB);
+                            precio.addEventListener('input', actualizarFOB);
+                        },
+                        preConfirm: () => {
+                            // Validar campos vacíos
+                            const campos = [
+                                'tipoProducto',
+                                'cantidadProducto',
+                                'pesoBruto',
+                                'numeroFactura',
+                                'precioUnitario',
+                                'observaciones'
+                            ];
+
+                            for (let id of campos) {
+                                if (!document.getElementById(id).value.trim()) {
+                                    Swal.showValidationMessage('Todos los campos son obligatorios');
+                                    return false;
+                                }
+                            }
+
+                            // Validar archivo PDF
+                            const archivo = document.getElementById('remisionPDF').files[0];
+                            if (!archivo) {
+                                Swal.showValidationMessage('Debes adjuntar el archivo PDF');
+                                return false;
+                            }
+                            if (archivo.size > 200 * 1024) {
+                                Swal.showValidationMessage('El archivo debe pesar menos de 200 KB');
+                                return false;
+                            }
+
+                            // Convertir a Base64 y devolver datos
+                            return new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    const base64 = e.target.result.split(',')[1];
+                                    resolve({
+                                        tipoProducto: document.getElementById('tipoProducto').value,
+                                        cantidadProducto: document.getElementById('cantidadProducto').value,
+                                        pesoBruto: document.getElementById('pesoBruto').value,
+                                        numeroFactura: document.getElementById('numeroFactura').value,
+                                        remisionPDF: base64,
+                                        precioUnitario: document.getElementById('precioUnitario').value,
+                                        observaciones: document.getElementById('observaciones').value
+                                    });
+                                };
+                                reader.readAsDataURL(archivo);
+                            });
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            console.log("Datos guardados:", result.value);
+                            Swal.fire("Actualizado", "El producto se ha actualizado correctamente.", "success");
+                        }
+                    });
+                }
+            </script>
+
+            
             <div style="margin-top: 20px; width: auto; height: auto;" class="Botones_tabla">
                 <%
                     Object rolObject1 = session.getAttribute("Rol");
