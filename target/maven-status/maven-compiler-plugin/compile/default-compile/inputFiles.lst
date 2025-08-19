@@ -7,6 +7,7 @@ C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\sp
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\ClasesJsonFormularioMinisterio\SistemaEnturnamiento.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Servlets\AsignarCitaBarcaza.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Servlets\Formulario_SPD_Servlet.java
+C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\informacionCita\InformacionPesajeFinalizacionCIta.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Servlets\CrearUsuarioServlet.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Model\FormularioCompletoSPDCARROTANQUE.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\ClasesJsonFormularioMinisterio\Vehiculo.java
@@ -43,6 +44,7 @@ C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\sp
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CItasDB\ListaCitasBarcaza.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CreacionUsuarioNit\CreacionUsuarioEmpresaTransportadora.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\DAO\ListadoUsuarios.java
+C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\informacionCita\CitaInfo.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CItasDB\VehiculoDB.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CrearUsuarioJson\ActualizarUsuarioClass.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Model\Formulario_Citas_SPD.java

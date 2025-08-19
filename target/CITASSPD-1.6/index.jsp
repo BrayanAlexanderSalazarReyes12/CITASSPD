@@ -38,7 +38,7 @@
                 if (cookies != null) {
                     for (Cookie cookie : cookies) {
                         if(cookie.getName().equals("SeccionIniciada")){
-                            response.sendRedirect("./TiposProductos"); // Redirige si la sesión está iniciada
+                            response.sendRedirect("./JSP/TipoOperaciones.jsp"); // Redirige si la sesión está iniciada
                         }
                         if(cookie.getName().equals("ErrorConUser")){
                         %>

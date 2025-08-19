@@ -6,6 +6,7 @@ com\spd\Servlets\TiposProductos.class
 Utilidades\Utilidades.class
 com\spd\Servlets\CrearUsuarioServlet.class
 com\spd\CrearUsuarioJson\UsuarioLogin.class
+com\spd\informacionCita\InformacionPesajeFinalizacionCIta.class
 com\spd\Servlets\Formulario_SPD_Servlet.class
 com\spd\Servlets\MapaBarcazasServelet.class
 com\spd\Model\OperacionEstado.class
@@ -19,6 +20,7 @@ com\spd\CItasDB\CitaBascula.class
 com\spd\ClasesJsonFormularioMinisterio\Acceso.class
 com\spd\Servlets\TipoProductosBarcaza.class
 com\spd\Model\ListadoCitasBar.class
+com\spd\informacionCita\CitaInfo.class
 com\spd\API\FormularioPost.class
 com\spd\DAO\ListadoDAO$3.class
 com\spd\Model\Formulario_Citas_SPD.class

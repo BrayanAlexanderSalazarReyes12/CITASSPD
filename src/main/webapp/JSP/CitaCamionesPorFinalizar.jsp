@@ -4,6 +4,8 @@
     Author     : Brayan Salazar
 --%>
 
+<%@page import="com.spd.informacionCita.CitaInfo"%>
+<%@page import="com.spd.informacionCita.InformacionPesajeFinalizacionCIta"%>
 <%@page import="java.util.Locale"%>
 <%@page import="com.spd.CItasDB.ListaVehiculos"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
@@ -54,6 +56,13 @@
             response.sendRedirect(request.getContextPath());
         }
         int operacion;
+        String fecha_final_estado = "";
+        java.sql.Timestamp fecha_pesaje_entreda_bascula = null;
+        java.sql.Timestamp fecha_pesaje_salida_bascula = null;
+        String peso_entrada_bascula = "";
+        String peso_salida_bascula = "";
+        String fechaParaInput_en_bas = "";
+        String fechaParInput_sal_bas = "";
     %>
     <body>
         <header>
@@ -168,7 +177,7 @@
                                         List<ListaVehiculos> vehiculos = listado.getVehiculos();
                                         if (vehiculos != null && !vehiculos.isEmpty()){
                                             for (ListaVehiculos vehiculo : vehiculos){
-                                             if(vehiculo.getFechaOfertaSolicitud() != null ){
+                                             if(vehiculo.getFechaOfertaSolicitud() != null){
                             %>
                                 <tr>
                                     <td><%= listado.getTipo_Operacion() %></td>
@@ -215,6 +224,9 @@
                                         value="🗑 Cancelar">
                                     </td>
                                     <% } %>
+                                    <%
+                                        fecha_final_estado = fechaSinZona;
+                                    %>
                                     <td>
                                         <input type="checkbox" name="vehiculos"
                                                data-operacion="<%= listado.getTipo_Operacion() %>"
@@ -225,7 +237,8 @@
                                                value="<%= vehiculo.getVehiculoNumPlaca() %>"
                                                data-fecha="<%= formattedDate %>"
                                                data-nombreconductor="<%= vehiculo.getNombreConductor() %>"
-                                               data-formulario="<%= listado.getFmm() %>">
+                                               data-formulario="<%= listado.getFmm() %>"
+                                               data-rol="<%= rol %>">
                                     </td>
                                 </tr>
                             <%
@@ -365,6 +378,42 @@
             </div>
         </div>
     </body>
+    
+    <%
+        InformacionPesajeFinalizacionCIta.inicializarDesdeContexto(application);
+        String codcita = request.getParameter("registro");
+        System.out.println("codcita:"+ codcita);
+        if(codcita != null && !codcita.isEmpty()){
+            CitaInfo info = InformacionPesajeFinalizacionCIta.InformacionPeosFinalizacionCIta(codcita);
+            if (info != null) {
+                fecha_pesaje_entreda_bascula = (info.getFechaEntrada() != null) ? info.getFechaEntrada() : null;
+                fecha_pesaje_salida_bascula  = (info.getFechaSalida()  != null) ? info.getFechaSalida()  : null;
+                peso_entrada_bascula         = (info.getPesoIngreso() != null) ? Double.toString(info.getPesoIngreso()) : "";
+                peso_salida_bascula          = (info.getPesoSalida()  != null) ? Double.toString(info.getPesoSalida())  : "";
+                
+                LocalDateTime fecha_en_bas = fecha_pesaje_entreda_bascula.toLocalDateTime();
+
+                LocalDateTime fecha_sal_bas = fecha_pesaje_salida_bascula.toLocalDateTime();
+
+                DateTimeFormatter salida = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+                fechaParaInput_en_bas = fecha_en_bas.format(salida);
+                fechaParInput_sal_bas = fecha_sal_bas.format(salida);
+            } else {
+                // Si no existe info, inicializamos vacío
+                fecha_pesaje_entreda_bascula = null;
+                fecha_pesaje_salida_bascula  = null;
+                peso_entrada_bascula         = "";
+                peso_salida_bascula          = "";
+            }
+            
+        } else {
+            out.println("⚠️ No se recibió el código de la cita.");
+        }
+    %>
+    
+    <%
+        System.out.println(fechaParaInput_en_bas + " " + fecha_pesaje_salida_bascula + " " + peso_entrada_bascula +" "+ peso_salida_bascula);
+    %>
     <script>
         function navegarInternamente(url) {
             sessionStorage.setItem("navegandoInternamente", "true");
@@ -384,34 +433,108 @@
                 Swal.fire('⚠ Debes seleccionar solo un vehículo');
                 return;
             }
+            
+            console.log("<%= fecha_final_estado %>");
+            
+            // Convertir fecha JSP al formato de datetime-local
+            let fechaInsideRaw = "<%= fecha_final_estado %>"; // "2025-08-11 6:00:00 PM"
 
+            // Crear objeto Date
+            let fechaInside = new Date(fechaInsideRaw);
+
+            // Formatear a YYYY-MM-DDTHH:MM (24 horas)
+            let anio = fechaInside.getFullYear();
+            let mes = String(fechaInside.getMonth() + 1).padStart(2, '0');
+            let dia = String(fechaInside.getDate()).padStart(2, '0');
+            let horas = String(fechaInside.getHours()).padStart(2, '0');
+            let minutos = String(fechaInside.getMinutes()).padStart(2, '0');
+            let fechaInsideFormato = anio+'-'+mes+'-'+dia+'T'+horas+':'+minutos;
+            let fechaParaInput_en_bas = "<%= fechaParaInput_en_bas %>";
+            let pesoentradabas = "<%= peso_entrada_bascula %>";
+            let fechaParaInput_sal_bas = "<%= fechaParInput_sal_bas %>";
+            let pesosalidabas= "<%= peso_salida_bascula %>";
+            console.log("Fecha formateada para input:", fechaInsideFormato);
+            
             Swal.fire({
                 title: '📋 Finalizar citas de camiones',
-                html:
-                    '<div style="display: flex; align-items: center; width: 100%; margin-bottom: 10px;">' +
-                        '<label for="fechacitainside" style="width: 150px; text-align: left;"><strong>Fecha de la cita creada por inside</strong></label>' +
-                        '<input id="fechacitainside" type="datetime-local" class="swal2-input" style="flex: 1; margin-left:auto; padding:5px;" step="1">' +
-                    '</div>' +
-                    '<div style="display: flex; align-items: center; width: 100%; margin-bottom: 10px;">' +
-                        '<label for="fechaCita" style="width: 150px; text-align: left;"><strong>Fecha de entrada por bascula</strong></label>' +
-                        '<input id="fechaCita" type="datetime-local" class="swal2-input" style="flex: 1; margin-left:auto; padding:5px;">' +
-                    '</div>' +
-                    '<div style="display: flex; align-items: center; width: 100%;">' +
-                        '<label for="pesoentrada" style="width: 150px; text-align: left;"><strong>Peso de entrada en toneladas:</strong></label>' +
-                        '<input id="pesoentrada" type="text" class="swal2-input" style="flex: 1; margin-left:auto;" ' +
-                        'pattern="\\d+" inputmode="numeric" oninput="this.value = this.value.replace(/\\D/g, \'\')" ' +
-                        'placeholder="Solo números">' +
-                    '</div>'+
-                    '<div style="display: flex; align-items: center; width: 100%; margin-bottom: 10px;">' +
-                        '<label for="fechasalida" style="width: 150px; text-align: left;"><strong>Fecha de salida por bascula</strong></label>' +
-                        '<input id="fechasalida" type="datetime-local" class="swal2-input" style="flex: 1; margin-left:auto;">' +
-                    '</div>' +
-                    '<div style="display: flex; align-items: center; width: 100%;">' +
-                        '<label for="pesosalida" style="width: 150px; text-align: left;"><strong>Peso de salida toneladas</strong></label>' +
-                        '<input id="pesosalida" type="text" class="swal2-input" style="flex: 1; margin-left:auto;" ' +
-                        'pattern="\\d+" inputmode="numeric" oninput="this.value = this.value.replace(/\\D/g, \'\')" ' +
-                        'placeholder="Solo números">' +
-                    '</div>',
+                html: `
+                    <style>
+                      .swal-form {
+                        display: grid;
+                        grid-template-columns: 1fr;
+                        gap: 12px;
+                        width: 100%;
+                      }
+                      .swal-form-group {
+                        display: flex;
+                        flex-direction: column;
+                      }
+                      .swal-form-group label {
+                        font-weight: bold;
+                        margin-bottom: 4px;
+                        font-size: 14px;
+                        text-align: left;
+                      }
+                      .swal-form-group input {
+                        padding: 8px;
+                        border: 1px solid #ccc;
+                        border-radius: 6px;
+                        width: 100%;
+                      }
+                      @media (min-width: 768px) {
+                        .swal-form-group {
+                          flex-direction: row;
+                          align-items: center;
+                        }
+                        .swal-form-group label {
+                          flex: 0 0 220px;
+                          margin-bottom: 0;
+                        }
+                        .swal-form-group input {
+                          flex: 1;
+                        }
+                      }
+                    </style>
+
+                    <div class="swal-form">
+                      <div class="swal-form-group">
+                        <label for="fechacitainside">Fecha de la cita creada por inside</label>
+                        <input id="fechacitainside" type="datetime-local" 
+                               value="` + fechaInsideFormato + `" readonly>
+                      </div>
+
+                      <div class="swal-form-group">
+                        <label for="fechaCita">Fecha de entrada por báscula</label>
+                        <input id="fechaCita" type="datetime-local"
+                                value="` + fechaParaInput_en_bas +`">
+                      </div>
+
+                      <div class="swal-form-group">
+                        <label for="pesoentrada">Peso de entrada en toneladas</label>
+                        <input id="pesoentrada" type="text" 
+                               pattern="\d+" inputmode="numeric"
+                               oninput="this.value = this.value.replace(/\D/g, '').split('.')[0]"
+                               placeholder="Solo números"
+                               value="` + (pesoentradabas.includes('.') ? pesoentradabas.split('.')[0] : pesoentradabas) + `">
+                      </div>
+
+
+                      <div class="swal-form-group">
+                        <label for="fechasalida">Fecha de salida por báscula</label>
+                        <input id="fechasalida" type="datetime-local"
+                                value="` + fechaParaInput_sal_bas +`">
+                      </div>
+
+                      <div class="swal-form-group">
+                        <label for="pesosalida">Peso de salida en toneladas</label>
+                        <input id="pesosalida" type="text" 
+                               pattern="\\d+" inputmode="numeric"
+                               oninput="this.value = this.value.replace(/\\D/g, '')"
+                               placeholder="Solo números"
+                               value="` + (pesosalidabas.includes('.') ? pesosalidabas.split('.')[0] : pesosalidabas) + `">
+                      </div>
+                    </div>
+                  `,
                 confirmButtonText: 'Guardar',
                 confirmButtonColor: '#28a745',
                 cancelButtonText: 'Cancelar',
@@ -470,7 +593,8 @@
                             fechaOfertaSolicitud: cb.dataset.fecha || "",
                             numManifiestoCarga: cb.dataset.manifiesto || "",
                             nombreconductor: cb.dataset.nombreconductor || "",
-                            formulario: cb.dataset.formulario || ""
+                            formulario: cb.dataset.formulario || "",
+                            rol: cb.dataset.rol || ""
                         });
                     });
 

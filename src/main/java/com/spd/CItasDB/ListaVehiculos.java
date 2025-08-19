@@ -14,13 +14,15 @@ public class ListaVehiculos {
     private String nombreConductor;
     private String fechaOfertaSolicitud;
     private String numManifiestoCarga;
+    private String estado;
 
-    public ListaVehiculos(String vehiculoNumPlaca, String conductorCedulaCiudadania, String nombreConductor, String fechaOfertaSolicitud, String numManifiestoCarga) {
+    public ListaVehiculos(String vehiculoNumPlaca, String conductorCedulaCiudadania, String nombreConductor, String fechaOfertaSolicitud, String numManifiestoCarga, String estado) {
         this.vehiculoNumPlaca = vehiculoNumPlaca;
         this.conductorCedulaCiudadania = conductorCedulaCiudadania;
         this.nombreConductor = nombreConductor;
         this.fechaOfertaSolicitud = fechaOfertaSolicitud;
         this.numManifiestoCarga = numManifiestoCarga;
+        this.estado = estado;
     }
     
     public String getVehiculoNumPlaca() {
@@ -62,6 +64,13 @@ public class ListaVehiculos {
     public void setNumManifiestoCarga(String numManifiestoCarga) {
         this.numManifiestoCarga = numManifiestoCarga;
     }
-    
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
     
 }

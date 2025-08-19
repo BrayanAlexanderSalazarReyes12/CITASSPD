@@ -71,10 +71,6 @@ public class Finalizarcita extends HttpServlet {
             // Obtener parámetro JSON URL-encoded
             String vehiculosJsonEncoded = request.getParameter("vehiculos");
 
-            if (vehiculosJsonEncoded == null || vehiculosJsonEncoded.trim().isEmpty()) {
-                out.println("{\"error\": \"El parámetro 'vehiculos' no puede ser nulo o vacío\"}");
-                return;
-            }
 
             // Decodificar la cadena URL-encoded para obtener JSON válido
             String vehiculosJsonDecoded = URLDecoder.decode(vehiculosJsonEncoded, "UTF-8");
@@ -83,19 +79,8 @@ public class Finalizarcita extends HttpServlet {
 
             // Tipo para lista de mapas (array JSON)
             Type type = new TypeToken<List<Map<String, Object>>>() {}.getType();
-            List<Map<String, Object>> vehiculosList;
+            List<Map<String, Object>> vehiculosList = gson.fromJson(vehiculosJsonDecoded, type);
 
-            try {
-                vehiculosList = gson.fromJson(vehiculosJsonDecoded, type);
-            } catch (JsonSyntaxException e) {
-                out.println("{\"error\": \"Formato de JSON inválido en el parámetro 'vehiculos'\"}");
-                return;
-            }
-
-            if (vehiculosList.isEmpty()) {
-                out.println("{\"error\": \"La lista de vehículos está vacía\"}");
-                return;
-            }
 
             // Tomamos el primer objeto para variables (ajusta si necesitas procesar todos)
             Map<String, Object> vehiculosMap = vehiculosList.get(0);
@@ -174,7 +159,7 @@ public class Finalizarcita extends HttpServlet {
                         
                         String response2 = fp.FinalizarCita(apiUrl1, jsonResponse1);
                         
-                        response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
+                        response.sendRedirect(request.getContextPath() + "/JSP/CitaCamionesPorFinalizar.jsp?registro="+registro+"&rol="+vehiculosMap.get("rol"));// Esto recarga la página actual 
 
                         //out.println(response2);
                         return;
