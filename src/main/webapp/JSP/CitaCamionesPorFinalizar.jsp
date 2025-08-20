@@ -385,6 +385,7 @@
         System.out.println("codcita:"+ codcita);
         if(codcita != null && !codcita.isEmpty()){
             CitaInfo info = InformacionPesajeFinalizacionCIta.InformacionPeosFinalizacionCIta(codcita);
+            
             if (info != null) {
                 fecha_pesaje_entreda_bascula = (info.getFechaEntrada() != null) ? info.getFechaEntrada() : null;
                 fecha_pesaje_salida_bascula  = (info.getFechaSalida()  != null) ? info.getFechaSalida()  : null;

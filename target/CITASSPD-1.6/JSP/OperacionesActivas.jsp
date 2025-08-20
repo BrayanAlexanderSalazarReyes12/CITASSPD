@@ -205,6 +205,21 @@
     </header>
     
     <body>
+        <% String errorMsg = (String) session.getAttribute("errorMsg"); 
+            System.out.println(errorMsg);
+        %>
+        <% if (errorMsg != null) { %>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '<%= errorMsg %>',
+                    confirmButtonText: 'Aceptar'
+                });
+            </script>
+        <% } %>
+
         <div class="contenedor">
             <table border="1">
                 <thead>

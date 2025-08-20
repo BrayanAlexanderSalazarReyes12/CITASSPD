@@ -67,6 +67,19 @@ public class Formulario_SPD_Servlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        
+        // 1️⃣ Verificamos si la petición es multipart (si no, es el error de la imagen)
+        if (request.getContentType() == null || 
+            !request.getContentType().toLowerCase().startsWith("multipart/")) {
+
+            request.getSession().setAttribute("errorMsg", "Debe adjuntar un archivo PDF válido.");
+            response.sendRedirect("JSP/OperacionesActivas.jsp");
+
+            return;
+        }
+
+        
         //Obtener datos del formulario
         String usuario = request.getParameter("Cliente");
         

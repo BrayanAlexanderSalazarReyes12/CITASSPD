@@ -120,6 +120,23 @@
     
     <%
         Object rolObject1 = session.getAttribute("Rol");
+        if(rolObject1 == null) {
+            // 🔹 Eliminar todas las cookies
+            Cookie[] cookies3 = request.getCookies();
+            if (cookies3 != null) {
+                for (Cookie cookie : cookies3) {
+                    cookie.setMaxAge(0); // caduca inmediatamente
+                    cookie.setPath("/CITASSPD"); // asegúrate de aplicar al contexto raíz
+                    response.addCookie(cookie);
+                }
+            }
+
+            // 🔹 Invalidar la sesión completa también
+            session.invalidate();
+        
+            response.sendRedirect(request.getContextPath());
+            return;
+        }
         if (rolObject1 != null && ((Integer) rolObject1) == 0 || ((Integer) rolObject1) == 5){
     %>
     <body>
@@ -329,6 +346,8 @@
                                   }
                                     // Ahora solo tienes los nombres como un array de strings en JS
                                     var nombresBarcazas = <%= nombresBarcazas.toString() %>;
+                                    // Agregar barcazas fijas adicionales
+                                    nombresBarcazas.push("Roma 304", "Omega one", "Alpha uno");
 
                                     if (tipo === "Barcaza - Barcaza") {
                                         // Origen

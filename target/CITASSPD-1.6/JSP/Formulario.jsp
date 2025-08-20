@@ -387,7 +387,7 @@
     <body>
         <div class="Contenedor">
             <h1>Formulario de Solicitud de Citas</h1>
-            <form name="Formulario_Citas" action="./Formulario_SPD_Servlet" method="POST"  enctype="multipart/form-data" class="formulario-citas" onsubmit="return desactivarBotonEnvio(this)">
+            <form name="Formulario_Citas" action="./Formulario_SPD_Servlet" method="POST" enctype="multipart/form-data" class="formulario-citas" onsubmit="return desactivarBotonEnvio(this)">
 
                 <div class="form-group">
                     <label for="Cliente">NIT del Cliente:</label>
