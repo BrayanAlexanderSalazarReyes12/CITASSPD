@@ -6,22 +6,10 @@
 
 <%@page import="java.nio.charset.StandardCharsets"%>
 <%@page import="java.net.URLDecoder"%>
-<%@page import="com.spd.Model.Cliente"%>
-<%@page import="java.util.Locale"%>
 <%@page import="com.spd.CItasDB.ListaVehiculos"%>
-<%@page import="java.time.LocalDate"%>
-<%@page import="java.time.Instant"%>
-<%@page import="java.time.ZoneId"%>
-<%@page import="java.time.format.DateTimeFormatter"%>
-<%@page import="java.time.LocalDateTime"%>
-<%@page import="java.time.OffsetDateTime"%>
-<%@page import="com.spd.Model.ListadoCitasBar"%>
-<%@page import="com.spd.Model.ResultadoCitas"%>
-<%@page import="java.text.SimpleDateFormat"%>
-<%@page import="java.util.Date"%>
-<%@page import="com.spd.Model.ListadoCItas"%>
-<%@page import="com.spd.DAO.ListadoDAO"%>
-<%@page import="java.util.List"%>
+<%@page import="java.util.*, java.text.SimpleDateFormat,
+                java.time.*, java.time.format.DateTimeFormatter,
+                com.spd.Model.*, com.spd.DAO.*" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.time.*, java.time.format.*, java.util.*" %>
 
@@ -35,28 +23,14 @@
    // Marca que la pestaña está activa
     sessionStorage.setItem("ventanaActiva", "true");
 
-    window.addEventListener("beforeunload", function (e) {
+    window.addEventListener("beforeunload", function () {
         const navEntry = performance.getEntriesByType("navigation")[0];
-
-        // Evita ejecutar el beacon si es una recarga
-        if (navEntry && navEntry.type === "reload") {
-            console.log("Recarga detectada. No se envía beacon.");
-            return;
-        }
-        
-        if(sessionStorage.getItem("navegandoInternamente") === "true"){
-            console.log("navegacion");
-            return;
-        }
-
-        // Si no es recarga (es cierre de pestaña o salir del sitio)
+        if (navEntry?.type === "reload" || sessionStorage.getItem("navegandoInternamente") === "true") return;
         if (sessionStorage.getItem("ventanaActiva") === "true") {
-            sessionStorage.removeItem("ventanaActiva");
-            sessionStorage.removeItem("navegandoInternamente");
+            sessionStorage.clear();
             navigator.sendBeacon("../cerrarVentana", "");
         }
-    });
-</script>
+    });</script>
 
 <!DOCTYPE html>
 <html>
@@ -78,33 +52,12 @@
         
         <script>
             $(document).ready(function () {
-                $('#myTable').DataTable({
-                    scrollY: 400,
-                    language: {
-                        url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-                    }
-                });
-
-                $('#myTable2').DataTable({
-                    scrollY: 400,
-                    language: {
-                        url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-                    }
-                });
-
-                $('#myTable3').DataTable({
-                    scrollY: 400,
-                    language: {
-                        url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-                    }
-                });
-                
-                $('#myTable4').DataTable({
-                    scrollY: 400,
-                    language: {
-                        url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-                    }
-                });
+                ['#myTable', '#myTable2', '#myTable3', '#myTable4'].forEach(function (id) {
+        $(id).DataTable({
+            scrollY: 400,
+            language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }
+        });
+    });
             });
 
       </script>

@@ -501,7 +501,7 @@
                       <div class="swal-form-group">
                         <label for="fechacitainside">Fecha de la cita creada por inside</label>
                         <input id="fechacitainside" type="datetime-local" 
-                               value="` + fechaInsideFormato + `" readonly>
+                               value="` + fechaInsideFormato + `" >
                       </div>
 
                       <div class="swal-form-group">

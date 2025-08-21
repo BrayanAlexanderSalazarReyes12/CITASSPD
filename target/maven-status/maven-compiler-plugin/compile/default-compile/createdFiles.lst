@@ -15,6 +15,7 @@ com\spd\Servlets\CancelarCitaServlet.class
 com\spd\Servlets\AsignarCitaBarcaza.class
 com\spd\CItasDB\ListaVehiculos.class
 com\spd\DAO\ConexionDB.class
+com\spd\DAO\Correcion_Fecha.class
 com\spd\DAO\ListadoUsuarios$1.class
 com\spd\CItasDB\CitaBascula.class
 com\spd\ClasesJsonFormularioMinisterio\Acceso.class

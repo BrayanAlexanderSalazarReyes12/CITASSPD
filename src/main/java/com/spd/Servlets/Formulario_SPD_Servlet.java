@@ -4,99 +4,259 @@
  */
 package com.spd.Servlets;
 
-import com.spd.API.FormularioPost;
-import com.spd.ClasesJsonFormularioMinisterio.Acceso;
-import com.spd.ClasesJsonFormularioMinisterio.FormularioCompleto;
-import com.google.gson.Gson;
-import com.spd.CItasDB.BarcazaCita;
-import com.spd.CItasDB.CitaBascula;
-import java.io.IOException;
-import java.io.PrintWriter;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import com.spd.ClasesJsonFormularioMinisterio.SistemaEnturnamiento;
-import com.spd.ClasesJsonFormularioMinisterio.Variables;
-import com.spd.ClasesJsonFormularioMinisterio.Vehiculo;
-import com.spd.Model.FormularioCompletoSPDCARROTANQUE;
+import java.io.*;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
-import org.json.JSONObject;
-import com.spd.CItasDB.VehiculoDB;
-import com.spd.Model.Cliente;
-
-import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
-import java.util.Base64;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.Part;
+import javax.servlet.http.*;
+import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.spd.API.FormularioPost;
+import com.spd.CItasDB.BarcazaCita;
+import com.spd.CItasDB.CitaBascula;
+import com.spd.CItasDB.VehiculoDB;
+import com.spd.ClasesJsonFormularioMinisterio.Acceso;
+import com.spd.ClasesJsonFormularioMinisterio.FormularioCompleto;
+import com.spd.ClasesJsonFormularioMinisterio.SistemaEnturnamiento;
+import com.spd.ClasesJsonFormularioMinisterio.Variables;
+import com.spd.ClasesJsonFormularioMinisterio.Vehiculo;
+import com.spd.DAO.Correcion_Fecha;
+import com.spd.Model.Cliente;
+import com.spd.Model.FormularioCompletoSPDCARROTANQUE;
 
-/**
- *
- * @author braya
- */
+// IMPORTANTE: ajusta los imports de tus clases de dominio:
+/// import com.spd.API.FormularioPost;
+/// import com.spd.ClasesJsonFormularioMinisterio.*; // Acceso, SistemaEnturnamiento, Variables, Vehiculo, FormularioCompleto
+/// import com.spd.CItasDB.*; // BarcazaCita, CitaBascula, VehiculoDB
 
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 1,  // 1 MB en memoria antes de guardar a disco
-    maxFileSize = 1024 * 1024 * 5,       // Máximo 5 MB por archivo
-    maxRequestSize = 1024 * 1024 * 10    // Máximo 10 MB por toda la solicitud
+    fileSizeThreshold = 1024 * 1024 * 1,  // 1 MB
+    maxFileSize = 1024 * 1024 * 5,        // 5 MB
+    maxRequestSize = 1024 * 1024 * 10     // 10 MB
 )
 public class Formulario_SPD_Servlet extends HttpServlet {
-    
-    private static final long serialVersionUID = 1L;
-    private JSONObject jsonEnv;
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    private static final long serialVersionUID = 1L;
+
+    // === Config de resiliencia ===
+    private static final int MAX_REINTENTOS = 3;
+    private static final long BACKOFF_MS_INICIAL = 800; // 0.8s
+    private static final int POOL_SIZE_EXTRAS = 5;
+
+    // === Endpoints (ajústalos si cambian) ===
+    private static final String URL_RIEM = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
+    private static final String URL_CITAS = "http://www.siza.com.co/spdcitas-1.0/api/citas/";
+    private static final String URL_CITAS_BARC = "http://www.siza.com.co/spdcitas-1.0/api/citas/barcazas/";
+
+    private JSONObject jsonEnv;
+    private transient ExecutorService extrasPool;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        extrasPool = Executors.newFixedThreadPool(POOL_SIZE_EXTRAS);
+    }
+
+    @Override
+    public void destroy() {
+        if (extrasPool != null) extrasPool.shutdown();
+        super.destroy();
+    }
+
+    // ===== Utilidades =====
+
+    private boolean isMultipart(HttpServletRequest request) {
+        String ct = request.getContentType();
+        return ct != null && ct.toLowerCase().startsWith("multipart/");
+    }
+
+    private String getCookie(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        for (Cookie c : cookies) {
+            if (name.equals(c.getName())) return c.getValue();
+        }
+        return null;
+    }
+
+    private void setCookie(HttpServletResponse response, String name, String value, int maxAge, String path) {
+        Cookie c = new Cookie(name, value);
+        c.setMaxAge(maxAge);
+        if (path != null) c.setPath(path);
+        response.addCookie(c);
+    }
+
+    private void setFormSession(HttpSession session,
+                                String usuario, String Operaciones, String fecha, String verificacion,
+                                String Nitempresa, String Cedula, String placa, String Manifiesto,
+                                String[] cedulasExtras, String[] placasExtras, String[] manifiestosExtras,
+                                String nombre, String[] nombreconductorExtras,
+                                String cantidadproducto, String FacturaComercial, String Observaciones,
+                                String PrecioArticulo, String Remolque, String[] remolqueExtras,
+                                String PesoProducto, String Barcades, String producto) {
+        session.setAttribute("Error", session.getAttribute("Error")); // se mantiene si ya existe
+        session.setAttribute("Activo", true);
+
+        session.setAttribute("clienteForm", usuario);
+        session.setAttribute("operacionesForm", Operaciones);
+        session.setAttribute("fechaForm", fecha);
+        session.setAttribute("verificacionForm", verificacion);
+        session.setAttribute("nitForm", Nitempresa);
+        session.setAttribute("cedulaForm", Cedula);
+        session.setAttribute("placaForm", placa);
+        session.setAttribute("manifiestoForm", Manifiesto);
+        session.setAttribute("cedulasExtras", cedulasExtras);
+        session.setAttribute("placasExtras", placasExtras);
+        session.setAttribute("manifiestosExtras", manifiestosExtras);
+        session.setAttribute("nombreconductor", nombre);
+        session.setAttribute("nombreconductorExtras", nombreconductorExtras);
+        session.setAttribute("CantidadProducto", cantidadproducto);
+        session.setAttribute("FacturaComercial", FacturaComercial);
+        session.setAttribute("Observaciones", Observaciones);
+        session.setAttribute("PrecioArticulo", PrecioArticulo);
+        session.setAttribute("Remolque", Remolque);
+        session.setAttribute("remolqueExtras", remolqueExtras);
+        session.setAttribute("PesoProducto", PesoProducto);
+        session.setAttribute("Barcades", Barcades);
+        session.setAttribute("tipoproducto", producto);
+    }
+
+    private String postConRetry(FormularioPost fp, String url, String json) {
+        long backoff = BACKOFF_MS_INICIAL;
+        for (int i = 0; i < MAX_REINTENTOS; i++) {
+            try {
+                String resp = fp.Post(url, json);
+                if (resp != null && !resp.isEmpty()) return resp;
+            } catch (Exception ignore) { }
+            try { Thread.sleep(backoff); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+            backoff *= 2;
+        }
+        return null;
+    }
+
+    private String formdbConRetry(FormularioPost fp, String url, String json) {
+        long backoff = BACKOFF_MS_INICIAL;
+        for (int i = 0; i < MAX_REINTENTOS; i++) {
+            try {
+                String resp = fp.FormDB(url, json);
+                if (resp != null && !resp.isEmpty()) return resp;
+            } catch (Exception ignore) { }
+            try { Thread.sleep(backoff); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+            backoff *= 2;
+        }
+        return null;
+    }
+
+    private String citaBarcazaConRetry(FormularioPost fp, String url, String json) {
+        long backoff = BACKOFF_MS_INICIAL;
+        for (int i = 0; i < MAX_REINTENTOS; i++) {
+            try {
+                String resp = fp.CitaBarcaza(url, json);
+                if (resp != null && !resp.isEmpty()) return resp;
+            } catch (Exception ignore) { }
+            try { Thread.sleep(backoff); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+            backoff *= 2;
+        }
+        return null;
+    }
+
+    private void quitarOperacionTerminada(HttpSession session) {
+        String operacionTerminada = (String) session.getAttribute("operacionSeleccionada");
+        @SuppressWarnings("unchecked")
+        List<String> operacionesPermitidas = (List<String>) session.getAttribute("Operacionespermitadas");
+        if (operacionesPermitidas != null && operacionTerminada != null) {
+            operacionesPermitidas.remove(operacionTerminada);
+            session.setAttribute("Operacionespermitadas", operacionesPermitidas);
+        }
+    }
+
+    private void redirectTiposProductos(HttpServletRequest request, HttpServletResponse response,
+                                        String operacion, String mensaje) throws IOException {
+        String orden = getCookie(request, "ORDEN_OPERACION");
+        String msj = URLEncoder.encode(mensaje == null ? "" : mensaje, "UTF-8");
+        response.sendRedirect(request.getContextPath() + "/TiposProductos"
+                + "?ordenOperacion=" + (orden == null ? "" : orden)
+                + "&operacion=" + (operacion == null ? "" : operacion)
+                + "&error=1"
+                + "&mensaje=" + msj);
+    }
+
+    private String base64Archivo(Part archivoPDF) throws IOException {
+        if (archivoPDF == null || archivoPDF.getSize() == 0) return null;
+        try (InputStream is = archivoPDF.getInputStream();
+             ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+            byte[] data = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = is.read(data)) != -1) {
+                buffer.write(data, 0, bytesRead);
+            }
+            return Base64.getEncoder().encodeToString(buffer.toByteArray());
+        }
+    }
+
+    private String ajustarFechaISO(String fechamini) {
+        if (fechamini == null || fechamini.trim().isEmpty() || "null".equalsIgnoreCase(fechamini.trim())) return "";
+        try {
+            OffsetDateTime fechaUtc = OffsetDateTime.parse(fechamini, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            return fechaUtc.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME); // conserva Z
+        } catch (DateTimeParseException e) {
+            System.out.println("Error al parsear fecha: " + e.getMessage());
+            return "";
+        }
+    }
+
+    private void enviarVehiculoExtraAsync(FormularioPost fp, Gson gson, String URL,
+                                          String fecha, SistemaEnturnamiento sistemaEnturnamiento,
+                                          int identificador, String Nitempresa, Acceso acceso,
+                                          String placa, String cedula, String manifiesto, String remolque) {
+
+        extrasPool.submit(() -> {
+            try {
+                Vehiculo vehiculoExtra = new Vehiculo(placa, cedula, fecha, manifiesto, remolque);
+                List<Vehiculo> lista = new ArrayList<>();
+                lista.add(vehiculoExtra);
+                Variables variables = new Variables(sistemaEnturnamiento, identificador, Nitempresa, lista);
+                FormularioCompleto formulario = new FormularioCompleto(acceso, variables);
+                String json = gson.toJson(formulario);
+
+                String resp = postConRetry(fp, URL, json);
+                if (resp == null) {
+                    System.out.println("❌ Error enviando extra placa=" + placa + " (sin respuesta)");
+                } else {
+                    System.out.println("✅ Extra enviado placa=" + placa);
+                }
+            } catch (Exception e) {
+                System.out.println("❌ Excepción en envío de extra placa=" + placa + " -> " + e.getMessage());
+            }
+        });
+    }
+
+    // ====== Flujo principal ======
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        
-        // 1️⃣ Verificamos si la petición es multipart (si no, es el error de la imagen)
-        if (request.getContentType() == null || 
-            !request.getContentType().toLowerCase().startsWith("multipart/")) {
 
+        response.setCharacterEncoding("UTF-8");
+
+        // 1) Verifica multipart
+        if (!isMultipart(request)) {
             request.getSession().setAttribute("errorMsg", "Debe adjuntar un archivo PDF válido.");
             response.sendRedirect("JSP/OperacionesActivas.jsp");
-
             return;
         }
 
-        
-        //Obtener datos del formulario
+        // 2) Datos de usuario/cookies
         String usuario = request.getParameter("Cliente");
-        
-        String nombreUsuario = null;
-        
-        Cookie[] cookies = request.getCookies();
-        
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("DATA".equals(cookie.getName())) {
-                    nombreUsuario = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        String nombreUsuario = getCookie(request, "DATA");
 
-        // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+        // Lista de clientes (ideal mover a repositorio/DB)
         List<Cliente> clientes = Arrays.asList(
             new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
             new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
@@ -113,47 +273,22 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         );
 
         String empresaUsuario = null;
-
-        // Buscar la empresa asociada al NIT
-        for (Cliente cliente : clientes) {
-            if (cliente.getNit().equals(nombreUsuario)) {
-                empresaUsuario = cliente.getEmpresa();
+        for (Cliente c : clientes) {
+            if (c.getNit().equals(nombreUsuario)) {
+                empresaUsuario = c.getEmpresa();
                 break;
             }
         }
-        
+
+        // 3) Form inputs
         String Operaciones = request.getParameter("Operaciones");
         String OrdenOperacion = request.getParameter("ordenOperacion");
-        
-        int identificador = 0;
-        if("operacion de cargue".equals(Operaciones)){
-            identificador = 1;
-        }else{
-            identificador = 2;
-        }
-        
-        String fecha = request.getParameter("fecha")+":00-05:00";
-        String fechamini = request.getParameter("fecha")+":00Z";
-        String fechaFormateada1 = "";
-        if (fechamini != null && !fechamini.trim().isEmpty() && !"null".equalsIgnoreCase(fechamini.trim())) {
-            try {
-                // Parsear con zona horaria (Z = UTC)
-                OffsetDateTime fechaUtc = OffsetDateTime.parse(fechamini, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
-                // Restar 5 horas
-                OffsetDateTime fechaAjustada = fechaUtc.minusHours(5);
+        int identificador = "operacion de cargue".equals(Operaciones) ? 1 : 2;
 
-                // Formatear conservando la 'Z' al final
-                fechaFormateada1 = fechaUtc.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-
-                System.out.println("Fecha ajustada: " + fechaFormateada1);
-
-            } catch (DateTimeParseException e) {
-                System.out.println("Error al parsear fecha: " + e.getMessage());
-            }
-        } else {
-            System.out.println("Parámetro 'fechaOfertaSolicitud' no proporcionado o es inválido.");
-        }
+        String fecha = request.getParameter("fecha") + ":00-05:00";
+        String fechamini = request.getParameter("fecha");
+        String fechaFormateada1 = Correcion_Fecha.ajustarFechaISO(fechamini);
 
         String Cedula = request.getParameter("Cedula");
         String placa = request.getParameter("Placa");
@@ -170,107 +305,59 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         String PesoProducto = request.getParameter("PesoProducto");
         String Barcades = request.getParameter("Barcades");
         String producto = request.getParameter("tipoProducto");
-                
-        // Vehículos adicionales
+
         String[] cedulasExtras = request.getParameterValues("CedulaExtra");
         String[] placasExtras = request.getParameterValues("PlacaExtra");
         String[] manifiestosExtras = request.getParameterValues("ManifiestoExtra");
         String[] nombreconductorExtras = request.getParameterValues("nombreExtra");
         String[] remolqueExtras = request.getParameterValues("RemolqueExtra");
-        
-        if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
-            for (int i = 0; i < cedulasExtras.length; i++) {
-                JSONObject camionExtra = new JSONObject();
-                camionExtra.put("cedulaConductor", cedulasExtras[i]);
-                camionExtra.put("placa", placasExtras[i]);
-                camionExtra.put("numeroManifiesto", manifiestosExtras[i]);
-                camionExtra.put("nombreconductorExtras", nombreconductorExtras[i]);
-                camionExtra.put("remolqueExtras", remolqueExtras[i]);
-            }
-        }
-        
-        //variables de entorno
+
+        // 4) Variables de entorno (json.env)
         String path = getServletContext().getRealPath("/WEB-INF/json.env");
         String content = new String(Files.readAllBytes(Paths.get(path)));
-        jsonEnv = new JSONObject(content); // Parsea el JSON
-        //System.out.println(jsonEnv);
+        jsonEnv = new JSONObject(content);
         String RIEN = jsonEnv.optString("RIEN");
         String TERMINALPORTUARIANIT = jsonEnv.optString("TERMINALPORTUARIANIT");
         String SISTEMAENTURNAMIENTOID = jsonEnv.optString("SISTEMAENTURNAMIENTOID");
         String USUARIOMINTRASPOR = jsonEnv.optString("USUARIOMINTRASPOR");
         String CONTRAMINTRASPOR = jsonEnv.optString("CONTRAMINTRASPOR");
-        
-        // Construcción de lista de vehículos
-        List<Vehiculo> vehiculos = new ArrayList<Vehiculo>();
-        List<VehiculoDB> vehiculosDB = new ArrayList<VehiculoDB>();
 
-        // Vehículo principal
+        // 5) Construcción de objetos
+        List<Vehiculo> vehiculos = new ArrayList<>();
+        List<VehiculoDB> vehiculosDB = new ArrayList<>();
+
         Vehiculo vehiculoPrincipal = new Vehiculo(placa, Cedula, fechaFormateada1, Manifiesto, Remolque);
         vehiculos.add(vehiculoPrincipal);
 
-        // Vehículos adicionales
         if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
             for (int i = 0; i < cedulasExtras.length; i++) {
-                Vehiculo vehiculoExtra = new Vehiculo(placasExtras[i], cedulasExtras[i], fecha, manifiestosExtras[i], remolqueExtras[i]);
                 VehiculoDB vdb = new VehiculoDB(placasExtras[i], cedulasExtras[i], nombreconductorExtras[i], fecha, manifiestosExtras[i]);
-                //vehiculos.add(vehiculoExtra);
                 vehiculosDB.add(vdb);
             }
         }
 
-        // Construcción de objetos finales
         Acceso acceso = new Acceso(USUARIOMINTRASPOR, CONTRAMINTRASPOR, RIEN);
         SistemaEnturnamiento sistemaEnturnamiento = new SistemaEnturnamiento(TERMINALPORTUARIANIT, SISTEMAENTURNAMIENTOID);
         Variables variables = new Variables(sistemaEnturnamiento, identificador, Nitempresa, vehiculos);
-        FormularioCompleto formulario = new FormularioCompleto(acceso, variables);      
-        
+        FormularioCompleto formulario = new FormularioCompleto(acceso, variables);
+
         Part archivoPDF = request.getPart("AdjuntoDeRemision");
-        String facturacomerpdf = null;
-        
-        if (archivoPDF != null && archivoPDF.getSize() > 0) {
-            try (InputStream is = archivoPDF.getInputStream();
-                 ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+        String facturacomerpdf = base64Archivo(archivoPDF);
 
-                byte[] data = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = is.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, bytesRead);
-                }
+        FormularioCompletoSPDCARROTANQUE fcspdcarrotanque = new FormularioCompletoSPDCARROTANQUE(
+                usuario, Operaciones, fecha, Nitempresa, vehiculos, Manifiesto, TipoProducto, cantidadproducto,
+                FacturaComercial, facturacomerpdf, PrecioArticulo, Observaciones
+        );
 
-                byte[] bytes = buffer.toByteArray();
-                System.out.println(data.length);
-                facturacomerpdf = Base64.getEncoder().encodeToString(bytes);
-                System.out.println(facturacomerpdf.length());
-            }
-        }
-        
-        FormularioCompletoSPDCARROTANQUE fcspdcarrotanque = new FormularioCompletoSPDCARROTANQUE(usuario, Operaciones, fecha, Nitempresa, vehiculos, Manifiesto, TipoProducto, cantidadproducto, FacturaComercial, facturacomerpdf, PrecioArticulo, Observaciones);
-        
-        String nombreBarcaza = null;
-        String nombreTanque = null;
-        String operacion = null;
-        Cookie[] cookies1 = request.getCookies();
-        
-        if (cookies1 != null) {
-            for (Cookie cookie : cookies1) {
-                if ("OPERACION".equals(cookie.getName())){
-                    operacion = cookie.getValue();
-                }
-                if ("NOMBRE_DE_BARCAZA".equals(cookie.getName())) {
-                    nombreBarcaza = cookie.getValue();
-                }
-                 if ("NOMBRE_TANQUE".equals(cookie.getName())) {
-                    nombreTanque = cookie.getValue();
-                }
-            }
-        }
-
+        String nombreBarcaza = getCookie(request, "NOMBRE_DE_BARCAZA");
+        String nombreTanque = getCookie(request, "NOMBRE_TANQUE");
+        String operacion = getCookie(request, "OPERACION");
         if (nombreBarcaza != null) {
-            System.out.println("Nombre de la barcaza desde cookie: " + nombreBarcaza + "operacion: " + operacion + "tanque: " + nombreTanque);
+            System.out.println("Nombre barcaza: " + nombreBarcaza + " | operacion: " + operacion + " | tanque: " + nombreTanque);
         } else {
-            System.out.println("La cookie NOMBRE_DE_BARCAZA no fue encontrada.");
+            System.out.println("Cookie NOMBRE_DE_BARCAZA no encontrada.");
         }
-        
+
         BarcazaCita bc = new BarcazaCita(
                 usuario,
                 operacion,
@@ -286,565 +373,183 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 0,
                 Barcades
         );
-        
-        System.out.println("empresaUsuario:"+usuario);
-        
-        CitaBascula cb = new CitaBascula();
-        // Vehículos adicionales
+
+        CitaBascula cb;
         if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
-            
             VehiculoDB vdb2 = new VehiculoDB(placa, Cedula, nombre, fecha, Manifiesto);
-            
             vehiculosDB.add(vdb2);
-            
             cb = new CitaBascula(
-                usuario,
-                empresaUsuario,
-                placa,Cedula,
-                nombre,
-                fecha,
-                Manifiesto,
-                0,
-                Nitempresa,
-                "PROGRAMADA",
-                vehiculos.size(),
-                TipoProducto,
-                Float.parseFloat(cantidadproducto),
-                FacturaComercial,
-                Double.parseDouble(PrecioArticulo),
-                facturacomerpdf,
-                Observaciones,
-                Operaciones,
-                Remolque,
-                nombreBarcaza,
-                nombreTanque,
-                vehiculosDB
+                usuario, empresaUsuario, placa, Cedula, nombre, fecha, Manifiesto, 0, Nitempresa,
+                "PROGRAMADA", vehiculos.size(), TipoProducto, Float.parseFloat(cantidadproducto),
+                FacturaComercial, Double.parseDouble(PrecioArticulo), facturacomerpdf, Observaciones,
+                Operaciones, Remolque, nombreBarcaza, nombreTanque, vehiculosDB
             );
-        }else{
-            List<VehiculoDB> vehiculosDB1 = new ArrayList<VehiculoDB>();
-            
+        } else {
+            List<VehiculoDB> vehiculosDB1 = new ArrayList<>();
             VehiculoDB vdb1 = new VehiculoDB(placa, Cedula, nombre, fecha, Manifiesto);
-            
             vehiculosDB1.add(vdb1);
-            
             cb = new CitaBascula(
-                usuario,
-                empresaUsuario,
-                placa,Cedula,
-                nombre,
-                fecha,
-                Manifiesto,
-                0,
-                Nitempresa,
-                "PROGRAMADA",
-                vehiculos.size(),
-                TipoProducto,
-                Float.parseFloat(cantidadproducto),
-                FacturaComercial,
-                Double.parseDouble(PrecioArticulo),
-                facturacomerpdf,
-                Observaciones,
-                Operaciones,
-                Remolque,
-                nombreBarcaza,
-                nombreTanque,
-                vehiculosDB1
+                usuario, empresaUsuario, placa, Cedula, nombre, fecha, Manifiesto, 0, Nitempresa,
+                "PROGRAMADA", vehiculos.size(), TipoProducto, Float.parseFloat(cantidadproducto),
+                FacturaComercial, Double.parseDouble(PrecioArticulo), facturacomerpdf, Observaciones,
+                Operaciones, Remolque, nombreBarcaza, nombreTanque, vehiculosDB1
             );
         }
-        
-        //Convertir el Objeto a JSON
+
         Gson gson = new Gson();
         String json = gson.toJson(formulario);
         String json1 = gson.toJson(fcspdcarrotanque);
         String json2 = gson.toJson(cb);
         String json3 = gson.toJson(bc);
-        
-        //Configurar la respuesta como JSON
-        
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        
+
         FormularioPost fp = new FormularioPost();
-        String URL1 = "http://www.siza.com.co/spdcitas-1.0/api/citas/";
-        String URL2 = "http://www.siza.com.co/spdcitas-1.0/api/citas/barcazas/";
-        
-        /*
-            1. Programada
-            2. Agendada
-            3. 
-            4. 
-        */
-        
-        String URL = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
-        
+
         try {
+            // === Operaciones combinadas ===
+            if ("Carrotanque - Barcaza".equals(operacion) || "Barcaza - Carrotanque".equals(operacion)) {
+                System.out.println("Enviando RIEN (carrotanque) y CitaBarcaza...");
 
-            String response3 = ""; // Carro tanque
-            String response4 = ""; // Barcaza
-
-            // Operaciones que requieren ambos
-            if (operacion.equals("Carrotanque - Barcaza") || operacion.equals("Barcaza - Carrotanque")) {
-                
-                System.out.println("Enviando datos a FormDB (Carro tanque)");
-                
-                System.out.println("Enviando datos a CitaBarcaza (Barcaza)");
-                
-                
-                String response1 = fp.Post(URL, json);
-                //System.out.println("Respuesta del servidor: " + response1);
-                if (response1 != null && !response1.isEmpty()) {
-                    JSONObject jsonResponse = new JSONObject(response1);
-
-                    if (jsonResponse.has("ErrorCode")) {
-                        int errorCode = jsonResponse.getInt("ErrorCode");
-
-                        if (errorCode != 0) {
-                            // Manejo del error
-                            System.out.println("❌ Error detectado: " + jsonResponse.optString("ErrorText", "Sin detalle"));
-                            //aqui tiene que estar los valores que le entrar al modal
-
-                            //variable de seccion
-                            HttpSession session = request.getSession();
-                            session.setAttribute("Error", "Error: " + jsonResponse.optString("ErrorText", "Sin detalle"));
-                            session.setAttribute("Activo", true);
-
-                            session.setAttribute("clienteForm", usuario);
-                            session.setAttribute("operacionesForm", Operaciones);
-                            session.setAttribute("fechaForm", fecha);
-                            session.setAttribute("verificacionForm", verificacion);
-                            session.setAttribute("nitForm", Nitempresa);
-                            session.setAttribute("cedulaForm", Cedula);
-                            session.setAttribute("placaForm", placa);
-                            session.setAttribute("manifiestoForm", Manifiesto);
-                            session.setAttribute("cedulasExtras", cedulasExtras);
-                            session.setAttribute("placasExtras", placasExtras);
-                            session.setAttribute("manifiestosExtras", manifiestosExtras);
-                            session.setAttribute("nombreconductor", nombre);
-                            session.setAttribute("nombreconductorExtras", nombreconductorExtras);
-                            session.setAttribute("CantidadProducto", cantidadproducto);
-                            session.setAttribute("FacturaComercial", FacturaComercial);
-                            session.setAttribute("Observaciones", Observaciones);
-                            session.setAttribute("PrecioArticulo", PrecioArticulo);
-                            session.setAttribute("Remolque", Remolque);
-                            session.setAttribute("remolqueExtras", remolqueExtras);
-                            session.setAttribute("PesoProducto", PesoProducto);
-                            session.setAttribute("Barcades", Barcades);
-                            session.setAttribute("tipoproducto", producto);
-                            
-                            String OPERACION = "";
-        
-                            if (cookies != null) {
-                                for (Cookie cookie : cookies) {
-                                    if ("ORDEN_OPERACION".equals(cookie.getName())) {
-                                        OPERACION = cookie.getValue();
-                                        System.out.println("Valor de la cookie DATA: " + OPERACION);
-                                        // Aquí puedes hacer lo que necesites con el valor
-                                        break; // Salimos del bucle porque ya encontramos la cookie
-                                    }
-                                }
-                            } else {
-                                System.out.println("No hay cookies en la solicitud.");
-                            }
-                            
-                            response.sendRedirect(request.getContextPath()+"/TiposProductos"+"?ordenOperacion="+OPERACION+"&operacion="+operacion+"&error=1"+"&mensaje="+jsonResponse.optString("ErrorText", "Sin detalle"));
-                            
-                            Cookie cookie = new Cookie("CITACREADA", "true");
-                            cookie.setMaxAge(3600);
-                            cookie.setPath("/CITASSPD");
-                            response.addCookie(cookie);
-                            
-                            return;
-                        } else {
-                            System.out.println("✅ Todo correcto.");
-                        }
-                    } else {
-                        int sesionId = jsonResponse.getInt("SesionId");
-                        String ingresoId = jsonResponse.optString("IngresoId", "");
-
-                        System.out.println("✅ Inicio de sesión exitoso. SesionId: " + sesionId + ", IngresoId: " + ingresoId);
-                        HttpSession session = request.getSession();
-                        session.setAttribute("Activo", true);
-                        session.setAttribute("Error", "Formulario Enviado Con Exito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
-
-                        String operacionTerminada = (String) session.getAttribute("operacionSeleccionada");
-                        List<String> operacionesPermitidas = (List<String>) session.getAttribute("Operacionespermitadas");
-
-                        if (operacionesPermitidas != null && operacionTerminada != null) {
-                            operacionesPermitidas.remove(operacionTerminada); // Marcar como finalizada
-                            session.setAttribute("Operacionespermitadas", operacionesPermitidas);
-                        }
-
-                        //System.out.println(operacionTerminada);
-                        //System.out.println(operacionesPermitidas);
-
-                        //response.sendRedirect("../JSP/OperacionesActivas.jsp");
-
-                        if (operacionesPermitidas != null && operacionTerminada != null) {
-                            operacionesPermitidas.remove(operacionTerminada); // Marcar como finalizada
-                            session.setAttribute("Operacionespermitadas", operacionesPermitidas);
-                        }
-                        
-                        // Ahora enviar cada vehículo extra por separado
-                        if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
-                            for (int i = 0; i < cedulasExtras.length; i++) {
-                                Vehiculo vehiculoExtra = new Vehiculo(placasExtras[i], cedulasExtras[i], fecha, manifiestosExtras[i], remolqueExtras[i]);
-                                List<Vehiculo> listaVehiculoIndividual = new ArrayList<>();
-                                listaVehiculoIndividual.add(vehiculoExtra);
-
-                                Variables variablesIndividual = new Variables(sistemaEnturnamiento, identificador, Nitempresa, listaVehiculoIndividual);
-                                FormularioCompleto formularioIndividual = new FormularioCompleto(acceso, variablesIndividual);
-
-                                String jsonIndividual = gson.toJson(formularioIndividual);
-                                String responseIndividual = fp.Post(URL, jsonIndividual);
-
-                                if (responseIndividual != null && !responseIndividual.isEmpty()) {
-                                    // Respuesta no nula ni vacía: esperar antes del siguiente envío
-                                    try {
-                                        Thread.sleep(3000); // espera 1 segundo
-                                    } catch (InterruptedException e) {
-                                        Thread.currentThread().interrupt();
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    // Manejo simple de error
-                                    System.out.println("Error: respuesta vacía o nula al enviar vehículo con placa " + placasExtras[i]);
-                                }
-                            }
-                        }
-
-                        response3 = fp.FormDB(URL1, json2);
-                        response4 = fp.CitaBarcaza(URL2, json3);
-                        
-                        
-                        //guardar formulario base de datos
-
-                        //incluir el REM al momento de guardar la factuca comercial en la base de datos por ejemplo REM + FacturaComercial
-
-                        //ListadoDAO list = new ListadoDAO();
-
-                        //String json1 = gson.toJson(variables);
-
-                        //list.InsertarCita(json1);
-
-                        // Recargar la página
-                        response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");// Esto recarga la página actual
-                    }
-                } else {
-                    System.out.println("⚠️ Respuesta vacía.");
+                String response1 = postConRetry(fp, URL_RIEM, json);
+                if (response1 == null) {
                     HttpSession session = request.getSession();
                     session.setAttribute("Activo", true);
-                    session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
-                    response.sendRedirect(request.getRequestURI()+"?ordenOperacion="+OrdenOperacion+"&operacion="+operacion); // También recarga si está vacía
+                    session.setAttribute("Error", "Error: no hay conexión con el servidor (RIEN). Intente más tarde.");
+                    response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
                     return;
                 }
-            }
 
-            // Solo barcaza
-            else if (operacion.equals("Barcaza - Tanque") || operacion.equals("Tanque - Barcaza") || operacion.equals("Barcaza - Barcaza")) {
-                response4 = fp.CitaBarcaza(URL2, json3);
-                response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");
-                System.out.println("Enviando datos a CitaBarcaza (Solo Barcaza)");
-            }
-
-            // Solo carro tanque
-            else if (operacion.equals("Carrotanque - Tanque") || operacion.equals("Tanque - Carrotanque")) {
-                
-                System.out.println("Enviando datos a FormDB (Solo Carro tanque)");
-                
-                String response1 = fp.Post(URL, json);
-                //System.out.println("Respuesta del servidor: " + response1);
-                if (response1 != null && !response1.isEmpty()) {
-                    JSONObject jsonResponse = new JSONObject(response1);
-
-                    if (jsonResponse.has("ErrorCode")) {
-                        int errorCode = jsonResponse.getInt("ErrorCode");
-
-                        if (errorCode != 0) {
-                            // Manejo del error
-                            System.out.println("❌ Error detectado: " + jsonResponse.optString("ErrorText", "Sin detalle"));
-                            //aqui tiene que estar los valores que le entrar al modal
-
-                            //variable de seccion
-                            HttpSession session = request.getSession();
-                            session.setAttribute("Error", "Error: " + jsonResponse.optString("ErrorText", "Sin detalle"));
-                            session.setAttribute("Activo", true);
-
-                            session.setAttribute("clienteForm", usuario);
-                            session.setAttribute("operacionesForm", Operaciones);
-                            session.setAttribute("fechaForm", fecha);
-                            session.setAttribute("verificacionForm", verificacion);
-                            session.setAttribute("nitForm", Nitempresa);
-                            session.setAttribute("cedulaForm", Cedula);
-                            session.setAttribute("placaForm", placa);
-                            session.setAttribute("manifiestoForm", Manifiesto);
-                            session.setAttribute("cedulasExtras", cedulasExtras);
-                            session.setAttribute("placasExtras", placasExtras);
-                            session.setAttribute("manifiestosExtras", manifiestosExtras);
-                            session.setAttribute("nombreconductor", nombre);
-                            session.setAttribute("nombreconductorExtras", nombreconductorExtras);
-                            session.setAttribute("CantidadProducto", cantidadproducto);
-                            session.setAttribute("FacturaComercial", FacturaComercial);
-                            session.setAttribute("Observaciones", Observaciones);
-                            session.setAttribute("PrecioArticulo", PrecioArticulo);
-                            session.setAttribute("Remolque", Remolque);
-                            session.setAttribute("remolqueExtras", remolqueExtras);
-                            session.setAttribute("PesoProducto", PesoProducto);
-                            session.setAttribute("Barcades", Barcades);
-                            session.setAttribute("tipoproducto", producto);
-                            
-                            String OPERACION = "";
-        
-                            if (cookies != null) {
-                                for (Cookie cookie : cookies) {
-                                    if ("ORDEN_OPERACION".equals(cookie.getName())) {
-                                        OPERACION = cookie.getValue();
-                                        System.out.println("Valor de la cookie DATA: " + OPERACION);
-                                        // Aquí puedes hacer lo que necesites con el valor
-                                        break; // Salimos del bucle porque ya encontramos la cookie
-                                    }
-                                }
-                            } else {
-                                System.out.println("No hay cookies en la solicitud.");
-                            }
-                            
-                            response.sendRedirect(request.getContextPath()+"/TiposProductos"+"?ordenOperacion="+OPERACION+"&operacion="+operacion+"&error=1"+"&mensaje="+jsonResponse.optString("ErrorText", "Sin detalle")); // También recarga si está vacía
-                            return;
-                        } else {
-                            System.out.println("✅ Todo correcto.");
-                        }
-                    } else {
-                        int sesionId = jsonResponse.getInt("SesionId");
-                        String ingresoId = jsonResponse.optString("IngresoId", "");
-
-                        System.out.println("✅ Inicio de sesión exitoso. SesionId: " + sesionId + ", IngresoId: " + ingresoId);
-                        HttpSession session = request.getSession();
-                        session.setAttribute("Activo", true);
-                        session.setAttribute("Error", "Formulario Enviado Con Exito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
-
-                        String operacionTerminada = (String) session.getAttribute("operacionSeleccionada");
-                        List<String> operacionesPermitidas = (List<String>) session.getAttribute("Operacionespermitadas");
-
-                        if (operacionesPermitidas != null && operacionTerminada != null) {
-                            operacionesPermitidas.remove(operacionTerminada); // Marcar como finalizada
-                            session.setAttribute("Operacionespermitadas", operacionesPermitidas);
-                        }
-
-                        //System.out.println(operacionTerminada);
-                        //System.out.println(operacionesPermitidas);
-
-                        //response.sendRedirect("../JSP/OperacionesActivas.jsp");
-
-                        if (operacionesPermitidas != null && operacionTerminada != null) {
-                            operacionesPermitidas.remove(operacionTerminada); // Marcar como finalizada
-                            session.setAttribute("Operacionespermitadas", operacionesPermitidas);
-                        }
-                        
-                        // Ahora enviar cada vehículo extra por separado
-                        if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
-                            for (int i = 0; i < cedulasExtras.length; i++) {
-                                Vehiculo vehiculoExtra = new Vehiculo(placasExtras[i], cedulasExtras[i], fecha, manifiestosExtras[i], remolqueExtras[i]);
-                                List<Vehiculo> listaVehiculoIndividual = new ArrayList<>();
-                                listaVehiculoIndividual.add(vehiculoExtra);
-
-                                Variables variablesIndividual = new Variables(sistemaEnturnamiento, identificador, Nitempresa, listaVehiculoIndividual);
-                                FormularioCompleto formularioIndividual = new FormularioCompleto(acceso, variablesIndividual);
-
-                                String jsonIndividual = gson.toJson(formularioIndividual);
-                                String responseIndividual = fp.Post(URL, jsonIndividual);
-
-                                if (responseIndividual != null && !responseIndividual.isEmpty()) {
-                                    // Respuesta no nula ni vacía: esperar antes del siguiente envío
-                                    try {
-                                        Thread.sleep(3000); // espera 1 segundo
-                                    } catch (InterruptedException e) {
-                                        Thread.currentThread().interrupt();
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    // Manejo simple de error
-                                    System.out.println("Error: respuesta vacía o nula al enviar vehículo con placa " + placasExtras[i]);
-                                }
-                            }
-                        }
-
-                        response3 = fp.FormDB(URL1, json2);
-                        
-                        //guardar formulario base de datos
-
-                        //incluir el REM al momento de guardar la factuca comercial en la base de datos por ejemplo REM + FacturaComercial
-
-                        //ListadoDAO list = new ListadoDAO();
-
-                        //String json1 = gson.toJson(variables);
-
-                        //list.InsertarCita(json1);
-
-                        // Recargar la página
-                        response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");// Esto recarga la página actual
-                    }
-                } else {
-                    System.out.println("⚠️ Respuesta vacía.");
-                    HttpSession session = request.getSession();
-                    session.setAttribute("Activo", true);
-                    session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
-                    response.sendRedirect(request.getRequestURI()+"?ordenOperacion="+OrdenOperacion+"&operacion="+operacion); // También recarga si está vacía
-                    return;
-                }
-            }
-            
-            /*String response1 = fp.Post(URL, json);
-            //System.out.println("Respuesta del servidor: " + response1);
-            if (response1 != null && !response1.isEmpty()) {
                 JSONObject jsonResponse = new JSONObject(response1);
-
-                if (jsonResponse.has("ErrorCode")) {
-                    int errorCode = jsonResponse.getInt("ErrorCode");
-
-                    if (errorCode != 0) {
-                        // Manejo del error
-                        System.out.println("❌ Error detectado: " + jsonResponse.optString("ErrorText", "Sin detalle"));
-                        //aqui tiene que estar los valores que le entrar al modal
-                        
-                        //variable de seccion
-                        HttpSession session = request.getSession();
-                        session.setAttribute("Error", "Error: " + jsonResponse.optString("ErrorText", "Sin detalle"));
-                        session.setAttribute("Activo", true);
-                        
-                        session.setAttribute("clienteForm", usuario);
-                        session.setAttribute("operacionesForm", Operaciones);
-                        session.setAttribute("fechaForm", fecha);
-                        session.setAttribute("verificacionForm", verificacion);
-                        session.setAttribute("nitForm", Nitempresa);
-                        session.setAttribute("cedulaForm", Cedula);
-                        session.setAttribute("placaForm", placa);
-                        session.setAttribute("manifiestoForm", Manifiesto);
-                        session.setAttribute("cedulasExtras", cedulasExtras);
-                        session.setAttribute("placasExtras", placasExtras);
-                        session.setAttribute("manifiestosExtras", manifiestosExtras);
-                        session.setAttribute("nombreconductor", nombre);
-                        session.setAttribute("nombreconductorExtras", nombreconductorExtras);
-                        session.setAttribute("CantidadProducto", cantidadproducto);
-                        session.setAttribute("FacturaComercial", FacturaComercial);
-                        session.setAttribute("Observaciones", Observaciones);
-                        session.setAttribute("PrecioArticulo", PrecioArticulo);
-                        session.setAttribute("Remolque", Remolque);
-                        session.setAttribute("remolqueExtras", remolqueExtras);
-                        session.setAttribute("PesoProducto", PesoProducto);
-                        session.setAttribute("Barcades", Barcades);
-                        response.sendRedirect(request.getContextPath() + "/JSP/Formulario.jsp");// Esto recarga la página actual 
-                        
-                        return;
-                    } else {
-                        System.out.println("✅ Todo correcto.");
-                    }
-                } else {
-                    int sesionId = jsonResponse.getInt("SesionId");
-                    String ingresoId = jsonResponse.optString("IngresoId", "");
-                    
-                    System.out.println("✅ Inicio de sesión exitoso. SesionId: " + sesionId + ", IngresoId: " + ingresoId);
+                if (jsonResponse.has("ErrorCode") && jsonResponse.optInt("ErrorCode", 0) != 0) {
+                    String msg = jsonResponse.optString("ErrorText", "Sin detalle");
                     HttpSession session = request.getSession();
-                    session.setAttribute("Activo", true);
-                    session.setAttribute("Error", "Formulario Enviado Con Exito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
-                    
-                    String operacionTerminada = (String) session.getAttribute("operacionSeleccionada");
-                    List<String> operacionesPermitidas = (List<String>) session.getAttribute("Operacionespermitadas");
+                    session.setAttribute("Error", "Error: " + msg);
+                    setFormSession(session, usuario, Operaciones, fecha, verificacion, Nitempresa, Cedula, placa,
+                            Manifiesto, cedulasExtras, placasExtras, manifiestosExtras, nombre, nombreconductorExtras,
+                            cantidadproducto, FacturaComercial, Observaciones, PrecioArticulo, Remolque, remolqueExtras,
+                            PesoProducto, Barcades, producto);
 
-                    if (operacionesPermitidas != null && operacionTerminada != null) {
-                        operacionesPermitidas.remove(operacionTerminada); // Marcar como finalizada
-                        session.setAttribute("Operacionespermitadas", operacionesPermitidas);
-                    }
+                    // cookie de confirmación (opcional)
+                    setCookie(response, "CITACREADA", "true", 3600, "/CITASSPD");
 
-                    //System.out.println(operacionTerminada);
-                    //System.out.println(operacionesPermitidas);
-
-                    //response.sendRedirect("../JSP/OperacionesActivas.jsp");
-
-                    if (operacionesPermitidas != null && operacionTerminada != null) {
-                        operacionesPermitidas.remove(operacionTerminada); // Marcar como finalizada
-                        session.setAttribute("Operacionespermitadas", operacionesPermitidas);
-                    }
-                    
-                    
-                    //guardar formulario base de datos
-                    
-                    //incluir el REM al momento de guardar la factuca comercial en la base de datos por ejemplo REM + FacturaComercial
-                    
-                    //ListadoDAO list = new ListadoDAO();
-                    
-                    //String json1 = gson.toJson(variables);
-                    
-                    //list.InsertarCita(json1);
-                    
-                    // Recargar la página
-                    response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");// Esto recarga la página actual
+                    redirectTiposProductos(request, response, operacion, msg);
+                    return;
                 }
-            } else {
-                System.out.println("⚠️ Respuesta vacía.");
+
+                // Éxito RIEN
+                int sesionId = jsonResponse.optInt("SesionId", -1);
+                String ingresoId = jsonResponse.optString("IngresoId", "");
                 HttpSession session = request.getSession();
                 session.setAttribute("Activo", true);
-                session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
-                response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
+                session.setAttribute("Error", "Formulario Enviado Con Éxito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
+
+                quitarOperacionTerminada(session);
+
+                // Enviar extras en paralelo (no bloquea la respuesta al usuario)
+                if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
+                    for (int i = 0; i < cedulasExtras.length; i++) {
+                        enviarVehiculoExtraAsync(
+                            fp, gson, URL_RIEM, fecha, sistemaEnturnamiento, identificador, Nitempresa, acceso,
+                            placasExtras[i], cedulasExtras[i], manifiestosExtras[i],
+                            (remolqueExtras != null && remolqueExtras.length > i) ? remolqueExtras[i] : null
+                        );
+                    }
+                }
+
+                // Guardar en BD (cita carrotanque + barcaza)
+                formdbConRetry(fp, URL_CITAS, json2);
+                citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
+
+                request.getSession().setAttribute("errorMsg", "CITA CREADA CON EXITO!!!");
+                
+                response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
                 return;
-            }*/
-            
+            }
+
+            // === Solo barcaza ===
+            if ("Barcaza - Tanque".equals(operacion) || "Tanque - Barcaza".equals(operacion) || "Barcaza - Barcaza".equals(operacion)) {
+                citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
+                response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");
+                System.out.println("CitaBarcaza enviada (solo barcaza)");
+                return;
+            }
+
+            // === Solo carrotanque ===
+            if ("Carrotanque - Tanque".equals(operacion) || "Tanque - Carrotanque".equals(operacion)) {
+                System.out.println("Enviando RIEN (solo carrotanque)");
+                String response1 = postConRetry(fp, URL_RIEM, json);
+                if (response1 == null) {
+                    HttpSession session = request.getSession();
+                    session.setAttribute("Activo", true);
+                    session.setAttribute("Error", "Error: no hay conexión con el servidor (RIEN). Intente más tarde.");
+                    response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
+                    return;
+                }
+
+                JSONObject jsonResponse = new JSONObject(response1);
+                if (jsonResponse.has("ErrorCode") && jsonResponse.optInt("ErrorCode", 0) != 0) {
+                    String msg = jsonResponse.optString("ErrorText", "Sin detalle");
+                    HttpSession session = request.getSession();
+                    session.setAttribute("Error", "Error: " + msg);
+                    setFormSession(session, usuario, Operaciones, fecha, verificacion, Nitempresa, Cedula, placa,
+                            Manifiesto, cedulasExtras, placasExtras, manifiestosExtras, nombre, nombreconductorExtras,
+                            cantidadproducto, FacturaComercial, Observaciones, PrecioArticulo, Remolque, remolqueExtras,
+                            PesoProducto, Barcades, producto);
+                    redirectTiposProductos(request, response, operacion, msg);
+                    return;
+                }
+
+                int sesionId = jsonResponse.optInt("SesionId", -1);
+                String ingresoId = jsonResponse.optString("IngresoId", "");
+                HttpSession session = request.getSession();
+                session.setAttribute("Activo", true);
+                session.setAttribute("Error", "Formulario Enviado Con Éxito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
+
+                quitarOperacionTerminada(session);
+
+                // Extras en paralelo
+                if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
+                    for (int i = 0; i < cedulasExtras.length; i++) {
+                        enviarVehiculoExtraAsync(
+                            fp, gson, URL_RIEM, fecha, sistemaEnturnamiento, identificador, Nitempresa, acceso,
+                            placasExtras[i], cedulasExtras[i], manifiestosExtras[i],
+                            (remolqueExtras != null && remolqueExtras.length > i) ? remolqueExtras[i] : null
+                        );
+                    }
+                }
+
+                // Guardar en BD (carrotanque)
+                formdbConRetry(fp, URL_CITAS, gson.toJson(cb));
+                
+                request.getSession().setAttribute("errorMsg", "CITA CREADA CON EXITO!!!");
+                response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
+                return;
+            }
+
+            // Si no matchea ninguna operación conocida:
+            response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
+
         } catch (IOException e) {
-            response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
-            System.out.println("Error1: " + e);
+            // Redirige a la misma URL en caso de I/O durante el flujo
+            response.sendRedirect(request.getRequestURI());
+            System.out.println("Error I/O: " + e);
         }
-        //guardar formulario base de datos
-                    
-                  //  ListadoDAO list = new ListadoDAO();
-                    
-                    //String json1 = gson.toJson(variables);
-                    
-                   // list.InsertarCita(json1);
-                   
-        
-        // Mostrar resultado
-        PrintWriter out = response.getWriter();
-        out.print(json3);
-        out.flush();
-        
-        
+        // Importante: NO escribir al response aquí si ya se hizo sendRedirect antes.
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Formulario SPD con envío resiliente y asincrónico de extras";
+    }
 }

@@ -173,8 +173,8 @@ public class CancelarCitaServlet extends HttpServlet {
                             HttpSession session = request.getSession();
                             session.setAttribute("Error", "Error: " + jsonresponse.optString("ErrorText", "Sin detalle"));
                             session.setAttribute("Activo", true);
-                            //out.println(json1);
-                            response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
+                            out.println(json);
+                            //response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
 
                             return;
 
