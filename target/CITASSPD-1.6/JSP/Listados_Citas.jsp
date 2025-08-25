@@ -284,15 +284,47 @@
                                                 <th>Cedula conductor</th>
                                                 <th>Nombre conductor</th>
                                                 <th>Manifiesto</th>
-                                                <th>Estado</th>
+                                                <th>Compañia</th>
                                                 <th>Fecha</th>
                                                 <th>Fmm</th>
+                                                <th>Copiar FMM</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <%
                                                 for (ListadoCItas listado : ListadoCitas2) {
                                                     
+                                                    String nit_final = nit.replaceAll("[^0-9]", "");
+                                                    
+                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                    List<Cliente> clientes = Arrays.asList(
+                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                        new Cliente("9018263370", "CONQUERS ZF")
+                                                    );
+                                                    
+                                                    String empresaUsuario = null;
+
+                                                    // Buscar la empresa asociada al NIT
+                                                    for (Cliente cliente : clientes) {
+                                                        if (cliente.getNit().equals(listado.getNit())) {
+                                                            empresaUsuario = cliente.getEmpresa();
+                                                            break;
+                                                        }
+                                                    }
+                                                    System.out.println("empresa: " + empresaUsuario);
+                                                    
+                                                    System.out.println(listado.getNit() + " " + nit_final);
+                                                
                                                     // Convertir a OffsetDateTime (zona UTC, puedes cambiar el offset si deseas)
                                                     OffsetDateTime offsetDateTime = Instant.ofEpochMilli(listado.getFeAprobacion()).atOffset(ZoneOffset.UTC);
 
@@ -335,9 +367,12 @@
                                                 <td><%= v.getConductorCedulaCiudadania() %></td>
                                                 <td><%= v.getNombreConductor() %></td>
                                                 <td><%= v.getNumManifiestoCarga() %></td>
-                                                <td><%= listado.getEstado() %></td>
+                                                <td><%= empresaUsuario %></td>
                                                 <td><%= fechaFormateada %></td>
-                                                <td><%= listado.getFmm() %></td>
+                                                <td id="<%= listado.getFmm() %>">
+                                                    <%= listado.getFmm() %>
+                                                </td>
+                                                <td><button onclick="copiarTexto('<%= listado.getFmm() %>')">📋</button></td>
                                             </tr>
                                             <%
                                                                     }
@@ -349,7 +384,27 @@
                                             %>
                                         </tbody>
                                     </table>
-
+                                    <script>
+                                        function copiarTexto(idElemento) {
+                                            const texto = document.getElementById(idElemento).innerText;
+                                            console.log(texto);
+                                            navigator.clipboard.writeText(texto).then(() => {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Copiado',
+                                                    text: "'" + texto + "' se copió al portapapeles",
+                                                    confirmButtonText: 'Aceptar'
+                                                });
+                                            }).catch(err => {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error',
+                                                    text: 'No se pudo copiar al portapapeles',
+                                                    confirmButtonText: 'Aceptar'
+                                                });
+                                            });
+                                        }
+                                    </script>
                                     <%
                                             } else if (rol == 2) {
                                     %>
