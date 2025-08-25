@@ -448,7 +448,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
                     for (int i = 0; i < cedulasExtras.length; i++) {
                         enviarVehiculoExtraAsync(
-                            fp, gson, URL_RIEM, fecha, sistemaEnturnamiento, identificador, Nitempresa, acceso,
+                            fp, gson, URL_RIEM, fechaFormateada1, sistemaEnturnamiento, identificador, Nitempresa, acceso,
                             placasExtras[i], cedulasExtras[i], manifiestosExtras[i],
                             (remolqueExtras != null && remolqueExtras.length > i) ? remolqueExtras[i] : null
                         );
@@ -510,7 +510,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
                     for (int i = 0; i < cedulasExtras.length; i++) {
                         enviarVehiculoExtraAsync(
-                            fp, gson, URL_RIEM, fecha, sistemaEnturnamiento, identificador, Nitempresa, acceso,
+                            fp, gson, URL_RIEM, fechaFormateada1, sistemaEnturnamiento, identificador, Nitempresa, acceso,
                             placasExtras[i], cedulasExtras[i], manifiestosExtras[i],
                             (remolqueExtras != null && remolqueExtras.length > i) ? remolqueExtras[i] : null
                         );

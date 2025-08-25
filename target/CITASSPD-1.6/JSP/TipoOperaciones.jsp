@@ -347,7 +347,7 @@
                                     // Ahora solo tienes los nombres como un array de strings en JS
                                     var nombresBarcazas = <%= nombresBarcazas.toString() %>;
                                     // Agregar barcazas fijas adicionales
-                                    nombresBarcazas.push("Roma 304", "Omega one", "Alpha uno");
+                                    nombresBarcazas.push("Roma 304", "Omega one", "Alpha uno", "MANFU I");
 
                                     if (tipo === "Barcaza - Barcaza") {
                                         // Origen

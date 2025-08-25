@@ -210,6 +210,18 @@
         %>
         <% if (errorMsg != null) { %>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <% if (errorMsg.equals("CITA CREADA CON EXITO!!!")) { %>
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    text: '<%= errorMsg %>',
+                    confirmButtonText: 'Aceptar'
+                });
+
+            </script>
+            <%
+                session.removeAttribute("errorMsg"); // 🔥 elimina la variable de sesión
+                } else { %>
             <script>
                 Swal.fire({
                     icon: 'error',
@@ -218,8 +230,12 @@
                     confirmButtonText: 'Aceptar'
                 });
             </script>
+            <% 
+                session.removeAttribute("errorMsg"); // 🔥 elimina la variable de sesión
+                } %>
         <% } %>
-
+        
+        
         <div class="contenedor">
             <table border="1">
                 <thead>

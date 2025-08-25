@@ -519,10 +519,12 @@
             function validarTamañoArchivo(input) {
                 const archivo = input.files[0];
                 const maxTamaño = 200 * 1024; // 200 KB en bytes
-
+                
+                // Calcular cuánto pesará en Base64
+                const tamañoEstimadoBase64 = Math.ceil((archivo.size / 3)) * 4;
                 const mensajeError = document.getElementById("errorArchivo");
 
-                if (archivo && archivo.size > maxTamaño) {
+                if (archivo && archivo.size > maxTamaño || tamañoEstimadoBase64 > maxTamaño ) {
                     mensajeError.style.display = "block";
                     input.value = ""; // Limpia el archivo seleccionado
                 } else {
