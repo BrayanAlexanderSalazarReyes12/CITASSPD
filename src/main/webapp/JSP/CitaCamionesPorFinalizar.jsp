@@ -4,6 +4,8 @@
     Author     : Brayan Salazar
 --%>
 
+<%@page import="java.sql.Date"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="com.spd.informacionCita.CitaInfo"%>
 <%@page import="com.spd.informacionCita.InformacionPesajeFinalizacionCIta"%>
 <%@page import="java.util.Locale"%>
@@ -28,6 +30,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.css" />
     <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#myTable').DataTable({
@@ -63,6 +66,10 @@
         String peso_salida_bascula = "";
         String fechaParaInput_en_bas = "";
         String fechaParInput_sal_bas = "";
+        
+        List<String> placas = new ArrayList<String>();
+        List<String> Cedulas = new ArrayList<String>();
+        Date fechabus = null;
     %>
     <body>
         <header>
@@ -159,6 +166,7 @@
                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
                                     OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
                                     LocalDateTime ldt = odt.toLocalDateTime();
+                                    fechabus = java.sql.Date.valueOf(ldt.toLocalDate());
                                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                                     DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
                                     DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -178,6 +186,8 @@
                                         if (vehiculos != null && !vehiculos.isEmpty()){
                                             for (ListaVehiculos vehiculo : vehiculos){
                                              if(vehiculo.getFechaOfertaSolicitud() != null){
+                                              placas.add(vehiculo.getVehiculoNumPlaca());
+                                              Cedulas.add(vehiculo.getConductorCedulaCiudadania());
                             %>
                                 <tr>
                                     <td><%= listado.getTipo_Operacion() %></td>
@@ -238,7 +248,8 @@
                                                data-fecha="<%= formattedDate %>"
                                                data-nombreconductor="<%= vehiculo.getNombreConductor() %>"
                                                data-formulario="<%= listado.getFmm() %>"
-                                               data-rol="<%= rol %>">
+                                               data-rol="<%= rol %>"
+                                               data-fechacreacion="<%= listado.getFecha_Creacion_Cita() %>">
                                     </td>
                                 </tr>
                             <%
@@ -379,42 +390,6 @@
         </div>
     </body>
     
-    <%
-        InformacionPesajeFinalizacionCIta.inicializarDesdeContexto(application);
-        String codcita = request.getParameter("registro");
-        System.out.println("codcita:"+ codcita);
-        if(codcita != null && !codcita.isEmpty()){
-            CitaInfo info = InformacionPesajeFinalizacionCIta.InformacionPeosFinalizacionCIta(codcita);
-            
-            if (info != null) {
-                fecha_pesaje_entreda_bascula = (info.getFechaEntrada() != null) ? info.getFechaEntrada() : null;
-                fecha_pesaje_salida_bascula  = (info.getFechaSalida()  != null) ? info.getFechaSalida()  : null;
-                peso_entrada_bascula         = (info.getPesoIngreso() != null) ? Double.toString(info.getPesoIngreso()) : "";
-                peso_salida_bascula          = (info.getPesoSalida()  != null) ? Double.toString(info.getPesoSalida())  : "";
-                
-                LocalDateTime fecha_en_bas = fecha_pesaje_entreda_bascula.toLocalDateTime();
-
-                LocalDateTime fecha_sal_bas = fecha_pesaje_salida_bascula.toLocalDateTime();
-
-                DateTimeFormatter salida = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-                fechaParaInput_en_bas = fecha_en_bas.format(salida);
-                fechaParInput_sal_bas = fecha_sal_bas.format(salida);
-            } else {
-                // Si no existe info, inicializamos vacío
-                fecha_pesaje_entreda_bascula = null;
-                fecha_pesaje_salida_bascula  = null;
-                peso_entrada_bascula         = "";
-                peso_salida_bascula          = "";
-            }
-            
-        } else {
-            out.println("⚠️ No se recibió el código de la cita.");
-        }
-    %>
-    
-    <%
-        System.out.println(fechaParaInput_en_bas + " " + fecha_pesaje_salida_bascula + " " + peso_entrada_bascula +" "+ peso_salida_bascula);
-    %>
     <script>
         function navegarInternamente(url) {
             sessionStorage.setItem("navegandoInternamente", "true");
@@ -434,189 +409,194 @@
                 Swal.fire('⚠ Debes seleccionar solo un vehículo');
                 return;
             }
+
+            // Solo un vehículo → tomamos el primero
+            const cb = selectedCheckboxes[0];
+            const placa = cb.value;
+            const fecha = cb.dataset.fechacreacion;
+            const cedula = cb.dataset.cedula;
             
-            console.log("<%= fecha_final_estado %>");
+            console.log(fecha);
             
-            // Convertir fecha JSP al formato de datetime-local
-            let fechaInsideRaw = "<%= fecha_final_estado %>"; // "2025-08-11 6:00:00 PM"
+            // Consultar datos del servidor
+            axios.get('../FinalizarcitaInfo', {
+                params: { placa, fecha, cedula }
+            })
+            .then(response => {
+                const info = response.data;
+                console.log("Datos recibidos del servidor:", info);
 
-            // Crear objeto Date
-            let fechaInside = new Date(fechaInsideRaw);
+                // Inicializar valores por defecto
+                let fechaEntradaBas = "";
+                let fechaSalidaBas = "";
+                let pesoEntradaBas = "";
+                let pesoSalidaBas = "";
 
-            // Formatear a YYYY-MM-DDTHH:MM (24 horas)
-            let anio = fechaInside.getFullYear();
-            let mes = String(fechaInside.getMonth() + 1).padStart(2, '0');
-            let dia = String(fechaInside.getDate()).padStart(2, '0');
-            let horas = String(fechaInside.getHours()).padStart(2, '0');
-            let minutos = String(fechaInside.getMinutes()).padStart(2, '0');
-            let fechaInsideFormato = anio+'-'+mes+'-'+dia+'T'+horas+':'+minutos;
-            let fechaParaInput_en_bas = "<%= fechaParaInput_en_bas %>";
-            let pesoentradabas = "<%= peso_entrada_bascula %>";
-            let fechaParaInput_sal_bas = "<%= fechaParInput_sal_bas %>";
-            let pesosalidabas= "<%= peso_salida_bascula %>";
-            console.log("Fecha formateada para input:", fechaInsideFormato);
-            
-            Swal.fire({
-                title: '📋 Finalizar citas de camiones',
-                html: `
-                    <style>
-                      .swal-form {
-                        display: grid;
-                        grid-template-columns: 1fr;
-                        gap: 12px;
-                        width: 100%;
-                      }
-                      .swal-form-group {
-                        display: flex;
-                        flex-direction: column;
-                      }
-                      .swal-form-group label {
-                        font-weight: bold;
-                        margin-bottom: 4px;
-                        font-size: 14px;
-                        text-align: left;
-                      }
-                      .swal-form-group input {
-                        padding: 8px;
-                        border: 1px solid #ccc;
-                        border-radius: 6px;
-                        width: 100%;
-                      }
-                      @media (min-width: 768px) {
-                        .swal-form-group {
-                          flex-direction: row;
-                          align-items: center;
-                        }
-                        .swal-form-group label {
-                          flex: 0 0 220px;
-                          margin-bottom: 0;
-                        }
-                        .swal-form-group input {
-                          flex: 1;
-                        }
-                      }
-                    </style>
-
-                    <div class="swal-form">
-                      <div class="swal-form-group">
-                        <label for="fechacitainside">Fecha de la cita creada por inside</label>
-                        <input id="fechacitainside" type="datetime-local" 
-                               value="` + fechaInsideFormato + `" >
-                      </div>
-
-                      <div class="swal-form-group">
-                        <label for="fechaCita">Fecha de entrada por báscula</label>
-                        <input id="fechaCita" type="datetime-local"
-                                value="` + fechaParaInput_en_bas +`">
-                      </div>
-
-                      <div class="swal-form-group">
-                        <label for="pesoentrada">Peso de entrada en toneladas</label>
-                        <input id="pesoentrada" type="text" 
-                               pattern="\d+" inputmode="numeric"
-                               oninput="this.value = this.value.replace(/\D/g, '').split('.')[0]"
-                               placeholder="Solo números"
-                               value="` + (pesoentradabas.includes('.') ? pesoentradabas.split('.')[0] : pesoentradabas) + `">
-                      </div>
-
-
-                      <div class="swal-form-group">
-                        <label for="fechasalida">Fecha de salida por báscula</label>
-                        <input id="fechasalida" type="datetime-local"
-                                value="` + fechaParaInput_sal_bas +`">
-                      </div>
-
-                      <div class="swal-form-group">
-                        <label for="pesosalida">Peso de salida en toneladas</label>
-                        <input id="pesosalida" type="text" 
-                               pattern="\\d+" inputmode="numeric"
-                               oninput="this.value = this.value.replace(/\\D/g, '')"
-                               placeholder="Solo números"
-                               value="` + (pesosalidabas.includes('.') ? pesosalidabas.split('.')[0] : pesosalidabas) + `">
-                      </div>
-                    </div>
-                  `,
-                confirmButtonText: 'Guardar',
-                confirmButtonColor: '#28a745',
-                cancelButtonText: 'Cancelar',
-                showCancelButton: true,
-                preConfirm: () => {
-                    const fecha = document.getElementById('fechaCita').value;
-                    const fechasal = document.getElementById('fechasalida').value;
-                    const pentrada = document.getElementById('pesoentrada').value;
-                    const psalida = document.getElementById('pesosalida').value;
-                    let fechacitainside = document.getElementById('fechacitainside').value;
-                    // Asegurarte de que incluya los segundos
-                    if (!fechacitainside.includes(':') || fechacitainside.length === 16) {
-                      // El valor tiene solo HH:MM → agregar ":00"
-                      fechacitainside += ':00';
-                    }
-                    console.log('Fecha capturada:', fechacitainside);
-                    if (!fecha) {
-                        Swal.showValidationMessage('⚠ Debes seleccionar una fecha');
-                        return false;
-                    }
-                    if (!fechasal) {
-                        Swal.showValidationMessage('⚠ Debes seleccionar una fecha');
-                        return false;
-                    }
-                    if (!pentrada) {
-                        Swal.showValidationMessage('⚠ Debes escribir el peso de entrada del camión');
-                        return false;
-                    }
-                    if (!psalida){
-                        Swal.showValidationMessage('⚠ Debes escribir el peso de salida del camión');
-                        return false;
-                    }
-                    if(!fechacitainside) {
-                        Swal.showValidationMessage('⚠ Debes escribir la fecha de la cita del INSIDE');
-                    }
-
-                    return { fecha: fecha, pentrada: pentrada, fechasal:fechasal, psalida:psalida, fechacitainside:fechacitainside };
+                if (info.length > 0) {
+                    const cita = info[0];
+                    fechaEntradaBas = cita.fechaEntrada || "";
+                    fechaSalidaBas  = cita.fechaSalida  || "";
+                    pesoEntradaBas  = cita.pesoIngreso ? String(cita.pesoIngreso) : "";
+                    pesoSalidaBas   = cita.pesoSalida  ? String(cita.pesoSalida)  : "";
                 }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const { fecha, pentrada, fechasal, psalida, fechacitainside } = result.value;
-                    let identificador = "0";
-                    const seleccionados = [];
+                
+                // Convertir strings a objetos Date
+                let fechaEntradaDATE = new Date(fechaEntradaBas);
+                let fechaSalidaDATE = new Date(fechaSalidaBas);
+                
+                // Formatear fechaEntrada
+                let fechaEntradaBas_fin = fechaEntradaDATE.getFullYear() + "-" +
+                                      String(fechaEntradaDATE.getMonth() + 1).padStart(2, '0') + "-" +
+                                      String(fechaEntradaDATE.getDate()).padStart(2, '0') + "T" +
+                                      String(fechaEntradaDATE.getHours()).padStart(2, '0') + ":" +
+                                      String(fechaEntradaDATE.getMinutes()).padStart(2, '0');
 
-                    // Suponiendo que selectedCheckboxes es una lista de checkboxes seleccionados
-                    selectedCheckboxes.forEach(cb => {
-                        const operacion = cb.dataset.operacion?.toLowerCase() || "";
+                // Formatear fechaSalida
+                let fechaSalidaBas_fin = fechaSalidaDATE.getFullYear() + "-" +
+                                     String(fechaSalidaDATE.getMonth() + 1).padStart(2, '0') + "-" +
+                                     String(fechaSalidaDATE.getDate()).padStart(2, '0') + "T" +
+                                     String(fechaSalidaDATE.getHours()).padStart(2, '0') + ":" +
+                                     String(fechaSalidaDATE.getMinutes()).padStart(2, '0');
 
-                        identificador = (operacion === "operacion de cargue") ? "1" : "2";
+                
+                // También conviertes la fecha JSP si la necesitas
+                let fechaInsideRaw = "<%= fecha_final_estado %>"; 
+                let fechaInside = new Date(fechaInsideRaw);
+                let fechaInsideFormato = fechaInside.getFullYear() + "-" +
+                                        String(fechaInside.getMonth() + 1).padStart(2, '0') + "-" +
+                                        String(fechaInside.getDate()).padStart(2, '0') + "T" +
+                                        String(fechaInside.getHours()).padStart(2, '0') + ":" +
+                                        String(fechaInside.getMinutes()).padStart(2, '0');
 
-                        seleccionados.push({
-                            tipoOperacionId: identificador,
-                            empresaTransportadoraNit: cb.dataset.transportadora || "",
-                            vehiculoNumPlaca: cb.value || cb.dataset.placa || "", // fallback si value no tiene la placa
-                            conductorCedulaCiudadania: cb.dataset.cedula || "",
-                            fechaOfertaSolicitud: cb.dataset.fecha || "",
-                            numManifiestoCarga: cb.dataset.manifiesto || "",
-                            nombreconductor: cb.dataset.nombreconductor || "",
-                            formulario: cb.dataset.formulario || "",
-                            rol: cb.dataset.rol || ""
+                // Mostrar formulario con datos cargados
+                Swal.fire({
+                    title: '📋 Finalizar citas de camiones',
+                    html: `
+                      <div class="swal-form">
+                        <div class="swal-form-group">
+                          <label for="fechacitainside">Fecha de la cita creada por inside</label>
+                          <input id="fechacitainside" type="datetime-local" value="`+fechaInsideFormato+`">
+                        </div>
+
+                        <div class="swal-form-group">
+                          <label for="fechaCita">Fecha de entrada por báscula</label>
+                          <input id="fechaCita" type="datetime-local" value="`+fechaEntradaBas_fin+`">
+                        </div>
+
+                        <div class="swal-form-group">
+                          <label for="pesoentrada">Peso de entrada en toneladas</label>
+                          <input id="pesoentrada" type="text" value="`+pesoEntradaBas+`">
+                        </div>
+
+                        <div class="swal-form-group">
+                          <label for="fechasalida">Fecha de salida por báscula</label>
+                          <input id="fechasalida" type="datetime-local" value="`+fechaSalidaBas_fin+`">
+                        </div>
+
+                        <div class="swal-form-group">
+                          <label for="pesosalida">Peso de salida en toneladas</label>
+                          <input id="pesosalida" type="text" value="`+pesoSalidaBas+`">
+                        </div>
+                      </div>
+                    `,
+                    confirmButtonText: 'Guardar',
+                    showCancelButton: true,
+                    preConfirm: () => {
+                        const fecha = document.getElementById('fechaCita').value;
+                        const fechasal = document.getElementById('fechasalida').value;
+                        const pentrada = document.getElementById('pesoentrada').value;
+                        const psalida = document.getElementById('pesosalida').value;
+                        let fechacitainside = document.getElementById('fechacitainside').value;
+                        
+                        let fechaISO = "";
+                        
+                        if (fechacitainside) {
+                            const fechaObj = new Date(fechacitainside);
+                            if (!isNaN(fechaObj)) {
+                                fechaISO = fechaObj.toISOString().replace(/\.\d{3}Z$/, "Z"); 
+                                // asegura "2025-08-27T12:41:00Z"
+                            }
+                        }
+                        
+                        if (!fecha || !fechasal || !pentrada || !psalida || !fechaISO) {
+                            Swal.showValidationMessage('⚠ Todos los campos son obligatorios');
+                            return false;
+                        }
+
+                        return { fecha, fechasal, pentrada, psalida, fechaISO };
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const { fecha, pentrada, fechasal, psalida, fechaISO } = result.value;
+                        let identificador = "0";
+                        const seleccionados = [];
+
+                        // Suponiendo que selectedCheckboxes es una lista de checkboxes seleccionados
+                        selectedCheckboxes.forEach(cb => {
+                            const operacion = cb.dataset.operacion?.toLowerCase() || "";
+
+                            identificador = (operacion === "operacion de cargue") ? "1" : "2";
+
+                            seleccionados.push({
+                                tipoOperacionId: identificador,
+                                empresaTransportadoraNit: cb.dataset.transportadora || "",
+                                vehiculoNumPlaca: cb.value || cb.dataset.placa || "",
+                                conductorCedulaCiudadania: cb.dataset.cedula || "",
+                                fechaOfertaSolicitud: fechaISO || "",
+                                numManifiestoCarga: cb.dataset.manifiesto || "",
+                                nombreconductor: cb.dataset.nombreconductor || "",
+                                formulario: cb.dataset.formulario || "",
+                                rol: cb.dataset.rol || ""
+                            });
                         });
-                    });
 
-                    const json = encodeURIComponent(JSON.stringify(seleccionados));
-                    const registro = '<%= registro %>';  // Asegúrate de usarlo si es necesario
+                        const json = JSON.stringify(seleccionados, null, 2); // con formato bonito
+                        const registro = '<%= registro %>';  // desde JSP
 
-                    const params = new URLSearchParams();
-                    params.append('vehiculos', json);
-                    params.append('fecha', fecha);
-                    params.append('pesoentrada', pentrada);
-                    params.append('fechasal', fechasal);
-                    params.append('psalida', psalida);
-                    params.append('fechacitainside', fechacitainside);
-                    params.append('registro', registro);
+                        const params = new URLSearchParams();
+                        params.append('vehiculos', json);
+                        params.append('fecha', fecha);
+                        params.append('pesoentrada', pentrada);
+                        params.append('fechasal', fechasal);
+                        params.append('psalida', psalida);
+                        params.append('fechacitainside', fechacitainside);
+                        params.append('registro', registro);
 
-                    window.location.href = '../Finalizarcita?' + params.toString();
+                        // 🔍 Imprimir todo antes de enviar
+                        console.log("📌 JSON de vehículos seleccionados:", json);
+                        console.log("📌 Parámetros:", Object.fromEntries(params));
 
-                }
+                        // Mostrar en pantalla para validar
+                        Swal.fire({
+                            title: "Datos a enviar",
+                            html: `<pre style="text-align:left;max-height:300px;overflow:auto;">`+json+`</pre>
+                                   <hr>
+                                   <b>Parámetros extra:</b><br>
+                                   Fecha: `+fecha+`<br>
+                                   Peso entrada: `+pentrada+`<br>
+                                   Fecha salida: `+fechasal+`<br>
+                                   Peso salida: `+psalida+`<br>
+                                   Fecha cita inside: `+fechaISO+`<br>
+                                   Registro: `+registro+``,
+                            width: "800px",
+                            showCancelButton: true,
+                            confirmButtonText: "Enviar ahora",
+                            cancelButtonText: "Cancelar"
+                        }).then(confirm => {
+                            if (confirm.isConfirmed) {
+                                // Ahora sí redirigir
+                                window.location.href = '../Finalizarcita?' + params.toString();
+                            }
+                        });
+                    }
+                });
+            })
+            .catch(error => {
+                console.error("Error al obtener datos:", error);
+                Swal.fire("❌ Error", "No se pudo obtener la información de la cita", "error");
             });
         }
-        
+
         
         function cancelarCita(codigoCita, empresaNit, placa, cedula, fechaOferta, operacion, registro, manifiesto) {
             const causales = [

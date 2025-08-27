@@ -11,6 +11,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 import javax.servlet.ServletContext;
 import org.json.JSONObject;
@@ -49,55 +53,58 @@ public class InformacionPesajeFinalizacionCIta {
         }
     }
     
-    public static CitaInfo InformacionPeosFinalizacionCIta(String CODCITA) throws SQLException {
+    public static List<CitaInfo> InformacionPesosFinalizacionCita(
+        String placa, 
+        String cedula, 
+        Date fechaInicio) throws SQLException {
+
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        CitaInfo citaInfo = null;
-        
+        List<CitaInfo> listaCitas = new ArrayList<>();
+
         try {
-            // Carga del driver Oracle
+            // Cargar driver Oracle
             Class.forName("oracle.jdbc.driver.OracleDriver");
 
             // Conexión
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            // Consulta SQL
-            String sql = "SELECT " +
-                    "    a.COD_CITA, " +
-                    "    a.NMFORM_ZF AS NMFORM_CITA, " +
-                    "    b.NMFORM_ZF AS NMFORM_BASCULA, " +
-                    "    b.NUM_TICKETE, " +
-                    "    b.HORA_ENTRADA, " +
-                    "    b.PESO_INGRESO, " +
-                    "    b.HORA_SALIDA, " +
-                    "    b.PESO_SALIDA, " +
-                    "    c.PLACA " +
-                    "FROM SPD_CITAS a " +
-                    "INNER JOIN SPD_CITA_VEHICULOS d ON a.COD_CITA = d.COD_CITA " +
-                    "INNER JOIN VEHICULO_BASC c ON d.PLACA = c.PLACA " +
-                    "INNER JOIN TRAN_BASCULA b ON a.NMFORM_ZF = b.NMFORM_ZF " +
-                    "   AND c.ID_VEHICULO = b.VEHICULO_ID_VEHICULO " +
-                    "WHERE a.COD_CITA = ?";
+            // Consulta fija (ya no necesita IN dinámico)
+            String sql = "SELECT v.ID_VEHICULO, " +
+                         "       v.PLACA, " +
+                         "       v.CEDULA, " +
+                         "       t.NMFORM_ZF, " +
+                         "       t.HORA_ENTRADA, " +
+                         "       t.HORA_SALIDA, " +
+                         "       t.PESO_INGRESO, " +
+                         "       t.PESO_SALIDA " +
+                         "FROM VEHICULO_BASC v " +
+                         "JOIN TRAN_BASCULA t " +
+                         "  ON v.ID_VEHICULO = t.VEHICULO_ID_VEHICULO " +
+                         "WHERE v.PLACA = ? " +
+                         "  AND v.CEDULA = ? " +
+                         "  AND t.FECHA_ENTRADA BETWEEN ? AND SYSDATE";
 
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, CODCITA);
+
+            // Asignar parámetros
+            pstmt.setString(1, placa);
+            pstmt.setString(2, cedula);
+            pstmt.setDate(3, new java.sql.Date(fechaInicio.getTime())); // Fecha inicio
 
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                if (rs.next()) {
-                    citaInfo = new CitaInfo();
-                    citaInfo.setCodCita(rs.getString("COD_CITA"));
-                    citaInfo.setNmformCita(rs.getString("NMFORM_CITA"));
-                    citaInfo.setNmformBascula(rs.getString("NMFORM_BASCULA"));
-                    citaInfo.setNumTicket(rs.getString("NUM_TICKETE"));
-                    citaInfo.setFechaEntrada(rs.getTimestamp("HORA_ENTRADA"));
-                    citaInfo.setPesoIngreso(rs.getDouble("PESO_INGRESO"));
-                    citaInfo.setFechaSalida(rs.getTimestamp("HORA_SALIDA"));
-                    citaInfo.setPesoSalida(rs.getDouble("PESO_SALIDA"));
-                    citaInfo.setPlaca(rs.getString("PLACA"));
-                }
+                CitaInfo citaInfo = new CitaInfo();
+                citaInfo.setPlaca(rs.getString("PLACA"));
+                citaInfo.setNmformBascula(rs.getString("NMFORM_ZF"));
+                citaInfo.setFechaEntrada(rs.getTimestamp("HORA_ENTRADA"));
+                citaInfo.setFechaSalida(rs.getTimestamp("HORA_SALIDA"));
+                citaInfo.setPesoIngreso(rs.getDouble("PESO_INGRESO"));
+                citaInfo.setPesoSalida(rs.getDouble("PESO_SALIDA"));
+
+                listaCitas.add(citaInfo);
             }
 
         } catch (ClassNotFoundException e) {
@@ -106,13 +113,13 @@ public class InformacionPesajeFinalizacionCIta {
             System.err.println("❌ Error SQL al obtener información de la cita: " + e.getMessage());
             throw e;
         } finally {
-            // Cierre de recursos
             if (rs != null) try { rs.close(); } catch (Exception ignored) {}
             if (pstmt != null) try { pstmt.close(); } catch (Exception ignored) {}
             if (conn != null) try { conn.close(); } catch (Exception ignored) {}
         }
-        
-        return citaInfo;
+
+        return listaCitas;
     }
 
 }
+

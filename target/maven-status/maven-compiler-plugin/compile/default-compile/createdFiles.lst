@@ -2,6 +2,7 @@ com\spd\Model\ListadoCItas.class
 com\spd\CrearUsuarioJson\CrearUsuarioCompleto.class
 com\spd\CItasDB\ListaCitasBarcaza.class
 com\spd\Servlets\cerrarVentana.class
+com\spd\Servlets\FinalizarcitaInfo.class
 com\spd\Servlets\TiposProductos.class
 Utilidades\Utilidades.class
 com\spd\Servlets\CrearUsuarioServlet.class
