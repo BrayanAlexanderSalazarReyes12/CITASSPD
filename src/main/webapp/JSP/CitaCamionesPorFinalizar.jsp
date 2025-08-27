@@ -418,11 +418,23 @@
             
             console.log(fecha);
             
+            
+            // 🔄 Mostrar loader mientras axios hace la solicitud
+            Swal.fire({
+                title: 'Consultando información...',
+                text: 'Por favor espera un momento',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
             // Consultar datos del servidor
             axios.get('../FinalizarcitaInfo', {
                 params: { placa, fecha, cedula }
             })
             .then(response => {
+                Swal.close();
                 const info = response.data;
                 console.log("Datos recibidos del servidor:", info);
 
