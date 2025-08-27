@@ -7,12 +7,11 @@
 <%@page import="org.json.JSONArray"%>
 <%@page import="com.spd.CItasDB.ListaCitasBarcaza"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title>Mapa de Barcazas con Zona Gris</title>
+
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body {
+        #mapa-barcazas {
             display: flex;
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
@@ -20,7 +19,7 @@
             overflow: hidden;
         }
         #panel-barcazas {
-            flex: 0 0 250px;
+            flex: 0 0 115px;
             background: #ddd;
             padding: 10px;
             overflow-y: auto;
@@ -86,24 +85,27 @@
             border-radius: 4px;
         }
     </style>
-</head>
-<body>
+    
 
-<div id="panel-barcazas"></div>
 
-<div id="contenedor-muelle">
-    <div id="mapa">
-        <% 
-            for (int i = 0; i < 30; i++) { 
-                int inicio = i * 5;
-                int fin = (i + 1) * 5;
-        %>
-            <div class="celda" data-pos="<%=i%>"><%= inicio %>-<%= fin %> m</div>
-        <% } %>
+    <div id="mapa-barcazas" >
+
+        <div id="panel-barcazas"></div>
+
+        <div id="contenedor-muelle">
+            <div id="mapa">
+                <% 
+                    for (int i = 0; i < 30; i++) { 
+                        int inicio = i * 5;
+                        int fin = (i + 1) * 5;
+                %>
+                    <div class="celda" data-pos="<%=i%>"><%= inicio %>-<%= fin %> m</div>
+                <% } %>
+            </div>
+            <div id="zona-gris"></div>
+        </div>
+
     </div>
-    <div id="zona-gris"></div>
-</div>
-
 <%
     ListaCitasBarcaza.inicializarDesdeContexto(application);
     JSONArray barcaza = new JSONArray();
@@ -277,7 +279,3 @@
 
     });
 </script>
-
-</body>
-</html>
-

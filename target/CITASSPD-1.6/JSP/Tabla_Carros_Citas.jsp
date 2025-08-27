@@ -454,6 +454,12 @@
                 return;
             }
             
+            if (selectedCheckboxes.length !== allCheckboxes.length) {
+                Swal.fire('⚠ Debes seleccionar todos los vehículos disponibles');
+                return;
+            }
+
+            
             Swal.fire({
                 title: '📋 Programar cita (múltiples)',
                 html:

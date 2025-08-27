@@ -76,15 +76,14 @@ public class ListaCitasBarcaza {
                 "        mb.ESLORA, " +
                 "        mb.MANGA, " +
                 "        ROW_NUMBER() OVER (" +
-                "            PARTITION BY mb.BARCAZA, TRUNC(nb.FE_CREACION) " +
-                "            ORDER BY nb.FE_CREACION ASC" +
+                "            PARTITION BY mb.BARCAZA " +
+                "            ORDER BY nb.FE_CREACION DESC" +  // 👈 última operación
                 "        ) AS rn " +
                 "    FROM SPD_CITA_BARCAZA nb " +
                 "    INNER JOIN SPD_MAESTROBARCAZA mb " +
                 "        ON nb.NOMBRE_BARCAZA = mb.BARCAZA" +
                 ") t " +
                 "WHERE rn = 1";
-
 
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
