@@ -67,7 +67,7 @@ public class Finalizarcita extends HttpServlet {
         
         response.setContentType("application/json;charset=UTF-8");
 
-        try (PrintWriter out = response.getWriter()) {
+        try {
             // Obtener parámetro JSON URL-encoded
             String vehiculosJsonEncoded = request.getParameter("vehiculos");
 
@@ -138,6 +138,8 @@ public class Finalizarcita extends HttpServlet {
             String apiUrl1 = "http://www.siza.com.co/spdcitas-1.0/api/citas/finalizacion";
             
             
+            System.out.println(jsonResponse);
+            
             String response1 = fp.Post(url, jsonResponse);
             
             if(response1 != null && !response1.isEmpty()){
@@ -187,7 +189,8 @@ public class Finalizarcita extends HttpServlet {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             try {
-                response.getWriter().println("{\"error\": \"Ocurrió un error procesando la solicitud\"}");
+                response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
+                //response.getWriter().println("{\"error\": \"Ocurrió un error procesando la solicitud\"}");
             } catch (Exception ignored) {}
         }
     }

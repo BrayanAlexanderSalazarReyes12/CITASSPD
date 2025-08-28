@@ -87,25 +87,51 @@
     </style>
     
 
+    <%
+        Object rolObj = session.getAttribute("Rol");
+        if (rolObj != null && ((Integer) rolObj) == 1) {
+    %>
+        <div id="mapa-barcazas" >
 
-    <div id="mapa-barcazas" >
+            <div id="panel-barcazas"></div>
 
-        <div id="panel-barcazas"></div>
-
-        <div id="contenedor-muelle">
-            <div id="mapa">
-                <% 
-                    for (int i = 0; i < 30; i++) { 
-                        int inicio = i * 5;
-                        int fin = (i + 1) * 5;
-                %>
-                    <div class="celda" data-pos="<%=i%>"><%= inicio %>-<%= fin %> m</div>
-                <% } %>
+            <div id="contenedor-muelle">
+                <div id="mapa">
+                    <% 
+                        for (int i = 0; i < 30; i++) { 
+                            int inicio = i * 5;
+                            int fin = (i + 1) * 5;
+                    %>
+                        <div class="celda" data-pos="<%=i%>"><%= inicio %>-<%= fin %> m</div>
+                    <% } %>
+                </div>
+                <div id="zona-gris"></div>
             </div>
-            <div id="zona-gris"></div>
-        </div>
 
-    </div>
+        </div>
+   <%
+       }else {
+   %> 
+   
+        <div id="mapa-barcazas" >
+
+            <div id="contenedor-muelle">
+                <div id="mapa">
+                    <% 
+                        for (int i = 0; i < 30; i++) { 
+                            int inicio = i * 5;
+                            int fin = (i + 1) * 5;
+                    %>
+                        <div class="celda" data-pos="<%=i%>"><%= inicio %>-<%= fin %> m</div>
+                    <% } %>
+                </div>
+                <div id="zona-gris"></div>
+            </div>
+
+        </div>
+    <%
+        }
+    %>
 <%
     ListaCitasBarcaza.inicializarDesdeContexto(application);
     JSONArray barcaza = new JSONArray();

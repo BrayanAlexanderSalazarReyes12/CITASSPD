@@ -434,7 +434,6 @@
                 params: { placa, fecha, cedula }
             })
             .then(response => {
-                Swal.close();
                 const info = response.data;
                 console.log("Datos recibidos del servidor:", info);
 
@@ -518,28 +517,19 @@
                         const fechasal = document.getElementById('fechasalida').value;
                         const pentrada = document.getElementById('pesoentrada').value;
                         const psalida = document.getElementById('pesosalida').value;
-                        let fechacitainside = document.getElementById('fechacitainside').value;
+                        let fechacitainside = document.getElementById('fechacitainside').value + ":00";
                         
-                        let fechaISO = "";
                         
-                        if (fechacitainside) {
-                            const fechaObj = new Date(fechacitainside);
-                            if (!isNaN(fechaObj)) {
-                                fechaISO = fechaObj.toISOString().replace(/\.\d{3}Z$/, "Z"); 
-                                // asegura "2025-08-27T12:41:00Z"
-                            }
-                        }
-                        
-                        if (!fecha || !fechasal || !pentrada || !psalida || !fechaISO) {
+                        if (!fecha || !fechasal || !pentrada || !psalida || !fechacitainside) {
                             Swal.showValidationMessage('⚠ Todos los campos son obligatorios');
                             return false;
                         }
 
-                        return { fecha, fechasal, pentrada, psalida, fechaISO };
+                        return { fecha, fechasal, pentrada, psalida, fechacitainside };
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const { fecha, pentrada, fechasal, psalida, fechaISO } = result.value;
+                        const { fecha, pentrada, fechasal, psalida, fechacitainside } = result.value;
                         let identificador = "0";
                         const seleccionados = [];
 
@@ -554,7 +544,7 @@
                                 empresaTransportadoraNit: cb.dataset.transportadora || "",
                                 vehiculoNumPlaca: cb.value || cb.dataset.placa || "",
                                 conductorCedulaCiudadania: cb.dataset.cedula || "",
-                                fechaOfertaSolicitud: fechaISO || "",
+                                fechaOfertaSolicitud: fechacitainside || "",
                                 numManifiestoCarga: cb.dataset.manifiesto || "",
                                 nombreconductor: cb.dataset.nombreconductor || "",
                                 formulario: cb.dataset.formulario || "",
@@ -588,7 +578,7 @@
                                    Peso entrada: `+pentrada+`<br>
                                    Fecha salida: `+fechasal+`<br>
                                    Peso salida: `+psalida+`<br>
-                                   Fecha cita inside: `+fechaISO+`<br>
+                                   Fecha cita inside: `+fechacitainside+`<br>
                                    Registro: `+registro+``,
                             width: "800px",
                             showCancelButton: true,
@@ -647,15 +637,13 @@
             Swal.fire({
                 title: '🗑 Cancelar Cita',
                 html: 
-                    '<div class="swal2-html-container" id="swal2-html-container" style="display: flex;">'+
-
-                    '<label for="causalSelect"><strong>Selecciona una causal de cancelación:</strong></label><br>' +
-                    '<select id="causalSelect" class="swal2-select" style=" font-size: 16px; padding: 10px; border-radius: 5px;">' +
-                        '<option value="">-- Selecciona una opción --</option>' +
-                        opcionesHtml +
-                    '</select>'+
+                    '<div style="display: flex; flex-direction: column; gap: 10px;">' +
+                        '<label for="causalSelect"><strong>Selecciona una causal de cancelación:</strong></label>' +
+                        '<select id="causalSelect" class="swal2-select" style="font-size: 16px; padding: 10px; border-radius: 5px;">' +
+                            '<option value="">-- Selecciona una opción --</option>' +
+                            opcionesHtml +
+                        '</select>'+
                     '</div>',
-
                 showCancelButton: true,
                 confirmButtonText: 'Cancelar Cita',
                 cancelButtonText: 'Salir',
@@ -671,8 +659,8 @@
                 if (result.isConfirmed) {
                     const causal = result.value.causal;
 
-                    // Construir URL con parámetros
-                    const params = new URLSearchParams({
+                    // Construir parámetros
+                    const params = {
                         codigo: codigoCita,
                         causal: causal,
                         empresaTransportadoraNit: empresaNit,
@@ -680,27 +668,38 @@
                         conductorCedulaCiudadania: cedula,
                         fechaOfertaSolicitud: fechaOferta,
                         tipooperacion: operacion,
-                        registro:registro,
-                        manifiesto:manifiesto
+                        registro: registro,
+                        manifiesto: manifiesto
+                    };
+
+                    // Mostrar confirmación con los datos
+                    Swal.fire({
+                        title: '📋 Confirmar datos',
+                        html: `
+                            <div style="text-align: left; font-size: 15px;">
+                                <p><b>Código Cita:</b> `+params.codigo+`</p>
+                                <p><b>Causal:</b> `+params.causal+`</p>
+                                <p><b>Empresa:</b> `+params.empresaTransportadoraNit+`</p>
+                                <p><b>Placa:</b> `+params.vehiculoNumPlaca+`</p>
+                                <p><b>Cédula:</b> `+params.conductorCedulaCiudadania+`</p>
+                                <p><b>Fecha Solicitud:</b> `+params.fechaOfertaSolicitud+`</p>
+                                <p><b>Operación:</b> `+params.tipooperacion+`</p>
+                                <p><b>Registro:</b> `+params.registro+`</p>
+                                <p><b>Manifiesto:</b> `+params.manifiesto+`</p>
+                            </div>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: '✅ Enviar',
+                        cancelButtonText: '❌ Revisar'
+                    }).then((finalResult) => {
+                        if (finalResult.isConfirmed) {
+                            const query = new URLSearchParams(params).toString();
+                            window.location.href = '../CancelarCitaServlet?' + query;
+                        }
                     });
-                    console.log(params.toString());
-                    window.location.href = '../CancelarCitaServlet?' + params.toString();
                 }
             });
         }
-        
-        // Cierre de pestaña o salir del sitio
-        sessionStorage.setItem("ventanaActiva", "true");
-        window.addEventListener("beforeunload", function (e) {
-            const navEntry = performance.getEntriesByType("navigation")[0];
-            if (navEntry && navEntry.type === "reload") return;
-            if (sessionStorage.getItem("navegandoInternamente") === "true") return;
 
-            if (sessionStorage.getItem("ventanaActiva") === "true") {
-                sessionStorage.removeItem("ventanaActiva");
-                sessionStorage.removeItem("navegandoInternamente");
-                navigator.sendBeacon("../cerrarVentana", "");
-            }
-        });
     </script>
 </html>

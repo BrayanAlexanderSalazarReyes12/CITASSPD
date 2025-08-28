@@ -311,6 +311,7 @@
         <link rel="stylesheet" href="./CSS/Formulario.css"/>
         <link rel="stylesheet" href="./CSS/Styles_modal.css"/>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
         <title>Solicitud de Citas - SPD</title>
     </head>
     
@@ -508,7 +509,7 @@
                     name="AdjuntoDeRemision" 
                     accept="application/pdf" 
                     required 
-                    onchange="validarTamañoArchivo(this)"
+                    onchange="comprimirYPrepararPDF(this)"
                 />
                 <small id="errorArchivo" style="color: red; display: none;">
                     El archivo supera el tamaño máximo permitido de 200 KB.
@@ -516,22 +517,56 @@
             </div>
 
             <script>
-            function validarTamañoArchivo(input) {
-                const archivo = input.files[0];
-                const maxTamaño = 200 * 1024; // 200 KB en bytes
-                
-                // Calcular cuánto pesará en Base64
-                const tamañoEstimadoBase64 = Math.ceil((archivo.size / 3)) * 4;
-                const mensajeError = document.getElementById("errorArchivo");
+                async function comprimirYPrepararPDF(input) {
+                    const archivo = input.files[0];
+                    const maxTamaño = 200 * 1024; // 200 KB
+                    const mensajeError = document.getElementById("errorArchivo");
 
-                if (archivo && archivo.size > maxTamaño || tamañoEstimadoBase64 > maxTamaño ) {
-                    mensajeError.style.display = "block";
-                    input.value = ""; // Limpia el archivo seleccionado
-                } else {
-                    mensajeError.style.display = "none";
+                    if (!archivo) return;
+
+                    const arrayBuffer = await archivo.arrayBuffer();
+                    const { PDFDocument, StandardFonts, rgb } = PDFLib;
+                    const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+                    // Crear nuevo PDF para copiar contenido y comprimir imágenes
+                    const pdfNuevo = await PDFDocument.create();
+
+                    const pages = pdfDoc.getPages();
+
+                    for (let i = 0; i < pages.length; i++) {
+                        const [copiedPage] = await pdfNuevo.copyPages(pdfDoc, [i]);
+                        pdfNuevo.addPage(copiedPage);
+                    }
+
+                    // Guardar PDF con compresión de objetos y imágenes
+                    const pdfBytes = await pdfNuevo.save({
+                        useObjectStreams: true,  // ayuda a comprimir
+                        compress: true            // fuerza compresión
+                    });
+
+                    const blobComprimido = new Blob([pdfBytes], { type: 'application/pdf' });
+
+                    // Validar tamaño final
+                    if (blobComprimido.size > maxTamaño) {
+                        mensajeError.style.display = "block";
+                        input.value = "";
+                    } else {
+                        mensajeError.style.display = "none";
+
+                        // Reemplazar archivo original con la versión comprimida
+                        const fileComprimido = new File([blobComprimido], archivo.name, { type: 'application/pdf' });
+
+                        // Aquí reemplazamos el archivo para enviar al servidor
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(fileComprimido);
+                        input.files = dataTransfer.files;
+                        
+                        console.log("pesoCOmprimido:",blobComprimido.size);
+                        console.log("Archivo comprimido listo para enviar:", fileComprimido);
+                    }
                 }
-            }
-            </script>
+                </script>
+
 
 
                 <div class="form-group">

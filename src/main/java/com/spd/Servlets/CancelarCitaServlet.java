@@ -56,7 +56,7 @@ public class CancelarCitaServlet extends HttpServlet {
         String CONTRAMINTRASPOR = jsonEnv.optString("CONTRAMINTRASPOR");
         FormularioPost fp = new FormularioPost();
         response.setContentType("application/json;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
+        try {
 
             // Parámetros de entrada
             String codigo = request.getParameter("codigo");
@@ -80,7 +80,7 @@ public class CancelarCitaServlet extends HttpServlet {
                     LocalDateTime fechaSinZona = LocalDateTime.parse(fechaConT, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
                     // Adelantar 5 horas
-                    fechaSinZona = fechaSinZona.minusHours(5);;
+                    //fechaSinZona = fechaSinZona.minusHours(5);;
 
                     // Formatear conservando la 'T'
                     fechaFormateada1 = fechaSinZona.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -173,35 +173,28 @@ public class CancelarCitaServlet extends HttpServlet {
                             HttpSession session = request.getSession();
                             session.setAttribute("Error", "Error: " + jsonresponse.optString("ErrorText", "Sin detalle"));
                             session.setAttribute("Activo", true);
-                            out.println(json);
-                            //response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
+                            //out.println(json);
+                            response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
 
                             return;
 
                         }else{
-                            // Imprimir o enviar el JSON
-                             out.println(json1);
                             System.out.println("✅ Todo correcto.");
+                            response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
+
                         }
                     }else {
-                        // Imprimir o enviar el JSON
-                        out.println(json1);
                         System.out.println("⚠️ Respuesta vacía.");
                         HttpSession session = request.getSession();
                         session.setAttribute("Activo", true);
                         session.setAttribute("Error", "Error: en este momento no se puede establecer conexión con el servidor. Por favor, intente más tarde.");
-                        response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
+                        response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
                         return;
                     }
                 }
             }
-            
-            // Imprimir o enviar el JSON
-            out.println(json1);
-
-
-            // Aquí podrías enviarlo a otro servicio con HttpClient o guardar en BD
-
+        }catch (Exception e) {
+            e.printStackTrace();
         }
     }
     
