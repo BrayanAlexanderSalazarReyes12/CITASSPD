@@ -199,6 +199,9 @@ select:focus {
     }
 
     .Contenedor {
+        
+        transform: scale(1.5);   /* 2 = 200% */
+        transform-origin: top left; /* define desde dónde se expande el contenido */
         max-width: 90%;
         padding: 20px;
         margin-top: 50px;
@@ -228,6 +231,12 @@ select:focus {
 }
 
 @media screen and (max-width: 480px) {
+    
+    .Contenedor {
+        transform: scale(2);   /* 2 = 200% */
+        transform-origin: top left; /* define desde dónde se expande el contenido */
+    }
+    
     header {
         padding: 10px;
     }

@@ -38,7 +38,6 @@ com\spd\DAO\ListadoUsuarios.class
 com\spd\Servlets\Iniciar_Seccion_Servlet.class
 com\spd\Model\FormularioCompletoSPDCARROTANQUE.class
 com\spd\CItasDB\BarcazaCita.class
-.netbeans_automatic_build
 com\spd\ClasesJsonFormularioMinisterio\Variables.class
 com\spd\API\LoginPost.class
 com\spd\ClasesJsonFormularioMinisterio\FormularioCompleto.class

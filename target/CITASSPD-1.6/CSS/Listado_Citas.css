@@ -103,6 +103,8 @@ h2 {
    ============================= */
 @media screen and (max-width: 1020px) {
     .Content {
+        transform: scale(1.5);   /* 2 = 200% */
+        transform-origin: top left; /* define desde dónde se expande el contenido */
         margin: 80px 40px 40px 40px;
         padding: 20px;
     }
@@ -131,6 +133,8 @@ h2 {
    ============================= */
 @media screen and (max-width: 600px) {
     .Content {
+        transform: scale(2);   /* 2 = 200% */
+        transform-origin: top left; /* define desde dónde se expande el contenido */
         margin: 50px 15px 30px 15px;
         padding: 15px;
     }
