@@ -70,21 +70,25 @@ public class InformacionPesajeFinalizacionCIta {
             // Conexión
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            // Consulta fija (ya no necesita IN dinámico)
-            String sql = "SELECT v.ID_VEHICULO, " +
-                         "       v.PLACA, " +
-                         "       v.CEDULA, " +
-                         "       t.NMFORM_ZF, " +
-                         "       t.HORA_ENTRADA, " +
-                         "       t.HORA_SALIDA, " +
-                         "       t.PESO_INGRESO, " +
-                         "       t.PESO_SALIDA " +
-                         "FROM VEHICULO_BASC v " +
-                         "JOIN TRAN_BASCULA t " +
-                         "  ON v.ID_VEHICULO = t.VEHICULO_ID_VEHICULO " +
-                         "WHERE v.PLACA = ? " +
-                         "  AND v.CEDULA = ? " +
-                         "  AND t.FECHA_ENTRADA BETWEEN ? AND SYSDATE";
+            // Consulta fija con selección de la primera fila según FECHA_ENTRADA
+            String sql = "SELECT * FROM (" +
+                         "    SELECT v.ID_VEHICULO, " +
+                         "           v.PLACA, " +
+                         "           v.CEDULA, " +
+                         "           t.NMFORM_ZF, " +
+                         "           t.HORA_ENTRADA, " +
+                         "           t.HORA_SALIDA, " +
+                         "           t.PESO_INGRESO, " +
+                         "           t.PESO_SALIDA " +
+                         "    FROM VEHICULO_BASC v " +
+                         "    JOIN TRAN_BASCULA t " +
+                         "      ON v.ID_VEHICULO = t.VEHICULO_ID_VEHICULO " +
+                         "    WHERE v.PLACA = ? " +
+                         "      AND v.CEDULA = ? " +
+                         "      AND t.FECHA_ENTRADA BETWEEN ? AND SYSDATE " +
+                         "    ORDER BY t.FECHA_ENTRADA ASC" +
+                         ") WHERE ROWNUM = 1";
+
 
             pstmt = conn.prepareStatement(sql);
 

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +37,17 @@ public class AsignarCitaCamiones extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    
+    
+    private String getCookie(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        for (Cookie c : cookies) {
+            if (name.equals(c.getName())) return c.getValue();
+        }
+        return null;
+    }
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
                 // Parámetros desde URL
@@ -43,6 +55,8 @@ public class AsignarCitaCamiones extends HttpServlet {
                 String fecha = request.getParameter("fecha");         // Ej: "2025-06-24T08:46:00-05:00"
                 String registro = request.getParameter("registro");   // Ej: "CTA000000000001"
                 String fmm = request.getParameter("fmm");
+                
+                String USLOGIN = getCookie(request, "USUARIO");
                 
                 // Decodificar el JSON
                 String vehiculosJson = URLDecoder.decode(vehiculosJsonEncoded, StandardCharsets.UTF_8.name());
@@ -55,10 +69,12 @@ public class AsignarCitaCamiones extends HttpServlet {
                 // Construir lista de objetos completos
                 List<Map<String, String>> listaFinal = new ArrayList<>();
                 System.out.println(fecha);
+                System.out.println("Usuario:" + USLOGIN);
                 for (Map<String, String> vehiculo : vehiculos) {
                     Map<String, String> data = new HashMap<>();
                     data.put("codigo", registro);
                     data.put("estado", "Asignado");
+                    data.put("usuAprobacion",USLOGIN);
                     data.put("cedula", vehiculo.get("cedula"));
                     data.put("fe_aprobacion", fecha+":00-05:00");
                     data.put("nom_conductor", vehiculo.get("nombre"));
@@ -73,6 +89,7 @@ public class AsignarCitaCamiones extends HttpServlet {
                 // Enviar a API
                 FormularioPost fp = new FormularioPost();
                 String apiUrl = "http://www.siza.com.co/spdcitas-1.0/api/citas/aprobacion";
+                String APIPRUEBA = "http://192.168.10.80:26480/spdcitas/api/citas/aprobacion";
 
                 try {
                     

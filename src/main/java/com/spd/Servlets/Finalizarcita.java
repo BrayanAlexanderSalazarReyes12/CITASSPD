@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,6 +44,16 @@ public class Finalizarcita extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    
+    private String getCookie(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        for (Cookie c : cookies) {
+            if (name.equals(c.getName())) return c.getValue();
+        }
+        return null;
+    }
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String fecha = request.getParameter("fecha");
@@ -64,6 +75,7 @@ public class Finalizarcita extends HttpServlet {
         String SISTEMAENTURNAMIENTOID = jsonEnv.optString("SISTEMAENTURNAMIENTOID");
         String USUARIOMINTRASPOR = jsonEnv.optString("USUARIOMINTRASPOR");
         String CONTRAMINTRASPOR = jsonEnv.optString("CONTRAMINTRASPOR");
+        String USLOGIN = getCookie(request, "USUARIO");
         
         response.setContentType("application/json;charset=UTF-8");
 
@@ -98,8 +110,10 @@ public class Finalizarcita extends HttpServlet {
             Map<String, Object> tiemposProceso = new LinkedHashMap<>();
             tiemposProceso.put("entradaTerminal", fecha);
             tiemposProceso.put("pesajeEntrada", pesoentrada);
+            tiemposProceso.put("basculaEntrada","B1374");
             tiemposProceso.put("salidaTerminal", fechasal);
             tiemposProceso.put("pesajeSalida", psalida);
+            tiemposProceso.put("basculaSalida","B1373");
             
             Map<String, Object> turnoAsignado = new LinkedHashMap<>();
             turnoAsignado.put("fecha", vehiculosMap.get("fechaOfertaSolicitud"));
@@ -126,6 +140,7 @@ public class Finalizarcita extends HttpServlet {
             data.put("codcita", registro);
             data.put("placa", vehiculosMap.get("vehiculoNumPlaca"));
             data.put("manifiesto", vehiculosMap.get("numManifiestoCarga"));
+            data.put("usuMovimiento",USLOGIN);
             listaFinal.add(data);
             
             
@@ -136,6 +151,7 @@ public class Finalizarcita extends HttpServlet {
             String url = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
             
             String apiUrl1 = "http://www.siza.com.co/spdcitas-1.0/api/citas/finalizacion";
+            String APIPRUEBA = "http://192.168.10.80:26480/spdcitas/api/citas/finalizacion";
             
             
             System.out.println(jsonResponse);
@@ -161,6 +177,7 @@ public class Finalizarcita extends HttpServlet {
                         
                         String response2 = fp.FinalizarCita(apiUrl1, jsonResponse1);
                         
+                        
                         response.sendRedirect(request.getContextPath() + "/JSP/CitaCamionesPorFinalizar.jsp?registro="+registro+"&rol="+vehiculosMap.get("rol"));// Esto recarga la página actual 
 
                         //out.println(response2);
@@ -177,7 +194,8 @@ public class Finalizarcita extends HttpServlet {
                     response.sendRedirect(request.getRequestURI()); // También recarga si está vacía
                     String response2 = fp.FinalizarCita(apiUrl1, jsonResponse1);
                         
-                    response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");// Esto recarga la página actual 
+                    response.sendRedirect(request.getContextPath() + "/JSP/CitaCamionesPorFinalizar.jsp?registro="+registro+"&rol="+vehiculosMap.get("rol"));// Esto recarga la página actual 
+ 
 
                     return;
                 }

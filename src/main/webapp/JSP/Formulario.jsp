@@ -514,6 +514,10 @@
                 <small id="errorArchivo" style="color: red; display: none;">
                     El archivo supera el tamaño máximo permitido de 200 KB.
                 </small>
+                <small id="errorArchivoBase64" style="color: red; display: none;">
+                    El archivo excede el tamaño permitido para guardar en la base de datos. 
+                    El límite es de 200 KB y el archivo seleccionado tiene un tamaño de <span id="tamanoArchivo"></span>
+                </small>  
             </div>
 
             <script>
@@ -521,7 +525,8 @@
                     const archivo = input.files[0];
                     const maxTamaño = 200 * 1024; // 200 KB
                     const mensajeError = document.getElementById("errorArchivo");
-
+                    const mensajeErrorbase64 = document.getElementById("errorArchivoBase64");
+                    const tamanoarchivo = document.getElementById("tamanoArchivo");
                     if (!archivo) return;
 
                     const arrayBuffer = await archivo.arrayBuffer();
@@ -545,13 +550,27 @@
                     });
 
                     const blobComprimido = new Blob([pdfBytes], { type: 'application/pdf' });
-
+                    let blobBytes = 4 * (blobComprimido.size / 3);
+                    
                     // Validar tamaño final
-                    if (blobComprimido.size > maxTamaño) {
+                    if (blobComprimido.size > maxTamaño ) {
                         mensajeError.style.display = "block";
                         input.value = "";
-                    } else {
+                    }
+                    
+                    if(blobBytes > maxTamaño){
+                        mensajeErrorbase64.style.display = "block";
+                        tamanoarchivo.textContent = Math.round(blobBytes / 1024) + " KB";
+                    }else {
+                        mensajeErrorbase64.style.display = "none";
+                    }
+                    
+                    console.log("pesoCOmprimido:",blobComprimido.size);
+                    console.log("peso archivo en base64: ",blobBytes);
+                    
+                    if(blobComprimido.size <= maxTamaño && blobBytes <= maxTamaño) {
                         mensajeError.style.display = "none";
+                        mensajeErrorbase64.style.display = "none";
 
                         // Reemplazar archivo original con la versión comprimida
                         const fileComprimido = new File([blobComprimido], archivo.name, { type: 'application/pdf' });
@@ -561,8 +580,10 @@
                         dataTransfer.items.add(fileComprimido);
                         input.files = dataTransfer.files;
                         
-                        console.log("pesoCOmprimido:",blobComprimido.size);
-                        console.log("Archivo comprimido listo para enviar:", fileComprimido);
+                        
+                    }else {
+                            input.value = "";  // Limpia el archivo seleccionado
+                            console.warn("Archivo rechazado. Se ha vaciado el campo de adjuntar archivo.");
                     }
                 }
                 </script>

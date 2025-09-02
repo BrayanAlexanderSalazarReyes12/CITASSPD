@@ -42,6 +42,16 @@ public class CancelarCitaServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    
+    private String getCookie(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        for (Cookie c : cookies) {
+            if (name.equals(c.getName())) return c.getValue();
+        }
+        return null;
+    }
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
@@ -54,6 +64,9 @@ public class CancelarCitaServlet extends HttpServlet {
         String SISTEMAENTURNAMIENTOID = jsonEnv.optString("SISTEMAENTURNAMIENTOID");
         String USUARIOMINTRASPOR = jsonEnv.optString("USUARIOMINTRASPOR");
         String CONTRAMINTRASPOR = jsonEnv.optString("CONTRAMINTRASPOR");
+        
+        String USLOGIN = getCookie(request, "USUARIO");
+        
         FormularioPost fp = new FormularioPost();
         response.setContentType("application/json;charset=UTF-8");
         try {
@@ -141,7 +154,8 @@ public class CancelarCitaServlet extends HttpServlet {
             cancelacioncita.put("codcita", registro);
             cancelacioncita.put("placa", placa);
             cancelacioncita.put("manifiesto", manifiesto);
-
+            cancelacioncita.put("usuMovimiento",USLOGIN);
+            
             // Crear una lista y agregar el mapa
             List<Map<String, Object>> listaCancelaciones = new ArrayList<>();
             listaCancelaciones.add(cancelacioncita);
@@ -151,6 +165,9 @@ public class CancelarCitaServlet extends HttpServlet {
             String json1 = gson1.toJson(listaCancelaciones);
             
             String url = "http://www.siza.com.co/spdcitas-1.0/api/citas/cancelacion";
+            
+            String APIPRUEBA = "http://192.168.10.80:26480/spdcitas/api/citas/cancelacion";
+            
             String response2 = fp.EliminarCita(url, json1);
             
             if (response2 != null && !response2.isEmpty()){

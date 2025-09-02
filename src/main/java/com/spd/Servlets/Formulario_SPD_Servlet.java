@@ -55,7 +55,8 @@ public class Formulario_SPD_Servlet extends HttpServlet {
     private static final String URL_RIEM = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
     private static final String URL_CITAS = "http://www.siza.com.co/spdcitas-1.0/api/citas/";
     private static final String URL_CITAS_BARC = "http://www.siza.com.co/spdcitas-1.0/api/citas/barcazas/";
-
+    private static final String URL_PRUEBAS = "http://192.168.10.80:26480/spdcitas/api/citas/";
+    
     private JSONObject jsonEnv;
     private transient ExecutorService extrasPool;
 
@@ -255,6 +256,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         // 2) Datos de usuario/cookies
         String usuario = request.getParameter("Cliente");
         String nombreUsuario = getCookie(request, "DATA");
+        String USLOGIN = getCookie(request, "USUARIO");
 
         // Lista de clientes (ideal mover a repositorio/DB)
         List<Cliente> clientes = Arrays.asList(
@@ -373,13 +375,13 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 0,
                 Barcades
         );
-
+        
         CitaBascula cb;
         if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
             VehiculoDB vdb2 = new VehiculoDB(placa, Cedula, nombre, fecha, Manifiesto);
             vehiculosDB.add(vdb2);
             cb = new CitaBascula(
-                usuario, empresaUsuario, placa, Cedula, nombre, fecha, Manifiesto, 0, Nitempresa,
+                usuario, USLOGIN, placa, Cedula, nombre, fecha, Manifiesto, 0, Nitempresa,
                 "PROGRAMADA", vehiculos.size(), TipoProducto, Float.parseFloat(cantidadproducto),
                 FacturaComercial, Double.parseDouble(PrecioArticulo), facturacomerpdf, Observaciones,
                 Operaciones, Remolque, nombreBarcaza, nombreTanque, vehiculosDB
@@ -389,7 +391,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
             VehiculoDB vdb1 = new VehiculoDB(placa, Cedula, nombre, fecha, Manifiesto);
             vehiculosDB1.add(vdb1);
             cb = new CitaBascula(
-                usuario, empresaUsuario, placa, Cedula, nombre, fecha, Manifiesto, 0, Nitempresa,
+                usuario, USLOGIN, placa, Cedula, nombre, fecha, Manifiesto, 0, Nitempresa,
                 "PROGRAMADA", vehiculos.size(), TipoProducto, Float.parseFloat(cantidadproducto),
                 FacturaComercial, Double.parseDouble(PrecioArticulo), facturacomerpdf, Observaciones,
                 Operaciones, Remolque, nombreBarcaza, nombreTanque, vehiculosDB1
@@ -408,7 +410,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
             // === Operaciones combinadas ===
             if ("Carrotanque - Barcaza".equals(operacion) || "Barcaza - Carrotanque".equals(operacion)) {
                 System.out.println("Enviando RIEN (carrotanque) y CitaBarcaza...");
-
+                
                 String response1 = postConRetry(fp, URL_RIEM, json);
                 if (response1 == null) {
                     HttpSession session = request.getSession();
