@@ -140,7 +140,7 @@ public class Finalizarcita extends HttpServlet {
             data.put("codcita", registro);
             data.put("placa", vehiculosMap.get("vehiculoNumPlaca"));
             data.put("manifiesto", vehiculosMap.get("numManifiestoCarga"));
-            data.put("usuMovimiento",USLOGIN);
+            //data.put("usuMovimiento",USLOGIN);
             listaFinal.add(data);
             
             
