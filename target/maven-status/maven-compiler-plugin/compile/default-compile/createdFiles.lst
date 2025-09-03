@@ -39,6 +39,7 @@ com\spd\Servlets\Iniciar_Seccion_Servlet.class
 com\spd\Model\FormularioCompletoSPDCARROTANQUE.class
 com\spd\CItasDB\BarcazaCita.class
 com\spd\ClasesJsonFormularioMinisterio\Variables.class
+com\spd\SendMail\EnviarCorreo.class
 com\spd\API\LoginPost.class
 com\spd\ClasesJsonFormularioMinisterio\FormularioCompleto.class
 com\spd\CargarBarcazas\CargarBarcazas.class

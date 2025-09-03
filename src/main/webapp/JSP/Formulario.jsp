@@ -4,6 +4,8 @@
     Author     : brayan alexander salazar reyes
 --%>
 
+<%@page import="java.time.LocalTime"%>
+<%@page import="java.time.LocalDate"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
 <%@page import="java.time.LocalDateTime"%>
 <%@page import="java.time.OffsetDateTime"%>
@@ -404,22 +406,87 @@
                     <input id="Operaciones" type="text" name="Operaciones" value="<%= operacion %>" readonly />
                 </div>
 
+                <%
+                    LocalDateTime now = LocalDateTime.now();
+                    LocalDate today = now.toLocalDate();
+
+                    LocalTime cutoff = LocalTime.of(15, 59);       // 4:00 PM
+                    LocalTime earliest = LocalTime.of(8, 0);      // 8:00 AM
+                    LocalTime latest = LocalTime.of(15, 59);       // 4:00 PM
+                    LocalTime cutofftime = LocalTime.of(15, 0);   // 3:00 PM
+
+                    LocalDate targetDate;
+                    LocalDateTime minDateTime;
+                    LocalDateTime maxDateTime;
+
+                    if (now.toLocalTime().isBefore(cutoff)) {
+                        // Usuario accedió antes de las 4:00 PM → agenda para hoy
+                        targetDate = today;
+
+                        LocalTime proposedMinTime;
+
+                        if (now.toLocalTime().isBefore(cutofftime)) {
+                            // Antes de las 3:00 PM → mínimo +1 hora
+                            proposedMinTime = now.toLocalTime().plusHours(1);
+                        } else {
+                            // Entre 3:00 PM y 3:59 PM → no sumes 1 hora, usa la actual
+                            proposedMinTime = now.toLocalTime();
+                        }
+
+                        // Asegurarse que no sea antes de 8:00 AM
+                        if (proposedMinTime.isBefore(earliest)) {
+                            proposedMinTime = earliest;
+                        }
+
+                        // Asegurarse que no sea después de 4:00 PM
+                        if (proposedMinTime.isAfter(latest)) {
+                            // Ya no se puede agendar hoy → pasa a mañana
+                            targetDate = today.plusDays(1);
+                            minDateTime = LocalDateTime.of(targetDate, earliest);
+                            maxDateTime = LocalDateTime.of(targetDate, latest);
+                        } else {
+                            // Agenda válida para hoy
+                            minDateTime = LocalDateTime.of(today, proposedMinTime);
+                            maxDateTime = LocalDateTime.of(today, latest);
+                        }
+                    } else {
+                        // Usuario accedió después de las 4:00 PM → agenda para mañana
+                        targetDate = today.plusDays(1);
+                        minDateTime = LocalDateTime.of(targetDate, earliest);
+                        maxDateTime = LocalDateTime.of(targetDate, latest);
+                    }
+
+                    // Formateo para el input datetime-local
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+                    String fechaMin = minDateTime.format(formatter);
+                    String fechaMax = maxDateTime.format(formatter);
+
+                    // Si hay una fecha guardada en sesión, formatearla
+                    String fecha_sesion = (String) session.getAttribute("fechaForm");
+                    String fechaFormateada = "";
+                    if (fecha_sesion != null) {
+                        OffsetDateTime odt = OffsetDateTime.parse(fecha_sesion);
+                        LocalDateTime ldt = odt.toLocalDateTime();
+                        fechaFormateada = ldt.format(formatter);
+                    }
+                %>
+
                 <div class="form-group">
                     <label for="Fecha">Fecha y Hora de Ingreso al Puerto:</label>
-                    <%
-                        Date date = new Date();
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-                        String fechaActual = sdf.format(date);
-                        String fecha_sesion = (String) session.getAttribute("fechaForm");
-                        String fechaFormateada = "";
-                        if (fecha_sesion != null) {
-                            OffsetDateTime odt = OffsetDateTime.parse(fecha_sesion);
-                            LocalDateTime ldt = odt.toLocalDateTime();
-                            fechaFormateada = ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
-                        }
-                    %>
-                    <input id="Fecha" type="datetime-local" name="fecha" value="<%= fecha_sesion != null ? fechaFormateada : fechaActual %>" required/>
+                    <input 
+                        id="Fecha" 
+                        type="datetime-local" 
+                        name="fecha" 
+                        value="<%= fecha_sesion != null ? fechaFormateada : fechaMin %>" 
+                        min="<%= fechaMin %>" 
+                        max="<%= fechaMax %>" 
+                        required
+                    />
                 </div>
+
+
+
+
 
                 <div class="form-group">
                     <label for="Verificacion">¿Desea registrar varios camiones de la misma empresa transportadora?</label>

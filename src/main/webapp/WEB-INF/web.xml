@@ -60,6 +60,10 @@
         <servlet-name>FinalizarcitaInfo</servlet-name>
         <servlet-class>com.spd.Servlets.FinalizarcitaInfo</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>EnviarCorreo</servlet-name>
+        <servlet-class>com.spd.SendMail.EnviarCorreo</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <url-pattern>/Iniciar_Seccion_Servlet</url-pattern>
@@ -119,6 +123,10 @@
     <servlet-mapping>
         <servlet-name>FinalizarcitaInfo</servlet-name>
         <url-pattern>/FinalizarcitaInfo</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EnviarCorreo</servlet-name>
+        <url-pattern>/EnviarCorreo</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
