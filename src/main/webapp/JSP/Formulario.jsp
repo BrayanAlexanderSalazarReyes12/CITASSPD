@@ -410,58 +410,47 @@
                     LocalDateTime now = LocalDateTime.now();
                     LocalDate today = now.toLocalDate();
 
-                    LocalTime cutoff = LocalTime.of(15, 59);       // 4:00 PM
-                    LocalTime earliest = LocalTime.of(8, 0);      // 8:00 AM
-                    LocalTime latest = LocalTime.of(15, 59);       // 4:00 PM
+                    LocalTime earliest   = LocalTime.of(8, 0);    // 8:00 AM
+                    LocalTime latest     = LocalTime.of(15, 59);  // 3:59 PM
                     LocalTime cutofftime = LocalTime.of(15, 0);   // 3:00 PM
 
                     LocalDate targetDate;
                     LocalDateTime minDateTime;
-                    LocalDateTime maxDateTime;
 
-                    if (now.toLocalTime().isBefore(cutoff)) {
-                        // Usuario accedió antes de las 4:00 PM → agenda para hoy
+                    if (now.toLocalTime().isBefore(LocalTime.of(16, 0))) {
+                        // Antes de las 4:00 PM → agenda desde hoy
                         targetDate = today;
 
                         LocalTime proposedMinTime;
-
                         if (now.toLocalTime().isBefore(cutofftime)) {
-                            // Antes de las 3:00 PM → mínimo +1 hora
+                            // Antes de 3:00 PM → suma 1 hora
                             proposedMinTime = now.toLocalTime().plusHours(1);
                         } else {
-                            // Entre 3:00 PM y 3:59 PM → no sumes 1 hora, usa la actual
+                            // Entre 3:00 y 3:59 PM → usa la hora actual
                             proposedMinTime = now.toLocalTime();
                         }
 
-                        // Asegurarse que no sea antes de 8:00 AM
                         if (proposedMinTime.isBefore(earliest)) {
                             proposedMinTime = earliest;
                         }
 
-                        // Asegurarse que no sea después de 4:00 PM
                         if (proposedMinTime.isAfter(latest)) {
-                            // Ya no se puede agendar hoy → pasa a mañana
+                            // Si ya se pasó la hora → mover al día siguiente
                             targetDate = today.plusDays(1);
                             minDateTime = LocalDateTime.of(targetDate, earliest);
-                            maxDateTime = LocalDateTime.of(targetDate, latest);
                         } else {
-                            // Agenda válida para hoy
                             minDateTime = LocalDateTime.of(today, proposedMinTime);
-                            maxDateTime = LocalDateTime.of(today, latest);
                         }
                     } else {
-                        // Usuario accedió después de las 4:00 PM → agenda para mañana
+                        // Después de las 4:00 PM → solo a partir de mañana
                         targetDate = today.plusDays(1);
                         minDateTime = LocalDateTime.of(targetDate, earliest);
-                        maxDateTime = LocalDateTime.of(targetDate, latest);
                     }
 
-                    // Formateo para el input datetime-local
+                    // Formato para el input datetime-local
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
                     String fechaMin = minDateTime.format(formatter);
-                    String fechaMax = maxDateTime.format(formatter);
 
-                    // Si hay una fecha guardada en sesión, formatearla
                     String fecha_sesion = (String) session.getAttribute("fechaForm");
                     String fechaFormateada = "";
                     if (fecha_sesion != null) {
@@ -479,13 +468,40 @@
                         name="fecha" 
                         value="<%= fecha_sesion != null ? fechaFormateada : fechaMin %>" 
                         min="<%= fechaMin %>" 
-                        max="<%= fechaMax %>" 
                         required
                     />
                 </div>
 
+                <!-- Importa SweetAlert2 desde CDN -->
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+                <script>
+                document.getElementById("Fecha").addEventListener("change", function () {
+                    const input = this;
+                    const selected = new Date(input.value);
 
+                    if (isNaN(selected.getTime())) return; // si no hay valor válido
+
+                    const hours = selected.getHours();
+                    const minutes = selected.getMinutes();
+
+                    // Rango permitido: 08:00 a 16:00
+                    const minHour = 8;
+                    const maxHour = 16;
+
+                    if (hours < minHour || (hours >= maxHour && minutes > 0)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hora inválida',
+                            text: 'La hora seleccionada debe estar entre las 08:00 AM y las 04:00 PM.',
+                            confirmButtonText: 'Entendido',
+                            confirmButtonColor: '#3085d6'
+                        }).then(() => {
+                            input.value = ""; // limpia el valor inválido después del mensaje
+                        });
+                    }
+                });
+                </script>
 
 
                 <div class="form-group">
