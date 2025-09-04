@@ -409,62 +409,78 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         try {
             // === Operaciones combinadas ===
             if ("Carrotanque - Barcaza".equals(operacion) || "Barcaza - Carrotanque".equals(operacion)) {
-                System.out.println("Enviando RIEN (carrotanque) y CitaBarcaza...");
-                
-                String response1 = postConRetry(fp, URL_RIEM, json);
-                if (response1 == null) {
+                System.out.println("Guardando cita carrotanque y barcaza en BD...");
+
+                boolean guardadoExitoso = false;
+                try {
+                    // Guardar en BD (cita carrotanque + barcaza)
+                    formdbConRetry(fp, URL_CITAS, json2);
+                    citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
+
+                    guardadoExitoso = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
                     HttpSession session = request.getSession();
                     session.setAttribute("Activo", true);
-                    session.setAttribute("Error", "Error: no hay conexión con el servidor (RIEN). Intente más tarde.");
+                    session.setAttribute("Error", "Error: no se pudo guardar la cita en la base de datos.");
                     response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
                     return;
                 }
 
-                JSONObject jsonResponse = new JSONObject(response1);
-                if (jsonResponse.has("ErrorCode") && jsonResponse.optInt("ErrorCode", 0) != 0) {
-                    String msg = jsonResponse.optString("ErrorText", "Sin detalle");
+                if (guardadoExitoso) {
+                    // Solo si guarda bien en BD, se envía al ministerio
+                    System.out.println("Enviando RIEN (carrotanque) y CitaBarcaza...");
+                    String response1 = postConRetry(fp, URL_RIEM, json);
+
+                    if (response1 == null) {
+                        HttpSession session = request.getSession();
+                        session.setAttribute("Activo", true);
+                        session.setAttribute("Error", "Error: no hay conexión con el servidor (RIEN). Intente más tarde.");
+                        response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
+                        return;
+                    }
+
+                    JSONObject jsonResponse = new JSONObject(response1);
+                    if (jsonResponse.has("ErrorCode") && jsonResponse.optInt("ErrorCode", 0) != 0) {
+                        String msg = jsonResponse.optString("ErrorText", "Sin detalle");
+                        HttpSession session = request.getSession();
+                        session.setAttribute("Error", "Error: " + msg);
+                        setFormSession(session, usuario, Operaciones, fecha, verificacion, Nitempresa, Cedula, placa,
+                                Manifiesto, cedulasExtras, placasExtras, manifiestosExtras, nombre, nombreconductorExtras,
+                                cantidadproducto, FacturaComercial, Observaciones, PrecioArticulo, Remolque, remolqueExtras,
+                                PesoProducto, Barcades, producto);
+
+                        setCookie(response, "CITACREADA", "true", 3600, "/CITASSPD");
+
+                        redirectTiposProductos(request, response, operacion, msg);
+                        return;
+                    }
+
+                    // Éxito RIEN
+                    int sesionId = jsonResponse.optInt("SesionId", -1);
+                    String ingresoId = jsonResponse.optString("IngresoId", "");
                     HttpSession session = request.getSession();
-                    session.setAttribute("Error", "Error: " + msg);
-                    setFormSession(session, usuario, Operaciones, fecha, verificacion, Nitempresa, Cedula, placa,
-                            Manifiesto, cedulasExtras, placasExtras, manifiestosExtras, nombre, nombreconductorExtras,
-                            cantidadproducto, FacturaComercial, Observaciones, PrecioArticulo, Remolque, remolqueExtras,
-                            PesoProducto, Barcades, producto);
+                    session.setAttribute("Activo", true);
+                    session.setAttribute("Error", "Formulario Enviado Con Éxito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
 
-                    // cookie de confirmación (opcional)
-                    setCookie(response, "CITACREADA", "true", 3600, "/CITASSPD");
+                    quitarOperacionTerminada(session);
 
-                    redirectTiposProductos(request, response, operacion, msg);
+                    // Enviar extras en paralelo
+                    if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
+                        for (int i = 0; i < cedulasExtras.length; i++) {
+                            enviarVehiculoExtraAsync(
+                                fp, gson, URL_RIEM, fechaFormateada1, sistemaEnturnamiento, identificador, Nitempresa, acceso,
+                                placasExtras[i], cedulasExtras[i], manifiestosExtras[i],
+                                (remolqueExtras != null && remolqueExtras.length > i) ? remolqueExtras[i] : null
+                            );
+                        }
+                    }
+
+                    request.getSession().setAttribute("errorMsg", "CITA CREADA CON EXITO!!!");
+                    response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
                     return;
                 }
 
-                // Éxito RIEN
-                int sesionId = jsonResponse.optInt("SesionId", -1);
-                String ingresoId = jsonResponse.optString("IngresoId", "");
-                HttpSession session = request.getSession();
-                session.setAttribute("Activo", true);
-                session.setAttribute("Error", "Formulario Enviado Con Éxito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
-
-                quitarOperacionTerminada(session);
-
-                // Enviar extras en paralelo (no bloquea la respuesta al usuario)
-                if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
-                    for (int i = 0; i < cedulasExtras.length; i++) {
-                        enviarVehiculoExtraAsync(
-                            fp, gson, URL_RIEM, fechaFormateada1, sistemaEnturnamiento, identificador, Nitempresa, acceso,
-                            placasExtras[i], cedulasExtras[i], manifiestosExtras[i],
-                            (remolqueExtras != null && remolqueExtras.length > i) ? remolqueExtras[i] : null
-                        );
-                    }
-                }
-
-                // Guardar en BD (cita carrotanque + barcaza)
-                formdbConRetry(fp, URL_CITAS, json2);
-                citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
-
-                request.getSession().setAttribute("errorMsg", "CITA CREADA CON EXITO!!!");
-                
-                response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
-                return;
             }
 
             // === Solo barcaza ===

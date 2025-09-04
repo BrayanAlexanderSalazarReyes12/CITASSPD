@@ -4,8 +4,12 @@
  */
 package com.spd.SendMail;
 
+import com.spd.CItasDB.CantCitasProgram;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -50,7 +54,15 @@ public class EnviarCorreo extends HttpServlet {
             "lreyes@spdique.com"
         };
         
-        String Asunto = "PROGRAMACION DE LA CITA PARA LA EMPRESA " + request.getParameter("empresa") + "DONDE EL CODIGO DE LA CITA ES " + request.getParameter("CODCITA");
+        CantCitasProgram.inicializarDesdeContexto(request.getServletContext());
+        
+        try {
+            int citacreada = CantCitasProgram.obtenerUltimaCita() + 1;
+            
+            String Asunto = "PROGRAMACION DE LA CITA PARA LA EMPRESA " + request.getParameter("empresa") + "DONDE EL CODIGO DE LA CITA ES " + citacreada;
+        } catch (Exception e) {
+            LOG.log(Level.INFO, (Supplier<String>) e);
+        }
 
     }
 
@@ -92,5 +104,8 @@ public class EnviarCorreo extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+    private static final Logger LOG = Logger.getLogger(EnviarCorreo.class.getName());
 
+    
+    
 }
