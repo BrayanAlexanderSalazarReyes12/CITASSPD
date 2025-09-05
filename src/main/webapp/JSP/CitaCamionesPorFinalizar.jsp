@@ -35,6 +35,7 @@
         $(document).ready(function () {
             $('#myTable').DataTable({
                 scrollY: 400,
+                pageLength: 50, // ← Aquí se especifica mostrar 20 registros por página
                 language: {
                     url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
                 }
@@ -405,6 +406,233 @@
                 return;
             }
 
+            if (selectedCheckboxes.length === 0) {
+                Swal.fire('⚠ Debes seleccionar al menos un vehículo');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Consultando información...',
+                text: 'Por favor espera un momento',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            // Array para guardar datos de todas las citas
+            const respuestas = [];
+
+            let identificador;
+            let empresatransportadora;
+            let manifiesto;
+            let nombreconduc;
+            let formulario;
+            let rol;
+            let registro;
+            
+            // Ejecutamos una consulta por cada vehículo
+            const promesas = Array.from(selectedCheckboxes).map(cb => {
+                const placa = cb.value;
+                const fecha = cb.dataset.fechacreacion;
+                const cedula = cb.dataset.cedula;
+                const operacion = cb.dataset.operacion?.toLowerCase() || "";
+                empresatransportadora = cb.dataset.transportadora || "";
+                nombreconduc = cb.dataset.nombreconductor || "";
+                formulario = cb.dataset.formulario || "";
+                rol = cb.dataset.rol || "";
+                
+                identificador = (operacion === "operacion de cargue") ? "1" : "2";
+
+                return axios.get('../FinalizarcitaInfo', {
+                    params: { placa, fecha, cedula }
+                }).then(res => {
+                    respuestas.push({
+                        placa,
+                        cedula,
+                        fecha,
+                        datos: res.data
+                    });
+                }).catch(err => {
+                    console.error("Error consultando cita:", placa, err);
+                });
+            });
+
+            // Cuando terminen todas las consultas
+            Promise.all(promesas).then(() => {
+                Swal.close();
+
+                console.log("📌 Respuestas finales:", respuestas);
+
+                // Filtrar los que tengan datos completos (si falta algo, se descarta)
+                const respuestasValidas = respuestas.filter(item => {
+                    let cita = item.datos.length > 0 ? item.datos[0] : {};
+
+                    return cita.fechaEntrada && cita.fechaSalida &&
+                           cita.pesoIngreso && cita.pesoSalida;
+                });
+
+                if (respuestasValidas.length === 0) {
+                    Swal.fire('⚠ Ninguno de los carrotanques tiene la información completa (fechas y pesajes)');
+                    return;
+                }
+
+                // Armar HTML dinámico para todas las citas válidas
+                let formHTML = `<div class="swal-form">`;
+
+                respuestasValidas.forEach((item, idx) => {
+                    let cita = item.datos[0];
+                    
+                    // También conviertes la fecha JSP si la necesitas
+                    let fechaInsideRaw = "<%= fecha_final_estado %>"; 
+                    let fechaInside = new Date(fechaInsideRaw);
+                    let fechaInsideFormato = fechaInside.getFullYear() + "-" +
+                                            String(fechaInside.getMonth() + 1).padStart(2, '0') + "-" +
+                                            String(fechaInside.getDate()).padStart(2, '0') + "T" +
+                                            String(fechaInside.getHours()).padStart(2, '0') + ":" +
+                                            String(fechaInside.getMinutes()).padStart(2, '0');
+
+                    
+                    let fechaEntradaBas = parseFecha(cita.fechaEntrada) || "";
+                    let fechaSalidaBas  = parseFecha(cita.fechaSalida)  || "";
+                    let pesoEntradaBas  = cita.pesoIngreso ? String(cita.pesoIngreso) : "";
+                    let pesoSalidaBas   = cita.pesoSalida ? String(cita.pesoSalida)   : "";
+                    
+                    registro = '<%= registro %>';  // desde JSP
+                    
+                    formHTML += `
+                      <fieldset style="border:1px solid #ccc; margin-bottom:10px; padding:10px;">
+                        <legend>🚛 Vehículo `+item.placa+`</legend>
+
+                        <div class="swal-form-group">
+                          <label for="fechaInside_`+idx+`">Fecha Inside</label>
+                          <input id="fechaInside_`+idx+`" type="datetime-local" value="`+fechaInsideFormato+`">
+                        </div>
+                        
+                        <div class="swal-form-group">
+                          <label for="fechaCita_`+idx+`">Fecha de entrada báscula</label>
+                          <input id="fechaCita_`+idx+`" type="datetime-local" value="`+fechaEntradaBas+`">
+                        </div>
+
+                        <div class="swal-form-group">
+                          <label for="pesoentrada_`+idx+`">Peso de entrada (ton)</label>
+                          <input id="pesoentrada_`+idx+`" type="text" value="`+pesoEntradaBas+`">
+                        </div>
+
+                        <div class="swal-form-group">
+                          <label for="fechasalida_`+idx+`">Fecha de salida báscula</label>
+                          <input id="fechasalida_`+idx+`" type="datetime-local" value="`+fechaSalidaBas+`">
+                        </div>
+
+                        <div class="swal-form-group">
+                          <label for="pesosalida_`+idx+`">Peso de salida (ton)</label>
+                          <input id="pesosalida_`+idx+`" type="text" value="`+pesoSalidaBas+`">
+                        </div>
+                      </fieldset>
+                    `;
+                });
+
+                formHTML += `</div>`;
+
+                Swal.fire({
+                    title: '📋 Finalizar citas seleccionadas',
+                    html: formHTML,
+                    width: "800px",
+                    showCancelButton: true,
+                    confirmButtonText: "Guardar",
+                    preConfirm: () => {
+                        const resultados = [];
+
+                        respuestasValidas.forEach((item, idx) => {
+                            const cb = document.querySelector(`input[name="vehiculos"][value="`+item.placa+`"]`);
+
+                            // leer cada dataset del checkbox
+                            const empresaTransportadora = cb.dataset.transportadora || "";
+                            const manifiesto            = cb.dataset.manifiesto || "";
+                            const nombreConduc          = cb.dataset.nombreconductor || "";
+                            const formulario            = cb.dataset.formulario || "";
+                            const rol                   = cb.dataset.rol || "";
+
+                            const fechainside = document.getElementById(`fechaInside_`+idx).value;
+                            const fecha       = document.getElementById(`fechaCita_`+idx).value;
+                            const fechasal    = document.getElementById(`fechasalida_`+idx).value;
+                            const pentrada    = document.getElementById(`pesoentrada_`+idx).value;
+                            const psalida     = document.getElementById(`pesosalida_`+idx).value;
+
+                            if (!fecha || !fechasal || !pentrada || !psalida) {
+                                Swal.showValidationMessage('⚠ Todos los campos son obligatorios para cada vehículo');
+                                return false;
+                            }
+
+                            resultados.push({
+                                tipoOperacionId: identificador,
+                                empresaTransportadoraNit: empresaTransportadora,     
+                                vehiculoNumPlaca: item.placa,
+                                conductorCedulaCiudadania: item.cedula,
+                                fechaOfertaSolicitud: fechainside,
+                                numManifiestoCarga: manifiesto,  // ✅ cada carro tendrá su propio manifiesto
+                                nombreconductor: nombreConduc,
+                                formulario: formulario,
+                                rol: rol,
+                                fechaentrada: fecha,
+                                fechasalida: fechasal,
+                                pesoentrada: pentrada,
+                                pesosalida: psalida,
+                                registro: registro
+                            });
+                        });
+
+
+                        return resultados;
+                    }
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        const resultados = result.value;
+                        
+                        console.log("✅ Datos finales a enviar:", result.value);
+
+                        const json = JSON.stringify(result.value, null, 2);
+                        Swal.fire({
+                            title: "Datos listos",
+                            html: `<pre style="text-align:left;max-height:300px;overflow:auto;">`+json+`</pre>`,
+                            width: "800px"
+                        });
+                        const params = new URLSearchParams();
+                        params.append('DATOS', json);
+                        
+                        // 🚨 Aquí redirige uno por uno
+                        window.location.href = '../Finalizarcita?' + params.toString();
+                        
+                    }
+                });
+            });
+
+        }
+
+        function parseFecha(fechaStr) {
+            // Convierte el string de fecha a objeto Date
+            const fecha = new Date(fechaStr);
+
+            // Formatea a "yyyy-MM-dd HH:mm:ss"
+            const year = fecha.getFullYear();
+            const month = String(fecha.getMonth() + 1).padStart(2, '0');
+            const day = String(fecha.getDate()).padStart(2, '0');
+            const hours = String(fecha.getHours()).padStart(2, '0');
+            const minutes = String(fecha.getMinutes()).padStart(2, '0');
+            const seconds = String(fecha.getSeconds()).padStart(2, '0');
+
+            return year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+        }
+
+
+
+        /*function abrirFormularioCitaMultiple() {
+            const allCheckboxes = document.querySelectorAll('input[name="vehiculos"]');
+            const selectedCheckboxes = document.querySelectorAll('input[name="vehiculos"]:checked');
+
+            if (allCheckboxes.length === 0) {
+                Swal.fire('⚠ No hay vehículos disponibles para seleccionar');
+                return;
+            }
+
             if (selectedCheckboxes.length !== 1) {
                 Swal.fire('⚠ Debes seleccionar solo un vehículo');
                 return;
@@ -597,7 +825,7 @@
                 console.error("Error al obtener datos:", error);
                 Swal.fire("❌ Error", "No se pudo obtener la información de la cita", "error");
             });
-        }
+        }*/
 
         
         function cancelarCita(codigoCita, empresaNit, placa, cedula, fechaOferta, operacion, registro, manifiesto) {

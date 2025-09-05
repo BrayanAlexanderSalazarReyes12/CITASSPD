@@ -24,6 +24,7 @@ com\spd\Servlets\TipoProductosBarcaza.class
 com\spd\Model\ListadoCitasBar.class
 com\spd\informacionCita\CitaInfo.class
 com\spd\API\FormularioPost.class
+com\spd\informacionCita\CitaFInal.class
 com\spd\DAO\ListadoDAO$3.class
 com\spd\Model\Formulario_Citas_SPD.class
 com\spd\Model\ResultadoCitas.class

@@ -53,14 +53,14 @@
         <script>
             $(document).ready(function () {
                 ['#myTable', '#myTable2', '#myTable3', '#myTable4'].forEach(function (id) {
-        $(id).DataTable({
-            scrollY: 400,
-            language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }
-        });
-    });
+                    $(id).DataTable({
+                        scrollY: 400,
+                        pageLength: 50, // ← Aquí se especifica mostrar 20 registros por página
+                        language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" }
+                    });
+                });
             });
-
-      </script>
+        </script>
 
 
     </head>
