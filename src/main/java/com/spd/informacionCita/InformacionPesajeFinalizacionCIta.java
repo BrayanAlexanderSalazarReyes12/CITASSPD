@@ -124,6 +124,48 @@ public class InformacionPesajeFinalizacionCIta {
 
         return listaCitas;
     }
+    
+    public static List<EstadoCIta> InformacionEstadoCita(
+        String CodCita
+    ) throws  SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<EstadoCIta> listadocitas = new ArrayList<>();
+        try{
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            
+            String sql = "SELECT PLACA, ESTADO FROM "
+                    + "SPD_CITA_VEHICULOS "
+                    + "WHERE COD_CITA = ?";
+            
+            pstmt = conn.prepareCall(sql);
+            
+            pstmt.setString(1, CodCita);
+            
+            rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                EstadoCIta estadocita = new EstadoCIta();
+                estadocita.setPLACA(rs.getString("PLACA"));
+                estadocita.setESTADO(rs.getString("ESTADO"));
+                listadocitas.add(estadocita);
+            }
+            
+        }catch (ClassNotFoundException e) {
+            System.err.println("❌ No se encontró el driver JDBC: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("❌ Error SQL al obtener información de la cita: " + e.getMessage());
+            throw e;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+            if (pstmt != null) try { pstmt.close(); } catch (Exception ignored) {}
+            if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+        }
+        
+        return listadocitas;
+    }
 
 }
 

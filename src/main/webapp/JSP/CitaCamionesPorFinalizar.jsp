@@ -4,6 +4,9 @@
     Author     : Brayan Salazar
 --%>
 
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.Map"%>
+<%@page import="com.spd.informacionCita.EstadoCIta"%>
 <%@page import="java.sql.Date"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="com.spd.informacionCita.CitaInfo"%>
@@ -163,65 +166,65 @@
 
                         <tbody>
                             <%
-                                for(ListadoCItas listado : ListadoCitas){
+                                InformacionPesajeFinalizacionCIta.inicializarDesdeContexto(application);
+                                List<EstadoCIta> estados = InformacionPesajeFinalizacionCIta.InformacionEstadoCita(registro);
+
+                                // Convertir lista de estados a mapa por placa para rápido acceso
+                                Map<String, String> estadoPorPlaca = new HashMap<String, String>();
+                                for (EstadoCIta estado : estados) {
+                                    estadoPorPlaca.put(estado.getPLACA(), estado.getESTADO());
+                                }
+
+                                for (ListadoCItas listado : ListadoCitas) {
                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
-                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
+                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal);
                                     LocalDateTime ldt = odt.toLocalDateTime();
                                     fechabus = java.sql.Date.valueOf(ldt.toLocalDate());
+
                                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
                                     String fechaSinZona = ldt.format(formatter);
-                                    String fechaSinZona2 = ldt.format(formatter2);
-                                    
+
                                     if (listado.getCodCita().equals(registro)) {
-                                    
-                                        if ("operacion de cargue".equals(listado.getTipo_Operacion())){
-                                            operacion = 1;
-                                        }else {
-                                            operacion = 2;
-                                        }
-                                        System.out.println(listado.getPlaca());
+
+                                        operacion = "operacion de cargue".equals(listado.getTipo_Operacion()) ? 1 : 2;
                                         List<ListaVehiculos> vehiculos = listado.getVehiculos();
-                                        if (vehiculos != null && !vehiculos.isEmpty()){
-                                            for (ListaVehiculos vehiculo : vehiculos){
-                                             if(vehiculo.getFechaOfertaSolicitud() != null){
-                                              placas.add(vehiculo.getVehiculoNumPlaca());
-                                              Cedulas.add(vehiculo.getConductorCedulaCiudadania());
+
+                                        if (vehiculos != null && !vehiculos.isEmpty()) {
+                                            for (ListaVehiculos vehiculo : vehiculos) {
+                                                String placaVehiculo = vehiculo.getVehiculoNumPlaca();
+
+                                                // Validar si la placa está en el mapa y su estado no es FINALIZADA
+                                                if (vehiculo.getFechaOfertaSolicitud() != null &&
+                                                    estadoPorPlaca.containsKey(placaVehiculo) &&
+                                                    !"FINALIZADA".equalsIgnoreCase(estadoPorPlaca.get(placaVehiculo))) {
+
+                                                    placas.add(placaVehiculo);
+                                                    Cedulas.add(vehiculo.getConductorCedulaCiudadania());
                             %>
-                                <tr>
-                                    <td><%= listado.getTipo_Operacion() %></td>
-                                    <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                    <td><%= vehiculo.getVehiculoNumPlaca() %></td>
-                                    <td><%= vehiculo.getConductorCedulaCiudadania() %></td>
-                                    <td><%= vehiculo.getNombreConductor() %></td>
-                                    <td><%= vehiculo.getNumManifiestoCarga() %></td>
-                                    <td> <%= listado.getEstado() %> </td>
-                                    <td><%= vehiculo.getFechaOfertaSolicitud() %></td>
-                                    <%
-                                        String formattedDate = "";
-                                        try {
-                                            String originalDate = vehiculo.getFechaOfertaSolicitud(); // Ejemplo: "Jul 25, 2025 2:21:00 PM"
-
-                                            // Formato original
-                                            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm:ss a", Locale.ENGLISH);
-
-                                            // Formato deseado
-                                            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm:ss a", Locale.ENGLISH);
-
-                                            // Parsear y formatear
-                                            LocalDateTime date = LocalDateTime.parse(originalDate, inputFormatter);
-                                            formattedDate = date.format(outputFormatter);
-                                        } catch (Exception e) {
-                                            formattedDate = "Fecha inválida";
-                                        }
-
-                                        //System.out.println(formattedDate); // Salida: 2025-07-22T10:40:00
-                                    %>
-                                    <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
-                                    <td>
-                                        <input type="button" 
+                            <tr>
+                                <td><%= listado.getTipo_Operacion() %></td>
+                                <td><%= listado.getNit_Empresa_Transportadora() %></td>
+                                <td><%= vehiculo.getVehiculoNumPlaca() %></td>
+                                <td><%= vehiculo.getConductorCedulaCiudadania() %></td>
+                                <td><%= vehiculo.getNombreConductor() %></td>
+                                <td><%= vehiculo.getNumManifiestoCarga() %></td>
+                                <td> <%= listado.getEstado() %> </td>
+                                <td><%= vehiculo.getFechaOfertaSolicitud() %></td>
+                                <%
+                                    String formattedDate = "";
+                                    try {
+                                        String originalDate = vehiculo.getFechaOfertaSolicitud();
+                                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm:ss a", Locale.ENGLISH);
+                                        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm:ss a", Locale.ENGLISH);
+                                        LocalDateTime date = LocalDateTime.parse(originalDate, inputFormatter);
+                                        formattedDate = date.format(outputFormatter);
+                                    } catch (Exception e) {
+                                        formattedDate = "Fecha inválida";
+                                    }
+                                %>
+                                <% if (rolObj != null && ((Integer) rolObj) == 1) { %>
+                                <td>
+                                    <input type="button" 
                                         onclick="cancelarCita(
                                             '<%= listado.getCodCita() %>',
                                             '<%= listado.getNit_Empresa_Transportadora() %>',
@@ -233,32 +236,34 @@
                                             '<%= vehiculo.getNumManifiestoCarga() %>'
                                         )"
                                         value="🗑 Cancelar">
-                                    </td>
-                                    <% } %>
-                                    <%
-                                        fecha_final_estado = fechaSinZona;
-                                    %>
-                                    <td>
-                                        <input type="checkbox" name="vehiculos"
-                                               data-operacion="<%= listado.getTipo_Operacion() %>"
-                                               data-transportadora="<%= listado.getNit_Empresa_Transportadora() %>"
-                                               data-nombre="<%= vehiculo.getNombreConductor() %>"
-                                               data-cedula="<%= vehiculo.getConductorCedulaCiudadania() %>"
-                                               data-manifiesto="<%= vehiculo.getNumManifiestoCarga() %>"
-                                               value="<%= vehiculo.getVehiculoNumPlaca() %>"
-                                               data-fecha="<%= formattedDate %>"
-                                               data-nombreconductor="<%= vehiculo.getNombreConductor() %>"
-                                               data-formulario="<%= listado.getFmm() %>"
-                                               data-rol="<%= rol %>"
-                                               data-fechacreacion="<%= listado.getFecha_Creacion_Cita() %>">
-                                    </td>
-                                </tr>
+                                </td>
+                                <% } %>
+                                <%
+                                    fecha_final_estado = fechaSinZona;
+                                %>
+                                <td>
+                                    <input type="checkbox" name="vehiculos"
+                                           data-operacion="<%= listado.getTipo_Operacion() %>"
+                                           data-transportadora="<%= listado.getNit_Empresa_Transportadora() %>"
+                                           data-nombre="<%= vehiculo.getNombreConductor() %>"
+                                           data-cedula="<%= vehiculo.getConductorCedulaCiudadania() %>"
+                                           data-manifiesto="<%= vehiculo.getNumManifiestoCarga() %>"
+                                           value="<%= vehiculo.getVehiculoNumPlaca() %>"
+                                           data-fecha="<%= formattedDate %>"
+                                           data-nombreconductor="<%= vehiculo.getNombreConductor() %>"
+                                           data-formulario="<%= listado.getFmm() %>"
+                                           data-rol="<%= rol %>"
+                                           data-fechacreacion="<%= listado.getFecha_Creacion_Cita() %>">
+                                </td>
+                            </tr>
                             <%
-                                            }}
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             %>
+
                         </tbody>
                     </table>
                 </form>
