@@ -18,6 +18,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -45,6 +47,8 @@ public class CitasAutomaticas {
     private static String USUARIOMINTRASPOR;
     private static String CONTRAMINTRASPOR;
     private static String IDENTIFICADOR;
+    private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
+    private static final DateTimeFormatter OUTPUT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     
     /**
@@ -99,7 +103,7 @@ public class CitasAutomaticas {
              "        t.PLACA,  " +
              "        vb.CEDULA,  " +
              "        t.MANIFIESTO, " +
-             "        TO_CHAR(CAST(v.FE_CREACION AS DATE), 'DD/MM/YY HH24:MI:SS') AS FECHAYHORAINSIDE, " +
+             "        TO_CHAR(CAST(v.FECHA_CITA AS DATE), 'DD/MM/YY HH24:MI:SS') AS FECHAYHORAINSIDE, " +
              "        TO_CHAR(CAST(tb.HORA_ENTRADA AS DATE), 'DD/MM/YY HH24:MI:SS') AS HORA_ENTRADA, " +
              "        TO_CHAR(CAST(tb.HORA_SALIDA AS DATE), 'DD/MM/YY HH24:MI:SS') AS HORA_SALIDA, " +
              "        tb.PESO_INGRESO,  " +
@@ -158,15 +162,15 @@ public class CitasAutomaticas {
     
     private Map<String, Object> buildJsonMinisterio(CitaFinalAuto cita) {
         Map<String, Object> tiemposProceso = new LinkedHashMap<>();
-        tiemposProceso.put("entradaTerminal", cita.getFechaentrada());
+        tiemposProceso.put("entradaTerminal", formatFecha(cita.getFechaentrada()));
         tiemposProceso.put("pesajeEntrada", cita.getPesoentrada());
         tiemposProceso.put("basculaEntrada", "B1374");
-        tiemposProceso.put("salidaTerminal", cita.getFechasalida());
+        tiemposProceso.put("salidaTerminal", formatFecha(cita.getFechasalida()));
         tiemposProceso.put("pesajeSalida", cita.getPesosalida());
         tiemposProceso.put("basculaSalida", "B1373");
 
         Map<String, Object> turnoAsignado = new LinkedHashMap<>();
-        turnoAsignado.put("fecha", cita.getFECHAYHORAINSIDE());
+        turnoAsignado.put("fecha", formatFecha(cita.getFECHAYHORAINSIDE()));
         turnoAsignado.put("tiemposProceso", tiemposProceso);
 
         Map<String, Object> sistemaEnturnamiento = new LinkedHashMap<>();
@@ -186,7 +190,7 @@ public class CitasAutomaticas {
         variables.put("empresaTransportadoraNit", cita.getNitempbascula());
         variables.put("vehiculoNumPlaca", cita.getVehiculoNumPlaca());
         variables.put("conductorCedulaCiudadania", cita.getConductorCedulaCiudadania());
-        variables.put("fechaOfertaSolicitud", cita.getFECHAYHORAINSIDE());
+        variables.put("fechaOfertaSolicitud", formatFecha(cita.getFECHAYHORAINSIDE()));
         variables.put("numManifiestoCarga", cita.getNumManifiestoCarga());
         variables.put("turnoAsignado", turnoAsignado);
 
@@ -221,17 +225,35 @@ public class CitasAutomaticas {
         String jsonMinisterio = gson.toJson(buildJsonMinisterio(cita));
         String jsonLocal = gson.toJson(buildJsonFinalizacion(cita));
         
-        //log.info(jsonLocal);
+        log.info(jsonMinisterio);
         
         String respMinisterio = enviarConRetry(fp, ministerioUrl, jsonMinisterio, 3);
 
-            if (respMinisterio == null) {
-                log.info("⚠️ Ministerio no respondió, guardando en API local.");
-                fp.FinalizarCita(apiLocalUrl, jsonLocal);
+        // Parsear la respuesta como JSON
+        JSONObject jsonResp = new JSONObject(respMinisterio);
+        
+        log.info(respMinisterio);
+        
+        if (respMinisterio == null) {
+            // El ministerio no respondió, se guarda solo en local
+            log.info("⚠️ Ministerio no respondió, guardando en API local.");
+            fp.FinalizarCita(apiLocalUrl, jsonLocal);
+        } else {
+
+            if (jsonResp.has("ErrorCode")) {
+                int errorCode = jsonResp.getInt("ErrorCode");
+                String errorText = jsonResp.optString("ErrorText");
+
+                if (errorCode != 0) {
+                    // Hubo error -> NO GUARDAR en BD
+                    log.info("❌ No se guarda en BD. Error del ministerio: " + errorText);
+                }
             } else {
-                log.info("✅ Ministerio respondió, también guardando en local.");
+                // Si no trae ErrorCode, se asume éxito y se guarda
+                log.info("✅ Respuesta sin errores, guardando en local.");
                 fp.FinalizarCita(apiLocalUrl, jsonLocal);
             }
+        }
 
         try {
             Thread.sleep(500 + new Random().nextInt(1000));
@@ -265,6 +287,16 @@ public class CitasAutomaticas {
         }
         return null;
     }
+    
+    private String formatFecha(String fechaOriginal) {
+        try {
+            LocalDateTime fecha = LocalDateTime.parse(fechaOriginal, INPUT_FORMAT);
+            return fecha.format(OUTPUT_FORMAT);
+        } catch (Exception e) {
+            return fechaOriginal; // en caso de error devuelve el original
+        }
+    }
+    
     private static final Logger log = Logger.getLogger(CitasAutomaticas.class.getName());
 
 }
