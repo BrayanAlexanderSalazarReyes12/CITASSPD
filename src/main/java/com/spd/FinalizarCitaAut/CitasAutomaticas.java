@@ -119,7 +119,6 @@ public class CitasAutomaticas {
              "    JOIN TRAN_BASCULA tb ON vb.ID_VEHICULO = tb.VEHICULO_ID_VEHICULO " +
              "    WHERE t.ESTADO = 'ACTIVA' " +
              "      AND t.HORA_CITAS IS NOT NULL " +
-             "      AND v.OPERACION IN ('operacion de descargue', 'operacion de cargue') " +
              "      AND tb.HORA_SALIDA IS NOT NULL " +
              "      AND tb.FECHA_ENTRADA BETWEEN v.FE_CREACION - 2 AND v.FE_CREACION + 2 " +
              ") sub " +
@@ -217,51 +216,62 @@ public class CitasAutomaticas {
         return listaFinal;
     }
     
-    private void procesarCita(CitaFinalAuto cita) throws IOException{
+    private void procesarCita(CitaFinalAuto cita) throws IOException {
         FormularioPost fp = new FormularioPost();
         String ministerioUrl = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
         String apiLocalUrl = "http://www.siza.com.co/spdcitas-1.0/api/citas/finalizacion";
-        
-        String jsonMinisterio = gson.toJson(buildJsonMinisterio(cita));
-        String jsonLocal = gson.toJson(buildJsonFinalizacion(cita));
-        
-        log.info(jsonMinisterio);
-        
-        String respMinisterio = enviarConRetry(fp, ministerioUrl, jsonMinisterio, 3);
 
-        // Parsear la respuesta como JSON
-        JSONObject jsonResp = new JSONObject(respMinisterio);
-        
-        log.info(respMinisterio);
-        
-        if (respMinisterio == null) {
-            // El ministerio no respondió, se guarda solo en local
-            log.info("⚠️ Ministerio no respondió, guardando en API local.");
-            fp.FinalizarCita(apiLocalUrl, jsonLocal);
-        } else {
+        if ("operacion de descargue".equals(cita.getOPERACION()) 
+            || "operacion de cargue".equals(cita.getOPERACION())) {
 
-            if (jsonResp.has("ErrorCode")) {
-                int errorCode = jsonResp.getInt("ErrorCode");
-                String errorText = jsonResp.optString("ErrorText");
+            String jsonMinisterio = gson.toJson(buildJsonMinisterio(cita));
+            String jsonLocal = gson.toJson(buildJsonFinalizacion(cita));
 
-                if (errorCode != 0) {
-                    // Hubo error -> NO GUARDAR en BD
-                    log.info("❌ No se guarda en BD. Error del ministerio: " + errorText);
-                }
-            } else {
-                // Si no trae ErrorCode, se asume éxito y se guarda
-                log.info("✅ Respuesta sin errores, guardando en local.");
+            log.info(jsonLocal);
+
+            String respMinisterio = enviarConRetry(fp, ministerioUrl, jsonMinisterio, 3);
+
+            if (respMinisterio == null) {
+                // Ministerio no respondió
+                log.info("⚠️ Ministerio no respondió, guardando en API local.");
                 fp.FinalizarCita(apiLocalUrl, jsonLocal);
-            }
-        }
+            } else {
+                try {
+                    JSONObject jsonResp = new JSONObject(respMinisterio);
+                    log.info(respMinisterio);
 
-        try {
-            Thread.sleep(500 + new Random().nextInt(1000));
-        } catch (InterruptedException ex) {
-            Logger.getLogger(CitasAutomaticas.class.getName()).log(Level.SEVERE, null, ex);
+                    if (jsonResp.has("ErrorCode")) {
+                        int errorCode = jsonResp.getInt("ErrorCode");
+                        String errorText = jsonResp.optString("ErrorText");
+
+                        if (errorCode != 0) {
+                            log.info("❌ No se guarda en BD. Error del ministerio: " + errorText);
+                        }
+                    } else {
+                        log.info("✅ Respuesta sin errores, guardando en local.");
+                        fp.FinalizarCita(apiLocalUrl, jsonLocal);
+                    }
+                } catch (Exception e) {
+                    log.log(Level.SEVERE, "⚠️ Error parseando respuesta del ministerio: " + respMinisterio, e);
+                }
+            }
+
+            try {
+                Thread.sleep(500 + new Random().nextInt(1000));
+            } catch (InterruptedException ex) {
+                Logger.getLogger(CitasAutomaticas.class.getName()).log(Level.SEVERE, null, ex);
+                Thread.currentThread().interrupt(); // buena práctica
+            }
+
+        } else {
+            String jsonLocal = gson.toJson(buildJsonFinalizacion(cita));
+            log.info(jsonLocal);
+
+            String respLocal = fp.FinalizarCita(apiLocalUrl, jsonLocal);
+            log.info("📌 Guardado local: " + respLocal);
         }
     }
-    
+
     /**
      * Envia con reintentos exponenciales para evitar baneo
      */

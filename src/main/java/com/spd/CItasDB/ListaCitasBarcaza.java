@@ -61,44 +61,18 @@ public class ListaCitasBarcaza {
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             String sql = 
-                "SELECT * FROM (" +
-                "    SELECT " +
-                "        nb.CLIENTE, " +
-                "        nb.OPERACION, " +
-                "        nb.CANT_PRODUCTO, " +
-                "        nb.PRECIO_USD, " +
-                "        nb.FACTURA_REMISION, " +
-                "        nb.BARCAZA_DESTINO, " +
-                "        nb.FE_CREACION, " +
-                "        nb.OBSERVACIONES, " +
-                "        nb.CODIGO_CITA, " +
-                "        mb.BARCAZA, " +
-                "        mb.ESLORA, " +
-                "        mb.MANGA, " +
-                "        ROW_NUMBER() OVER (" +
-                "            PARTITION BY mb.BARCAZA " +
-                "            ORDER BY nb.FE_CREACION DESC" +  // 👈 última operación
-                "        ) AS rn " +
-                "    FROM SPD_CITA_BARCAZA nb " +
-                "    INNER JOIN SPD_MAESTROBARCAZA mb " +
-                "        ON nb.NOMBRE_BARCAZA = mb.BARCAZA" +
-                ") t " +
-                "WHERE rn = 1";
+                            "SELECT " +
+                            "    BARCAZA, " +
+                            "    ESLORA, " +
+                            "    MANGA " +
+                            "FROM SPD_MAESTROBARCAZA";
+
 
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 JSONObject obj = new JSONObject();
-                obj.put("CLIENTE", rs.getString("CLIENTE"));
-                obj.put("OPERACION", rs.getString("OPERACION"));
-                obj.put("CANT_PRODUCTO", rs.getBigDecimal("CANT_PRODUCTO"));
-                obj.put("PRECIO_USD", rs.getBigDecimal("PRECIO_USD"));
-                obj.put("FACTURA_REMISION", rs.getString("FACTURA_REMISION"));
-                obj.put("BARCAZA_DESTINO", rs.getString("BARCAZA_DESTINO"));
-                obj.put("FE_CREACION", rs.getTimestamp("FE_CREACION"));
-                obj.put("OBSERVACIONES", rs.getString("OBSERVACIONES"));
-                obj.put("CODIGO_CITA", rs.getString("CODIGO_CITA"));
                 obj.put("BARCAZA", rs.getString("BARCAZA"));
                 obj.put("ESLORA", rs.getBigDecimal("ESLORA"));
                 obj.put("MANGA", rs.getBigDecimal("MANGA"));

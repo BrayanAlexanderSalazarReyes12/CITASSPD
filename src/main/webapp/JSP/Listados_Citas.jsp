@@ -350,7 +350,7 @@
                                                         for (ListaVehiculos v : vehiculos) {
                                                             String fechaStr = v.getFechaOfertaSolicitud();
                                                             if (fechaStr != null && !fechaStr.isEmpty()) {
-                                                                LocalDateTime fechaVehiculo = LocalDateTime.parse(fechaStr, DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm:ss a", Locale.ENGLISH));
+                                                                LocalDateTime fechaVehiculo = LocalDateTime.parse(fechaStr, DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a", Locale.ENGLISH));
                                                                 // Formatear sin la T
                                                                 String fechaFormateada = fechaVehiculo.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
                                                                 System.out.println(fechaFormateada);
