@@ -11,8 +11,10 @@ com\spd\informacionCita\InformacionPesajeFinalizacionCIta.class
 com\spd\Servlets\Formulario_SPD_Servlet.class
 com\spd\Servlets\MapaBarcazasServelet.class
 com\spd\Model\OperacionEstado.class
+com\spd\SendMail\EnviarCorreoBarcaza.class
 com\spd\FinalizarCitaAut\SchedulerListener.class
 com\spd\API\TipoPorductosGet$1.class
+com\spd\SendMail\EnviarCorreo$1.class
 com\spd\Servlets\CancelarCitaServlet.class
 com\spd\Servlets\AsignarCitaBarcaza.class
 com\spd\CItasDB\ListaVehiculos.class
@@ -50,6 +52,7 @@ com\spd\ClasesJsonFormularioMinisterio\FormularioCompleto.class
 com\spd\CargarBarcazas\CargarBarcazas.class
 com\spd\FinalizarCitaAut\CitasAutomaticas.class
 com\spd\Servlets\Finalizarcita$1.class
+com\spd\SendMail\EnviarCorreoBarcaza$1.class
 com\spd\DAO\ListadoDAO.class
 com\spd\DAO\ListadoDAO$2.class
 com\spd\Productos\Producto.class

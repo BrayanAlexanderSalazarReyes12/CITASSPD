@@ -114,6 +114,7 @@
                     <option value="0">Portería</option>
                     <option value="4" disabled>Consultor</option>
                     <option value="5">Consultor Transportadora </option>
+                    <option value="6">Consultor De Reportes</option>
                 </select>
 
                 <input type="submit" value="Crear usuario" />

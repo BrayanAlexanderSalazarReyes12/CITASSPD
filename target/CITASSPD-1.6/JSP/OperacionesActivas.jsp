@@ -196,11 +196,14 @@
                 <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
                 <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <%
+                }else if (rolObj != null && ((Integer) rolObj) != 6){
+            %>
+                <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+                <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
+                <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
+            <%
                 }
             %>
-            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
-            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
-            <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
     </header>
     

@@ -102,18 +102,18 @@
             <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
            <%
                 Object rolObj = session.getAttribute("Rol");
-                if (rolObj != null && ((Integer) rolObj) == 1) {
+                if (rolObj != null && ((Integer) rolObj) == 1 && ((Integer) rolObj) != 6) {
             %>
                 <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
                 <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
+                <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/> 
             <%
-                }else if(rolObj != null && ((Integer) rolObj) != 5){
+                }else if(rolObj != null && ((Integer) rolObj) == 2){
             %>
-            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+                <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
             <%
                 }
             %>
-            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
             <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
         </div>
     </header>
@@ -145,7 +145,7 @@
         </div>
     </body>
     <%
-        } else {
+        } else if (rolObject1 != null && ((Integer) rolObject1) != 6){
     %>
             
                     <body>
@@ -433,6 +433,17 @@
                             </script>
                         </div>
                     </body>
+                <%
+                    }else {
+                %>
+                    <body>
+                        <div class="contenedor">
+                            <input type="submit" value="Reporte De Barcazas Entrada Y Salida" onclick=""/>
+                            <input type="submit" value="Reporte De Carrotanques Entrada Y Salida">
+                        </div>
+                    </body>
+                
+                
                 <%
                     }
                 %>

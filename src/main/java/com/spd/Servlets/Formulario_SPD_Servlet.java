@@ -31,6 +31,8 @@ import com.spd.ClasesJsonFormularioMinisterio.Vehiculo;
 import com.spd.DAO.Correcion_Fecha;
 import com.spd.Model.Cliente;
 import com.spd.Model.FormularioCompletoSPDCARROTANQUE;
+import com.spd.SendMail.EnviarCorreo;
+import javax.servlet.RequestDispatcher;
 
 // IMPORTANTE: ajusta los imports de tus clases de dominio:
 /// import com.spd.API.FormularioPost;
@@ -410,13 +412,18 @@ public class Formulario_SPD_Servlet extends HttpServlet {
             // === Operaciones combinadas ===
             if ("Carrotanque - Barcaza".equals(operacion) || "Barcaza - Carrotanque".equals(operacion)) {
                 System.out.println("Guardando cita carrotanque y barcaza en BD...");
-
+                
                 boolean guardadoExitoso = false;
                 try {
                     // Guardar en BD (cita carrotanque + barcaza)
                     formdbConRetry(fp, URL_CITAS, json2);
                     citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
-
+                    
+                    RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreo");
+                    request.setAttribute("NombreEmpresa", empresaUsuario);
+                    request.setAttribute("json", json2);
+                    rd.forward(request, response);
+                    
                     guardadoExitoso = true;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -425,7 +432,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                     session.setAttribute("Error", "Error: no se pudo guardar la cita en la base de datos.");
                     response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
                     return;
-                }
+            }
 
                 if (guardadoExitoso) {
                     // Solo si guarda bien en BD, se envía al ministerio
@@ -475,9 +482,6 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                             );
                         }
                     }
-
-                    request.getSession().setAttribute("errorMsg", "CITA CREADA CON EXITO!!!");
-                    response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
                     return;
                 }
 
@@ -486,8 +490,10 @@ public class Formulario_SPD_Servlet extends HttpServlet {
             // === Solo barcaza ===
             if ("Barcaza - Tanque".equals(operacion) || "Tanque - Barcaza".equals(operacion) || "Barcaza - Barcaza".equals(operacion)) {
                 citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
-                response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");
-                System.out.println("CitaBarcaza enviada (solo barcaza)");
+                RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreoBarcaza");
+                request.setAttribute("NombreEmpresa", empresaUsuario);
+                request.setAttribute("json", json3);
+                rd.forward(request, response);
                 return;
             }
 
@@ -538,8 +544,10 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 // Guardar en BD (carrotanque)
                 formdbConRetry(fp, URL_CITAS, gson.toJson(cb));
                 
-                request.getSession().setAttribute("errorMsg", "CITA CREADA CON EXITO!!!");
-                response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
+                RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreo");
+                request.setAttribute("NombreEmpresa", empresaUsuario);
+                request.setAttribute("json", json2);
+                rd.forward(request, response);
                 return;
             }
 
