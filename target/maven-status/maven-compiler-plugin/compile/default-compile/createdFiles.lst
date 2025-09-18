@@ -32,6 +32,7 @@ com\spd\DAO\ListadoDAO$3.class
 com\spd\Model\Formulario_Citas_SPD.class
 com\spd\FinalizarCitaAut\CitaFinalAuto.class
 com\spd\Model\ResultadoCitas.class
+com\spd\SendMail\EnviarCorreoConfirmacionCIta$1.class
 com\spd\Model\Cliente.class
 com\spd\API\Usuario_Insert.class
 com\spd\DAO\ListadoDAO$1.class
@@ -67,6 +68,7 @@ com\spd\CrearUsuarioJson\CrearUsuarioClass.class
 com\spd\Servlets\AsignarCitaCamiones.class
 com\spd\ClasesJsonFormularioMinisterio\Vehiculo.class
 com\spd\CrearUsuarioJson\ActualizarUsuarioClass.class
+com\spd\SendMail\EnviarCorreoConfirmacionCIta.class
 com\spd\Servlets\ActualizarUsuarioServlet.class
 com\spd\Servlets\TipoOperacionServlet.class
 com\spd\CItasDB\VehiculoDB.class

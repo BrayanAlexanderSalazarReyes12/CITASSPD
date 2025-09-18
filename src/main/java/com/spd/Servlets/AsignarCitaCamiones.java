@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -68,6 +69,7 @@ public class AsignarCitaCamiones extends HttpServlet {
 
                 // Construir lista de objetos completos
                 List<Map<String, String>> listaFinal = new ArrayList<>();
+                List<Map<String, String>> listaFinalCorreo = new ArrayList<>();
                 System.out.println(fecha);
                 System.out.println("Usuario:" + USLOGIN);
                 for (Map<String, String> vehiculo : vehiculos) {
@@ -82,6 +84,20 @@ public class AsignarCitaCamiones extends HttpServlet {
                     data.put("nmform_zf", fmm);
                     listaFinal.add(data);
                 }
+                
+                for (Map<String, String> vehiculo : vehiculos) {
+                    Map<String, String> data = new HashMap<>();
+                    data.put("codigo", registro);
+                    data.put("estado", "Asignado");
+                    data.put("manifiesto",vehiculo.get("manifiesto"));
+                    //data.put("usuAprobacion",USLOGIN);
+                    data.put("cedula", vehiculo.get("cedula"));
+                    data.put("fe_aprobacion", fecha+":00-05:00");
+                    data.put("nom_conductor", vehiculo.get("nombre"));
+                    data.put("placa", vehiculo.get("placa"));
+                    data.put("nmform_zf", fmm);
+                    listaFinalCorreo.add(data);
+                }
 
                 // Convertir lista a JSON array
                 String json = gson.toJson(listaFinal);
@@ -95,8 +111,13 @@ public class AsignarCitaCamiones extends HttpServlet {
                     
                     String apiResponse = fp.ActualizarCitacamionesbarcaza(apiUrl, json);
                     System.out.println("Respuesta API: " + apiResponse);
-
-                    response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");
+                    
+                    // Pasar como atributo al request
+                    request.setAttribute("vehiculosFinales", listaFinal);
+                    request.setAttribute("vehiculosFinalescorreo", listaFinalCorreo);
+                    // Llamar al servlet (por forward)
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/EnviarCorreoConfirmacionCIta");
+                    dispatcher.forward(request, response);
                     
                     
                 } catch (IOException e) {
