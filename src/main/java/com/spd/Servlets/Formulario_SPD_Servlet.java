@@ -546,7 +546,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 
                 RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreo");
                 request.setAttribute("NombreEmpresa", empresaUsuario);
-                request.setAttribute("json", json2);
+                request.setAttribute("json", gson.toJson(cb));
                 rd.forward(request, response);
                 return;
             }

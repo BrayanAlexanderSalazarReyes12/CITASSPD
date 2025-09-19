@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -64,10 +65,12 @@ public class EnviarCorreo extends HttpServlet {
         // Parsear JSON a objeto
         CitaBascula cb = gson.fromJson(json, CitaBascula.class);
        
+        String fechaFormateada = (cb.getFechaCita() != null) ? formatearFecha(cb.getFechaCita()) : "NO DEFINIDA";
+        
         // === Construir mensaje HTML ===
         StringBuilder mensaje = new StringBuilder();
         mensaje.append("<h3>AUTORIZACIÓN DE INGRESO</h3>");
-        mensaje.append("<p><b>FECHA:</b> ").append(formatearFecha(cb.getFechaCita())).append("</p>");
+        mensaje.append("<p><b>FECHA:</b> ").append(fechaFormateada).append("</p>");
         mensaje.append("<p><b>CLIENTE:</b> ").append(NombreEmpresa).append("</p>");
         mensaje.append("<p><b>OPERACIÓN:</b> ").append(cb.getOperacion()).append("</p>");
         mensaje.append("<p><b>OBSERVACIÓN:</b> ").append(cb.getObservaciones()).append("</p>");
@@ -76,7 +79,8 @@ public class EnviarCorreo extends HttpServlet {
         mensaje.append("<br><table border='1' cellpadding='5' cellspacing='0'>");
         mensaje.append("<tr><th>ITEM</th><th>PLACA</th><th>TRAILER</th><th>MANIFIESTO</th><th>CONDUCTOR</th><th>CEDULA</th><th>PRODUCTO</th><th>NIT-TRANSPORTADORA</th></tr>");
 
-        List<VehiculoDB> vehiculos = cb.getVehiculos();
+        List<VehiculoDB> vehiculos = (cb.getVehiculos() != null) ? cb.getVehiculos() : new ArrayList<>();
+
         for (int i = 0; i < vehiculos.size(); i++) {
             VehiculoDB v = vehiculos.get(i);
             mensaje.append("<tr>");
@@ -95,8 +99,8 @@ public class EnviarCorreo extends HttpServlet {
         // === Enviar correo ===
         try {
             String asunto = "AUTORIZACIÓN INGRESO VEHÍCULOS - " 
-                    + (cb.getNitEmpBascula()!= null ? NombreEmpresa.toUpperCase() : "")
-                    + " - " + formatearFecha(cb.getFechaCita());
+                    + (cb.getNitEmpBascula() != null && NombreEmpresa != null ? NombreEmpresa.toUpperCase() : "")
+                    + " - " + fechaFormateada;
 
             enviarCorreo(destinatarios, asunto, mensaje.toString());
             request.getSession().setAttribute("errorMsg", "CITA CREADA CON EXITO!!!");
@@ -154,10 +158,15 @@ public class EnviarCorreo extends HttpServlet {
     }
     
     public static String formatearFecha(String fechaIso8601) {
-        Date date = DatatypeConverter.parseDateTime(fechaIso8601).getTime();
-        SimpleDateFormat formatoSalida = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        return formatoSalida.format(date);
+        try {
+            Date date = DatatypeConverter.parseDateTime(fechaIso8601).getTime();
+            SimpleDateFormat formatoSalida = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            return formatoSalida.format(date);
+        } catch (Exception e) {
+            return "FECHA INVÁLIDA";
+        }
     }
+
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
