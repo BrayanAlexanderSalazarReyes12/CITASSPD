@@ -273,7 +273,8 @@ public class Formulario_SPD_Servlet extends HttpServlet {
             new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
             new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
             new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-            new Cliente("901.312.960–3", "C I CONQUERS WORLD TRADE S A S")
+            new Cliente("901.312.960–3", "C I CONQUERS WORLD TRADE S A S"),
+            new Cliente("901826337-0", "CONQUERS ZF")
         );
 
         String empresaUsuario = null;
