@@ -51,7 +51,7 @@ public class EnviarCorreo extends HttpServlet {
             throws ServletException, IOException {
 
         // Destinatarios
-        String[] destinatarios = { "lreyes@spdique.com" };
+        String[] destinatarios = { "lreyes@spdique.com", "bsalazar@zofranca.com" };
 
         // === Recuperar JSON de la cita ===
         String json = (String) request.getAttribute("json");

@@ -68,8 +68,8 @@
                 title: '📢 Actualización Importante',
                 html: `
                     <p style="text-align:left">
-                        A partir de ahora, el programa de citas <b>envía automáticamente un correo a Liz</b> 
-                        informando de cada cita creada, para que ella proceda a su <b>aprobación</b>.
+                        A partir de ahora, el programa de citas <b>envía automáticamente un correo a lreyes@spdique.com</b> 
+                        informando sobre cada cita creada, para que ella pueda proceder con su <b>aprobación</b>.
                     </p>
                     <p style="text-align:left">
                         ✅ Esta mejora garantiza un mejor control y seguimiento de las solicitudes.
