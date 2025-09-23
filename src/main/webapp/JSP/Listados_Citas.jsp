@@ -451,6 +451,9 @@
                                                     }
                                                     System.out.println("empresa: " + empresaUsuario);
                                                     
+                                                    System.out.println(listado.getVehiculos().size());
+                                                    
+                                                    
                                                     System.out.println(listado.getNit() + " " + nit_final);
                                                     if (listado.getNit().equals(nit_final)) {
                                                         OffsetDateTime odt = OffsetDateTime.parse(listado.getFecha_Creacion_Cita());
@@ -461,7 +464,7 @@
                                                 <td><%= listado.getCodCita() %></td>
                                                 <td><%= empresaUsuario %></td>
                                                 <td><%= listado.getTipo_Operacion() %></td>
-                                                <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                 <td><%= fechaSinZona %></td>
                                                 <td>
                                                     <div class="Botones_tabla">
@@ -532,7 +535,7 @@
                                                 <td><%= listado.getCodCita() %></td>
                                                 <td><%= empresaUsuario %></td>
                                                 <td><%= listado.getTipo_Operacion() %></td>
-                                                <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                 <td><%= fechaSinZona %></td>
                                                 <td>
                                                     <div class="Botones_tabla">
@@ -625,7 +628,7 @@
                                                     <td><%= listado.getCodCita() %></td>
                                                     <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
-                                                    <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                    <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                     <td><%= fechaSinZona %></td>
                                                     <td>
                                                         <div class="Botones_tabla">
@@ -687,7 +690,7 @@
                                                                             <td><%= listado.getCodCita() %></td>
                                                                             <td><%= empresaUsuario %></td>
                                                                             <td><%= listado.getTipo_Operacion() %></td>
-                                                                            <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                                            <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                                             <td><%= fechaSinZona %></td>
                                                                             <td>
                                                                                 <div class="Botones_tabla">
@@ -777,7 +780,7 @@
                                                     <td><%= listado.getCodCita() %></td>
                                                     <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
-                                                    <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                    <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                     <td><%= fechaSinZona %></td>
                                                     <td>
                                                         <div class="Botones_tabla">
@@ -839,7 +842,7 @@
                                                                             <td><%= listado.getNit_Empresa_Transportadora() %></td>
                                                                             <td><%= empresaUsuario %></td>
                                                                             <td><%= listado.getTipo_Operacion() %></td>
-                                                                            <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                                            <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                                             <td><%= fechaSinZona %></td>
                                                                             <td>
                                                                                 <div class="Botones_tabla">
@@ -929,7 +932,7 @@
                                                     <td><%= listado.getCodCita() %></td>
                                                     <td><%= empresaUsuario %></td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
-                                                    <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                    <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                     <td><%= fechaSinZona %></td>
                                                     <td>
                                                         <div class="Botones_tabla">
@@ -991,7 +994,7 @@
                                                                             <td><%= listado.getNit_Empresa_Transportadora() %></td>
                                                                             <td><%= empresaUsuario %></td>
                                                                             <td><%= listado.getTipo_Operacion() %></td>
-                                                                            <td><%= listado.getCantidad_Vehiculos() %></td>
+                                                                            <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                                             <td><%= fechaSinZona %></td>
                                                                             <td>
                                                                                 <div class="Botones_tabla">

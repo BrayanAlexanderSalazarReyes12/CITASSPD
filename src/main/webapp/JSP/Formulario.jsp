@@ -4,6 +4,7 @@
     Author     : brayan alexander salazar reyes
 --%>
 
+<%@page import="java.net.URLEncoder"%>
 <%@page import="java.time.LocalTime"%>
 <%@page import="java.time.LocalDate"%>
 <%@page import="java.time.format.DateTimeFormatter"%>
@@ -70,12 +71,20 @@
                     String valor = inner.get("ordenOperacion").getAsString();
                     if (ordenOperacion.equals(valor)) {
                         datosBarcazasMap.put(index, inner);
-                        if(inner.get("NombreBarcaza") != null && !inner.get("NombreBarcaza").isJsonNull()){
-                        
-                            session.setAttribute("BARCAZA", inner.get("NombreBarcaza").getAsString()); // Guardamos la barcaza coincidente en sesión
+
+                        inner.addProperty("estado", "Programada"); // cambia el estado
+
+                        String nuevoJson = gson.toJson(outer);
+                        Cookie cookieActualizada = new Cookie(cookie.getName(), nuevoJson);
+                        cookieActualizada.setMaxAge(60 * 60);
+                        cookieActualizada.setPath("/CITASSPD");
+                        response.addCookie(cookieActualizada);
+
+                        if (inner.get("NombreBarcaza") != null && !inner.get("NombreBarcaza").isJsonNull()) {
+                            session.setAttribute("BARCAZA", inner.get("NombreBarcaza").getAsString()); 
                             Cookie cookie2 = new Cookie("NOMBRE_DE_BARCAZA", inner.get("NombreBarcaza").getAsString());
                             cookie2.setMaxAge(60 * 60);
-                            cookie2.setPath("/CITASSPD"); // <- ¡esto es clave!
+                            cookie2.setPath("/CITASSPD");
                             response.addCookie(cookie2);
                         } else {
                             Cookie cookie3 = new Cookie("NOMBRE_TANQUE", inner.get("Tanque").getAsString());
@@ -83,18 +92,20 @@
                             cookie3.setPath("/CITASSPD");
                             response.addCookie(cookie3);
                         }
+
                         session.setAttribute("OPERACION", inner.get("operacion").getAsString());
                         Cookie cookie4 = new Cookie("OPERACION", inner.get("operacion").getAsString());
                         cookie4.setMaxAge(60 * 60);
                         cookie4.setPath("/CITASSPD");
                         response.addCookie(cookie4);
-                        
-                        System.out.println("Barcaza guardada en sesión: " + inner);
+
+                        System.out.println("Barcaza guardada en sesión y estado actualizado: " + inner);
                     }
                 }
             }
         }
     }
+
 %>
 
 

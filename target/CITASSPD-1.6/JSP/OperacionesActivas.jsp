@@ -4,6 +4,11 @@
     Author     : braya
 --%>
 
+<%@page import="com.google.gson.JsonPrimitive"%>
+<%@page import="com.google.gson.JsonSyntaxException"%>
+<%@page import="com.google.gson.JsonArray"%>
+<%@page import="com.google.gson.JsonParser"%>
+<%@page import="com.google.gson.JsonElement"%>
 <%@page import="java.net.URLDecoder"%>
 <%@page import="com.google.gson.JsonObject"%>
 <%@page import="java.util.Map"%>
@@ -17,6 +22,7 @@
 
 <%
     Cookie[] cookies3 = request.getCookies();
+    int cantidad = 0;
     String estadocita = "";
     if (cookies3 != null) {
         for (Cookie cookie : cookies3) {
@@ -51,13 +57,14 @@
     Cookie[] cookies = request.getCookies();
     Map<Integer, JsonObject> datosBarcazasMap = new HashMap<Integer, JsonObject>();
 
+    
     if (cookies != null) {
         for (Cookie cookie : cookies) {
             String name = cookie.getName();
             if (name.startsWith("datosBarcaza_")) {
                 int index = Integer.parseInt(name.substring("datosBarcaza_".length()));
+                cantidad = Integer.parseInt(name.substring("datosBarcaza_".length()));
                 String jsonStr = URLDecoder.decode(cookie.getValue(), "UTF-8");
-
                 // Convertimos a JsonObject para acceder a "map"
                 JsonObject outer = gson.fromJson(jsonStr, JsonObject.class);
                 JsonObject inner = outer.getAsJsonObject("map");
@@ -209,11 +216,12 @@
     
     <body>
         <% String errorMsg = (String) session.getAttribute("errorMsg"); 
+            Boolean correoEnviado1 = (Boolean) session.getAttribute("correoEnviado");
             System.out.println(errorMsg);
         %>
         <% if (errorMsg != null) { %>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-            <% if (errorMsg.equals("CITA CREADA CON EXITO!!!")) { %>
+            <% if (correoEnviado1) { %>
             <script>
                 Swal.fire({
                     icon: 'success',
@@ -258,7 +266,7 @@
                         List<OperacionEstado> formFinalizado = new ArrayList<OperacionEstado>();
                         int i = 1;
                         int u = 0;
-
+                        int z = 0;
                         if (operaciones == null) {
                     %>
                             <script>
@@ -276,13 +284,25 @@
                                     session.setAttribute("operacionSelec", operacion);
                                     if (operacionesper != null && operacionesper.contains(operacion)) {
                                         String ordenOp = (datos != null && datos.has("ordenOperacion")) ? datos.get("ordenOperacion").getAsString() : "";
+                                        String estadoOP = (datos != null && datos.has("estado")) ? datos.get("estado").getAsString() : "";
+                                        if (estadoOP.equals("Activa")) {
                                 %>
-                                        <input 
-                                            type="button" 
-                                            value="Agendar cita" 
-                                            onclick="window.location.href='../TiposProductos?ordenOperacion=<%= ordenOp %>&operacion=<%= Tipooperacion.get(u) %>'"
-                                        />
+                                            <input 
+                                                type="button" 
+                                                value="Agendar cita" 
+                                                onclick="window.location.href='../TiposProductos?ordenOperacion=<%= ordenOp %>&operacion=<%= Tipooperacion.get(u) %>'"
+                                            />
                                 <%
+                                        }else {
+                                %>
+                                            <input 
+                                                type="button"
+                                                value="Listo para enviar"
+                                                disabled
+                                            /> 
+                                <%
+                                            z++; 
+                                        }                                                
                                         formFinalizado.add(new OperacionEstado(operacion, false));
                                     } else {
                                         String ordenOp = (datos != null && datos.has("ordenOperacion")) ? datos.get("ordenOperacion").getAsString() : "";
@@ -313,6 +333,102 @@
                                 i++;
                                 u++;
                             } // fin for
+                            Boolean correoEnviado = (Boolean) session.getAttribute("correoEnviado");
+                            if (z == u) {
+                                JsonParser parser = new JsonParser();
+                                JsonArray tablaReducida = new JsonArray();
+
+                                for (int w = 1; w <= z; w++) {
+                                    String data = (String) session.getAttribute("EnviarCorreo_ordenoperacion_" + w);
+
+                                    if (data != null && data.trim().length() > 0) {
+                                        try {
+                                            JsonElement outer = parser.parse(data);
+                                            if (outer.isJsonPrimitive() && outer.getAsJsonPrimitive().isString()) {
+                                                outer = parser.parse(outer.getAsString());
+                                            }
+
+                                            if (outer.isJsonObject()) {
+                                                JsonObject obj = outer.getAsJsonObject();
+
+                                                // Campos superiores
+                                                String trailer = obj.has("remolque") ? obj.get("remolque").getAsString() : "";
+                                                String producto = obj.has("producto") ? obj.get("producto").getAsString() : "";
+                                                String nitTransportadora = obj.has("nitTransportadora") ? obj.get("nitTransportadora").getAsString() : "";
+                                                String operacion = obj.has("operacion") ? obj.get("operacion").getAsString() : "";
+                                                String observacion = obj.has("observaciones") ? obj.get("observaciones").getAsString() : "";
+                                                String fechaCita = obj.has("fechaCita") ? obj.get("fechaCita").getAsString() : "";
+
+                                                // 🔹 Convertir fecha ISO a dd/MM/yyyy HH:mm
+                                                String fechaFormateada = "";
+                                                try {
+                                                    java.text.SimpleDateFormat iso = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                                                    java.text.SimpleDateFormat target = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm");
+                                                    fechaFormateada = target.format(iso.parse(fechaCita.substring(0,19)));
+                                                } catch (Exception e) {
+                                                    fechaFormateada = fechaCita; // si falla, dejar original
+                                                }
+
+                                                // 🔹 Valores fijos que mencionaste
+                                                String nit = DATA;
+
+                                                // recorrer vehiculos
+                                                if (obj.has("vehiculos") && obj.get("vehiculos").isJsonArray()) {
+                                                    JsonArray vehiculos = obj.get("vehiculos").getAsJsonArray();
+                                                    for (JsonElement v : vehiculos) {
+                                                        if (v.isJsonObject()) {
+                                                            JsonObject vehiculo = v.getAsJsonObject();
+
+                                                            JsonObject fila = new JsonObject();
+                                                            fila.addProperty("PLACA", vehiculo.has("vehiculoNumPlaca") ? vehiculo.get("vehiculoNumPlaca").getAsString() : "");
+                                                            fila.addProperty("TRAILER", trailer);
+                                                            fila.addProperty("MANIFIESTO", vehiculo.has("numManifiestoCarga") ? vehiculo.get("numManifiestoCarga").getAsString() : "");
+                                                            fila.addProperty("CONDUCTOR", vehiculo.has("nombreConductor") ? vehiculo.get("nombreConductor").getAsString() : "");
+                                                            fila.addProperty("CEDULA", vehiculo.has("conductorCedulaCiudadania") ? vehiculo.get("conductorCedulaCiudadania").getAsString() : "");
+                                                            fila.addProperty("PRODUCTO", producto);
+                                                            fila.addProperty("NIT-TRANSPORTADORA", nitTransportadora);
+
+                                                            // Nuevos campos
+                                                            fila.addProperty("FECHA", fechaFormateada);
+                                                            fila.addProperty("OPERACION", operacion);
+                                                            fila.addProperty("OBSERVACION", observacion);
+                                                            fila.addProperty("NIT", nit);
+
+                                                            tablaReducida.add(fila);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } catch (JsonSyntaxException ex) {
+                                            System.out.println("⚠️ Error parseando JSON en índice " + w + ": " + ex.getMessage());
+                                        }
+                                    }
+                                    session.removeAttribute("EnviarCorreo_ordenoperacion_" + w);
+                                }
+
+                                if (tablaReducida.size() > 0) {
+                                    String jsonFinal = gson.toJson(tablaReducida);
+                                    System.out.println("✅ JSON Final Reducido:");
+                                    System.out.println(jsonFinal);
+
+                                    // Recupera el último JSON enviado
+                                    String ultimoJsonEnviado = (String) session.getAttribute("ultimoJsonEnviado");
+
+                                    // Solo enviar si cambió
+                                    if (ultimoJsonEnviado == null || !ultimoJsonEnviado.equals(jsonFinal)) {
+                                        session.setAttribute("json", jsonFinal);
+                                        session.setAttribute("ultimoJsonEnviado", jsonFinal); // guardamos este como enviado
+
+                                        response.sendRedirect(request.getContextPath() + "/EnviarCorreo");
+                                    } else {
+                                        System.out.println("⚠️ No hay cambios en la tabla reducida, no se envía correo.");
+                                    }
+                                } else {
+                                    System.out.println("⚠️ No se generó JSON final reducido porque no había datos válidos.");
+                                }
+
+                            }
+                            
                         } // fin else
                     %>
                     <tr>

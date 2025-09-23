@@ -101,7 +101,7 @@ public class CitasAutomaticas {
              "        v.NIT_TRANSPORTADORA, " +
              "        v.OPERACION, " +
              "        t.PLACA,  " +
-             "        vb.CEDULA,  " +
+             "        t.CEDULA_CONDUCTOR,  " +
              "        t.MANIFIESTO, " +
              "        TO_CHAR(CAST(v.FECHA_CITA AS DATE), 'DD/MM/YY HH24:MI:SS') AS FECHAYHORAINSIDE, " +
              "        TO_CHAR(CAST(tb.HORA_ENTRADA AS DATE), 'DD/MM/YY HH24:MI:SS') AS HORA_ENTRADA, " +
@@ -134,7 +134,7 @@ public class CitasAutomaticas {
                 cita.setNitempbascula(rs.getString("NIT_TRANSPORTADORA"));
                 cita.setOPERACION(rs.getString("OPERACION"));
                 cita.setVehiculoNumPlaca(rs.getString("PLACA"));
-                cita.setConductorCedulaCiudadania(rs.getString("CEDULA"));
+                cita.setConductorCedulaCiudadania(rs.getString("CEDULA_CONDUCTOR"));
                 cita.setNumManifiestoCarga(rs.getString("MANIFIESTO"));
                 cita.setFechaentrada(rs.getString("HORA_ENTRADA"));
                 cita.setFechasalida(rs.getString("HORA_SALIDA"));

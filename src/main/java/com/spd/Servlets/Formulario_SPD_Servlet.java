@@ -19,6 +19,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.*;
 import org.json.JSONObject;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.spd.API.FormularioPost;
 import com.spd.CItasDB.BarcazaCita;
 import com.spd.CItasDB.CitaBascula;
@@ -32,6 +33,7 @@ import com.spd.DAO.Correcion_Fecha;
 import com.spd.Model.Cliente;
 import com.spd.Model.FormularioCompletoSPDCARROTANQUE;
 import com.spd.SendMail.EnviarCorreo;
+import java.net.URLDecoder;
 import javax.servlet.RequestDispatcher;
 
 // IMPORTANTE: ajusta los imports de tus clases de dominio:
@@ -414,26 +416,34 @@ public class Formulario_SPD_Servlet extends HttpServlet {
             if ("Carrotanque - Barcaza".equals(operacion) || "Barcaza - Carrotanque".equals(operacion)) {
                 System.out.println("Guardando cita carrotanque y barcaza en BD...");
                 
+                // 🔹 Convertir a String (NO necesitamos codificar si usamos sesión)
+                String jsonStr = gson.toJson(json2);
+
+                System.out.println(json2);
+                
+                String orden = getCookie(request, "ORDEN_OPERACION");
+                
+                System.out.println(orden);
+                
+                // 🔹 Guardar en variable de sesión
+                HttpSession session = request.getSession();
+                session.setAttribute("EnviarCorreo_"+orden, jsonStr);
+                
                 boolean guardadoExitoso = false;
                 try {
                     // Guardar en BD (cita carrotanque + barcaza)
                     formdbConRetry(fp, URL_CITAS, json2);
                     citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
                     
-                    RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreo");
-                    request.setAttribute("NombreEmpresa", empresaUsuario);
-                    request.setAttribute("json", json2);
-                    rd.forward(request, response);
-                    
                     guardadoExitoso = true;
                 } catch (Exception e) {
                     e.printStackTrace();
-                    HttpSession session = request.getSession();
+                    session = request.getSession();
                     session.setAttribute("Activo", true);
                     session.setAttribute("Error", "Error: no se pudo guardar la cita en la base de datos.");
                     response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
                     return;
-            }
+                }
 
                 if (guardadoExitoso) {
                     // Solo si guarda bien en BD, se envía al ministerio
@@ -441,7 +451,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                     String response1 = postConRetry(fp, URL_RIEM, json);
 
                     if (response1 == null) {
-                        HttpSession session = request.getSession();
+                        session = request.getSession();
                         session.setAttribute("Activo", true);
                         session.setAttribute("Error", "Error: no hay conexión con el servidor (RIEN). Intente más tarde.");
                         response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
@@ -451,7 +461,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                     JSONObject jsonResponse = new JSONObject(response1);
                     if (jsonResponse.has("ErrorCode") && jsonResponse.optInt("ErrorCode", 0) != 0) {
                         String msg = jsonResponse.optString("ErrorText", "Sin detalle");
-                        HttpSession session = request.getSession();
+                        session = request.getSession();
                         session.setAttribute("Error", "Error: " + msg);
                         setFormSession(session, usuario, Operaciones, fecha, verificacion, Nitempresa, Cedula, placa,
                                 Manifiesto, cedulasExtras, placasExtras, manifiestosExtras, nombre, nombreconductorExtras,
@@ -467,7 +477,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                     // Éxito RIEN
                     int sesionId = jsonResponse.optInt("SesionId", -1);
                     String ingresoId = jsonResponse.optString("IngresoId", "");
-                    HttpSession session = request.getSession();
+                    session = request.getSession();
                     session.setAttribute("Activo", true);
                     session.setAttribute("Error", "Formulario Enviado Con Éxito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
 
@@ -490,6 +500,22 @@ public class Formulario_SPD_Servlet extends HttpServlet {
 
             // === Solo barcaza ===
             if ("Barcaza - Tanque".equals(operacion) || "Tanque - Barcaza".equals(operacion) || "Barcaza - Barcaza".equals(operacion)) {
+                // 🔹 Convertir a String (NO necesitamos codificar si usamos sesión)
+                String jsonStr = gson.toJson(json3);
+
+                // 🔹 Guardar en variable de sesión
+                HttpSession session = request.getSession();
+                session.setAttribute("EnviarCorreo", jsonStr);
+
+                // 🔹 Para mostrar el contenido después (ejemplo en JSP o Servlet)
+                String data = (String) session.getAttribute("EnviarCorreo");
+                if (data != null) {
+                    System.out.println("Contenido de la variable de sesión EnviarCorreo:<br>");
+                    System.out.println(data);
+                } else {
+                    System.out.println("No hay datos en la sesión.");
+                }
+                
                 citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
                 RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreoBarcaza");
                 request.setAttribute("NombreEmpresa", empresaUsuario);
@@ -545,10 +571,34 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 // Guardar en BD (carrotanque)
                 formdbConRetry(fp, URL_CITAS, gson.toJson(cb));
                 
-                RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreo");
-                request.setAttribute("NombreEmpresa", empresaUsuario);
-                request.setAttribute("json", gson.toJson(cb));
-                rd.forward(request, response);
+                // 🔹 Convertir a String (NO necesitamos codificar si usamos sesión)
+                String jsonStr = gson.toJson(cb);
+
+                // 🔹 Guardar en variable de sesión
+                session = request.getSession();
+                session.setAttribute("EnviarCorreo", jsonStr);
+
+                // 🔹 Para mostrar el contenido después (ejemplo en JSP o Servlet)
+                String data = (String) session.getAttribute("EnviarCorreo");
+                if (data != null) {
+                    System.out.println("Contenido de la variable de sesión EnviarCorreo:<br>");
+                    System.out.println(data);
+                } else {
+                    System.out.println("No hay datos en la sesión.");
+                }
+                
+                // 🔹 Convertir a String (NO necesitamos codificar si usamos sesión)
+                String jsonStr1 = gson.toJson(cb);
+
+                System.out.println(json2);
+                
+                String orden = getCookie(request, "ORDEN_OPERACION");
+                
+                System.out.println(orden);
+                
+                // 🔹 Guardar en variable de sesión
+                session = request.getSession();
+                session.setAttribute("EnviarCorreo_"+orden, jsonStr1);
                 return;
             }
 
@@ -572,6 +622,39 @@ public class Formulario_SPD_Servlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String ordenOperacion = request.getParameter("ordenOperacion");
+        Gson gson = new Gson();
+        Cookie[] cookies = request.getCookies();
+
+        if (ordenOperacion != null && cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().startsWith("datosBarcaza_")) {
+                    String jsonStr = URLDecoder.decode(cookie.getValue(), "UTF-8");
+
+                    JsonObject outer = gson.fromJson(jsonStr, JsonObject.class);
+                    JsonObject inner = outer.getAsJsonObject("map");
+
+                    if (inner != null && inner.has("ordenOperacion")) {
+                        if (ordenOperacion.equals(inner.get("ordenOperacion").getAsString())) {
+                            // Actualizar estado solo en envío de formulario
+                            inner.addProperty("estado", "Programada");
+
+                            String nuevoJson = gson.toJson(outer);
+                            Cookie cookieActualizada = new Cookie(cookie.getName(), URLEncoder.encode(nuevoJson, "UTF-8"));
+                            cookieActualizada.setMaxAge(60 * 60);
+                            cookieActualizada.setPath("/CITASSPD");
+                            response.addCookie(cookieActualizada);
+
+                            // Guardar datos en sesión o BD
+                            request.getSession().setAttribute("BARCAZA", inner.get("NombreBarcaza").getAsString());
+                            request.getSession().setAttribute("OPERACION", inner.get("operacion").getAsString());
+
+                            System.out.println("Barcaza actualizada en envío de formulario: " + inner);
+                        }
+                    }
+                }
+            }
+        }
         processRequest(request, response);
     }
 

@@ -84,6 +84,7 @@ public class TipoOperacionServlet extends HttpServlet {
             json.put("Tanque", tanque);
             json.put("barcaza_origen", barcaza_origen);
             json.put("barcaza_destino", barcaza_destino);
+            json.put("estado", "Activa");
 
              System.out.println(json);
             
