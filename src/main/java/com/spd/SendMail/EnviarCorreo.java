@@ -106,6 +106,7 @@ public class EnviarCorreo extends HttpServlet {
         mensaje.append("<br><table border='1' cellpadding='5' cellspacing='0'>");
         mensaje.append("<tr>")
                .append("<th>ITEM</th>")
+               .append("<th>CODCITA</th>")
                .append("<th>PLACA</th>")
                .append("<th>TRAILER</th>")
                .append("<th>MANIFIESTO</th>")
@@ -124,6 +125,7 @@ public class EnviarCorreo extends HttpServlet {
             Map<String, String> fila = filas.get(i);
             mensaje.append("<tr>");
             mensaje.append("<td>").append(i + 1).append("</td>");
+            mensaje.append("<td>").append(fila.getOrDefault("CODCITA", "")).append("</td>");
             mensaje.append("<td>").append(fila.getOrDefault("PLACA", "")).append("</td>");
             mensaje.append("<td>").append(fila.getOrDefault("TRAILER", "")).append("</td>");
             mensaje.append("<td>").append(fila.getOrDefault("MANIFIESTO", "")).append("</td>");

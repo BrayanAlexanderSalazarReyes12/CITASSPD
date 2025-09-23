@@ -340,7 +340,7 @@
 
                                 for (int w = 1; w <= z; w++) {
                                     String data = (String) session.getAttribute("EnviarCorreo_ordenoperacion_" + w);
-
+                                    String cita = (String) session.getAttribute("EnviarCita_ordenoperacion_" + w);
                                     if (data != null && data.trim().length() > 0) {
                                         try {
                                             JsonElement outer = parser.parse(data);
@@ -393,7 +393,7 @@
                                                             fila.addProperty("OPERACION", operacion);
                                                             fila.addProperty("OBSERVACION", observacion);
                                                             fila.addProperty("NIT", nit);
-
+                                                            fila.addProperty("CODCITA", cita);
                                                             tablaReducida.add(fila);
                                                         }
                                                     }

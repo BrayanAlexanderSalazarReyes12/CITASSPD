@@ -682,8 +682,6 @@
                 }
                 </script>
 
-
-
                 <div class="form-group">
                     <label for="PrecioArticulo">Precio Unitario en USD:</label>
                     <input id="PrecioArticulo" type="text" name="PrecioArticulo" value="<%= session.getAttribute("PrecioArticulo") != null ? session.getAttribute("PrecioArticulo") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, ''); calcularTotal();" required/>

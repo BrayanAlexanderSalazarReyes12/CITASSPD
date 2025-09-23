@@ -12,6 +12,7 @@ com\spd\informacionCita\InformacionPesajeFinalizacionCIta.class
 com\spd\Servlets\Formulario_SPD_Servlet.class
 com\spd\Servlets\MapaBarcazasServelet.class
 com\spd\Model\OperacionEstado.class
+com\spd\informacionCita\MaxCITA.class
 com\spd\SendMail\EnviarCorreoBarcaza.class
 com\spd\FinalizarCitaAut\SchedulerListener.class
 com\spd\API\TipoPorductosGet$1.class

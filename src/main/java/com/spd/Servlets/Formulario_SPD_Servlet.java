@@ -33,7 +33,11 @@ import com.spd.DAO.Correcion_Fecha;
 import com.spd.Model.Cliente;
 import com.spd.Model.FormularioCompletoSPDCARROTANQUE;
 import com.spd.SendMail.EnviarCorreo;
+import com.spd.informacionCita.MaxCITA;
 import java.net.URLDecoder;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 
 // IMPORTANTE: ajusta los imports de tus clases de dominio:
@@ -425,9 +429,34 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 
                 System.out.println(orden);
                 
+                MaxCITA.inicializarDesdeContexto(getServletContext());
+                
                 // 🔹 Guardar en variable de sesión
                 HttpSession session = request.getSession();
                 session.setAttribute("EnviarCorreo_"+orden, jsonStr);
+                
+                try {
+                    String cita = MaxCITA.maxcita(); // Supongamos que devuelve "CTA000000000365"
+
+                    // Extraer la parte numérica (los últimos dígitos)
+                    String numeroStr = cita.substring(3); // "000000000365"
+                    int numero = Integer.parseInt(numeroStr); // 365
+
+                    // Sumar 1
+                    numero++;
+
+                    // Formatear con ceros a la izquierda (misma longitud que original)
+                    String nuevoNumeroStr = String.format("%012d", numero); // "000000000366"
+
+                    // Armar la nueva cita
+                    String nuevaCita = "CTA" + nuevoNumeroStr;
+
+                    // Guardar en la sesión
+                    session.setAttribute("EnviarCita_"+orden, nuevaCita);
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(Formulario_SPD_Servlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 
                 boolean guardadoExitoso = false;
                 try {
@@ -599,6 +628,32 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 // 🔹 Guardar en variable de sesión
                 session = request.getSession();
                 session.setAttribute("EnviarCorreo_"+orden, jsonStr1);
+                
+                MaxCITA.inicializarDesdeContexto(getServletContext());
+                
+                try {
+                    String cita = MaxCITA.maxcita(); // Supongamos que devuelve "CTA000000000365"
+
+                    // Extraer la parte numérica (los últimos dígitos)
+                    String numeroStr = cita.substring(3); // "000000000365"
+                    int numero = Integer.parseInt(numeroStr); // 365
+
+                    // Sumar 1
+                    numero++;
+
+                    // Formatear con ceros a la izquierda (misma longitud que original)
+                    String nuevoNumeroStr = String.format("%012d", numero); // "000000000366"
+
+                    // Armar la nueva cita
+                    String nuevaCita = "CTA" + nuevoNumeroStr;
+
+                    // Guardar en la sesión
+                    session.setAttribute("EnviarCita_"+orden, nuevaCita);
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(Formulario_SPD_Servlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
                 return;
             }
 
