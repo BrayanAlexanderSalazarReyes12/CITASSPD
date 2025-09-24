@@ -95,8 +95,8 @@ public class EnviarCorreoConfirmacionCIta extends HttpServlet {
                     + " - " + formatearFecha(fecha);
 
             enviarCorreo(destinatarios, asunto, mensaje.toString());
-            request.getSession().setAttribute("errorMsg", "CITA CREADA CON ÉXITO!!!");
-            response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
+            //request.getSession().setAttribute("errorMsg", "CITA CREADA CON ÉXITO!!!");
+            response.sendRedirect(request.getContextPath() + "/JSP/Listado_Citas.jsp");
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error al enviar correo", e);
         }
