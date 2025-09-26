@@ -151,7 +151,7 @@ public class EnviarCorreo extends HttpServlet {
             enviarCorreo(destinatarios, asunto, mensaje.toString());
             
             // ✅ Marcar que ya se envió
-            request.getSession().setAttribute("correoEnviado", true);
+            request.getSession().setAttribute("correoEnviado", Boolean.TRUE); // bien
             request.getSession().setAttribute("errorMsg", "CITA CREADA CON ÉXITO!!!");
             response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
         } catch (Exception e) {
