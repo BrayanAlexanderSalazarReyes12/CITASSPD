@@ -215,36 +215,41 @@
     </header>
     
     <body>
-        <% String errorMsg = (String) session.getAttribute("errorMsg"); 
+        <%
+            // Obtener mensaje de error y flag de correo enviado
+            String errorMsg = (String) session.getAttribute("errorMsg"); 
             Boolean correoEnviado1 = Boolean.TRUE.equals(session.getAttribute("correoEnviado"));
-            System.out.println(errorMsg);
         %>
+
         <% if (errorMsg != null) { %>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-            <% if (correoEnviado1) { %>
-            <script>
-                Swal.fire({
-                    icon: 'success',
-                    text: '<%= errorMsg %>',
-                    confirmButtonText: 'Aceptar'
-                });
 
-            </script>
-            <%
-                session.removeAttribute("errorMsg"); // 🔥 elimina la variable de sesión
-                } else { %>
-            <script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: '<%= errorMsg %>',
-                    confirmButtonText: 'Aceptar'
-                });
-            </script>
+            <% if (correoEnviado1) { %>
+                <script>
+                    Swal.fire({
+                        icon: 'success',
+                        text: '<%= errorMsg %>',
+                        confirmButtonText: 'Aceptar'
+                    });
+                </script>
+            <% } else { %>
+                <script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: '<%= errorMsg %>',
+                        confirmButtonText: 'Aceptar'
+                    });
+                </script>
+            <% } %>
+
             <% 
-                session.removeAttribute("errorMsg"); // 🔥 elimina la variable de sesión
-                } %>
+                // Eliminar los atributos de sesión para que no se repitan
+                session.removeAttribute("errorMsg");
+                session.removeAttribute("correoEnviado");
+            %>
         <% } %>
+
         
         
         <div class="contenedor">
