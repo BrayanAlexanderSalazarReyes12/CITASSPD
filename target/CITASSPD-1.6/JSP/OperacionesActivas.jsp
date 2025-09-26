@@ -216,7 +216,7 @@
     
     <body>
         <% String errorMsg = (String) session.getAttribute("errorMsg"); 
-            Boolean correoEnviado1 = (Boolean) session.getAttribute("correoEnviado");
+            Boolean correoEnviado1 = Boolean.TRUE.equals(session.getAttribute("correoEnviado"));
             System.out.println(errorMsg);
         %>
         <% if (errorMsg != null) { %>
