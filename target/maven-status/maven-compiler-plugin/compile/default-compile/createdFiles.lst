@@ -1,5 +1,6 @@
 com\spd\Model\ListadoCItas.class
 com\spd\CrearUsuarioJson\CrearUsuarioCompleto.class
+com\spd\citas\vehiculos\ListarOperaciones.class
 com\spd\SendMail\EnviarCorreo$2.class
 com\spd\CItasDB\ListaCitasBarcaza.class
 com\spd\Servlets\cerrarVentana.class
@@ -16,6 +17,7 @@ com\spd\informacionCita\MaxCITA.class
 com\spd\SendMail\EnviarCorreoBarcaza.class
 com\spd\FinalizarCitaAut\SchedulerListener.class
 com\spd\API\TipoPorductosGet$1.class
+com\spd\reportes\reportecarrotanquesservelet.class
 com\spd\SendMail\EnviarCorreo$1.class
 com\spd\Servlets\CancelarCitaServlet.class
 com\spd\Servlets\AsignarCitaBarcaza.class
@@ -43,6 +45,7 @@ com\spd\ClasesJsonFormularioMinisterio\SistemaEnturnamiento.class
 com\spd\FinalizarCitaAut\SchedulerListener$1.class
 com\spd\API\TipoPorductosGet.class
 com\spd\Servlets\AsignarCitaCamiones$1.class
+com\spd\citas\vehiculos\CitasPorEmpresa.class
 com\spd\DAO\ListadoUsuarios.class
 com\spd\Servlets\Iniciar_Seccion_Servlet.class
 com\spd\Model\FormularioCompletoSPDCARROTANQUE.class
@@ -62,6 +65,7 @@ com\spd\DAO\ListadoDAO$2.class
 com\spd\Productos\Producto.class
 com\spd\CItasDB\CantCitasProgram.class
 com\spd\Model\Usuarios_Tanques.class
+com\spd\citas\vehiculos\CitaVehiculo.class
 com\spd\CrearUsuarioJson\ActualizarUsuarioCompleto.class
 com\spd\Servlets\Finalizarcita.class
 com\spd\CreacionUsuarioNit\CreacionUsuarioEmpresaTransportadora.class

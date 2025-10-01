@@ -422,22 +422,22 @@
                     LocalDate today = now.toLocalDate();
 
                     LocalTime earliest   = LocalTime.of(8, 0);    // 8:00 AM
-                    LocalTime latest     = LocalTime.of(15, 59);  // 3:59 PM
-                    LocalTime cutofftime = LocalTime.of(15, 0);   // 3:00 PM
+                    LocalTime latest     = LocalTime.of(13, 59);  // 1:59 PM
+                    LocalTime cutofftime = LocalTime.of(13, 0);   // 1:00 PM
 
                     LocalDate targetDate;
                     LocalDateTime minDateTime;
 
-                    if (now.toLocalTime().isBefore(LocalTime.of(16, 0))) {
-                        // Antes de las 4:00 PM → agenda desde hoy
+                    if (now.toLocalTime().isBefore(LocalTime.of(14, 0))) {
+                        // Antes de las 2:00 PM → agenda desde hoy
                         targetDate = today;
 
                         LocalTime proposedMinTime;
                         if (now.toLocalTime().isBefore(cutofftime)) {
-                            // Antes de 3:00 PM → suma 1 hora
+                            // Antes de 1:00 PM → suma 1 hora
                             proposedMinTime = now.toLocalTime().plusHours(1);
                         } else {
-                            // Entre 3:00 y 3:59 PM → usa la hora actual
+                            // Entre 1:00 y 1:59 PM → usa la hora actual
                             proposedMinTime = now.toLocalTime();
                         }
 
@@ -453,7 +453,7 @@
                             minDateTime = LocalDateTime.of(today, proposedMinTime);
                         }
                     } else {
-                        // Después de las 4:00 PM → solo a partir de mañana
+                        // Después de las 2:00 PM → solo a partir de mañana
                         targetDate = today.plusDays(1);
                         minDateTime = LocalDateTime.of(targetDate, earliest);
                     }
@@ -498,13 +498,13 @@
 
                     // Rango permitido: 08:00 a 16:00
                     const minHour = 8;
-                    const maxHour = 16;
+                    const maxHour = 14;
 
                     if (hours < minHour || (hours >= maxHour && minutes > 0)) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Hora inválida',
-                            text: 'La hora seleccionada debe estar entre las 08:00 AM y las 04:00 PM.',
+                            text: 'La hora seleccionada debe estar entre las 08:00 AM y las 02:00 PM.',
                             confirmButtonText: 'Entendido',
                             confirmButtonColor: '#3085d6'
                         }).then(() => {

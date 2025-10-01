@@ -107,6 +107,7 @@
                 <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
                 <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
                 <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/> 
+                <input type="submit" value="Operaciones de Hoy" onclick="navegarInternamente('../ListarOperaciones')"/> 
             <%
                 }else if(rolObj != null && ((Integer) rolObj) == 2){
             %>
@@ -436,14 +437,84 @@
                 <%
                     }else {
                 %>
+
                     <body>
+                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                         <div class="contenedor">
-                            <input type="submit" value="Reporte De Barcazas Entrada Y Salida" onclick=""/>
-                            <input type="submit" value="Reporte De Carrotanques Entrada Y Salida">
+                            <input type="submit" value="Reporte De Barcazas Entrada Y Salida" onclick="reporteBarcazas()"/>
+                            <input type="submit" value="Reporte De Carrotanques Entrada Y Salida" onclick="reporteCarrotanques()"/>
                         </div>
+
+                        <script>
+                            function reporteCarrotanques() {
+                                Swal.fire({
+                                    title: '📅 Seleccionar Rango de Fechas',
+                                    html: `
+                                        <div style="display:flex; flex-direction:column; gap:15px; text-align:left;">
+                                            <div>
+                                                <label style="font-weight:bold; font-size:14px;">Fecha Inicial:</label>
+                                                <input type="date" id="fechaInicial" class="swal2-input" 
+                                                    style="width:100%; padding:10px; font-size:14px;">
+                                            </div>
+                                            <div>
+                                                <label style="font-weight:bold; font-size:14px;">Fecha Final:</label>
+                                                <input type="date" id="fechaFinal" class="swal2-input" 
+                                                    style="width:100%; padding:10px; font-size:14px;">
+                                            </div>
+                                        </div>
+                                    `,
+                                    confirmButtonText: '📥 Descargar Reporte',
+                                    confirmButtonColor: '#6C63FF',
+                                    showCancelButton: true,
+                                    cancelButtonText: 'Cancelar',
+                                    cancelButtonColor: '#d33',
+                                    focusConfirm: false,
+                                    preConfirm: () => {
+                                        const fechaInicial = document.getElementById('fechaInicial').value;
+                                        const fechaFinal = document.getElementById('fechaFinal').value;
+
+                                        if (!fechaInicial || !fechaFinal) {
+                                            Swal.showValidationMessage('⚠️ Ambas fechas son requeridas');
+                                            return false;
+                                        }
+
+                                        if (fechaFinal < fechaInicial) {
+                                            Swal.showValidationMessage('⚠️ La fecha final no puede ser menor que la inicial');
+                                            return false;
+                                        }
+
+                                        return { fechaInicial, fechaFinal };
+                                    }
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        const { fechaInicial, fechaFinal } = result.value;
+
+                                        // Mostrar loader
+                                        Swal.fire({
+                                            title: '⏳ Generando reporte...',
+                                            text: 'Por favor espera unos segundos',
+                                            allowOutsideClick: false,
+                                            didOpen: () => {
+                                                Swal.showLoading();
+                                            }
+                                        });
+
+                                        // Simula un retraso antes de redirigir (opcional)
+                                        setTimeout(() => {
+                                            window.location.href = '/CITASSPD/reportecarrotanquesservelet?fechainicial=' 
+                                                + fechaInicial + '&fechafinal=' + fechaFinal;
+                                        }, 1000);
+                                    }
+                                });
+                            }
+
+                            function reporteBarcazas() {
+                                Swal.fire('🚧 Funcionalidad aún no implementada');
+                            }
+                        </script>
+
+
                     </body>
-                
-                
                 <%
                     }
                 %>

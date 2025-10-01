@@ -45,7 +45,7 @@ public class SchedulerListener implements ServletContextListener {
             }
         };
         
-        Date primeraEjecucion = getProximaEjecucion(23, 0);
+        Date primeraEjecucion = getProximaEjecucion(11, 55);
         long periodo = 24 * 60 * 60 * 1000;
         
         timer.scheduleAtFixedRate(task, primeraEjecucion, periodo);

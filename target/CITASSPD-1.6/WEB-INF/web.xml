@@ -80,6 +80,14 @@
         <servlet-name>EnviarCorreoConfirmacionCIta</servlet-name>
         <servlet-class>com.spd.SendMail.EnviarCorreoConfirmacionCIta</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>reportecarrotanquesservelet</servlet-name>
+        <servlet-class>com.spd.reportes.reportecarrotanquesservelet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ListarOperaciones</servlet-name>
+        <servlet-class>com.spd.citas.vehiculos.ListarOperaciones</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <url-pattern>/Iniciar_Seccion_Servlet</url-pattern>
@@ -155,6 +163,14 @@
     <servlet-mapping>
         <servlet-name>EnviarCorreoConfirmacionCIta</servlet-name>
         <url-pattern>/EnviarCorreoConfirmacionCIta</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>reportecarrotanquesservelet</servlet-name>
+        <url-pattern>/reportecarrotanquesservelet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ListarOperaciones</servlet-name>
+        <url-pattern>/ListarOperaciones</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

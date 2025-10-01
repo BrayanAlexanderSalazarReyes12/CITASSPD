@@ -21,6 +21,7 @@ C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\sp
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CrearUsuarioJson\CrearUsuarioClass.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CargarBarcazas\CargarBarcazas.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Servlets\TipoProductosBarcaza.java
+C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\citas\vehiculos\ListarOperaciones.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\API\FormularioPost.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Servlets\CancelarCitaServlet.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Servlets\GuardarCitaBarcazaServlet.java
@@ -30,6 +31,7 @@ C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\sp
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\FinalizarCitaAut\CitasAutomaticas.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\FinalizarCitaAut\SchedulerListener.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Servlets\AsignarCitaCamiones.java
+C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\citas\vehiculos\CitasPorEmpresa.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\ClasesJsonFormularioMinisterio\FormularioCompleto.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CItasDB\BarcazaCita.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CItasDB\CantCitasProgram.java
@@ -46,10 +48,12 @@ C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\sp
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\DAO\ListadoDAO.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\informacionCita\EstadoCIta.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CrearUsuarioJson\CrearUsuarioCompleto.java
+C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\reportes\reportecarrotanquesservelet.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Servlets\FinalizarcitaInfo.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CItasDB\ListaVehiculos.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Model\Inicio_Seccion.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Model\ResultadoCitas.java
+C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\citas\vehiculos\CitaVehiculo.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Model\Cliente.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\Servlets\ActualizarUsuarioServlet.java
 C:\Users\Brayan Salazar\Documents\NetBeansProjects\CITASSPD\src\main\java\com\spd\CItasDB\ListaCitasBarcaza.java

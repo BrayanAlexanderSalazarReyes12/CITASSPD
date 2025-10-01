@@ -6,6 +6,7 @@ package com.spd.reportes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -60,7 +61,7 @@ public class ReporteCarrotanques {
         }
     }
     
-    public void reporte(String fechainical, String fechafinal) throws SQLException {
+    public File reporte(String fechainical, String fechafinal) throws SQLException {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -124,7 +125,7 @@ public class ReporteCarrotanques {
                     "    SC.FE_CREACION BETWEEN TO_DATE(?, 'YYYY-MM-DD') \n" +
                     "                       AND TO_DATE(?, 'YYYY-MM-DD')\n" +
                     "    AND SCV.ESTADO IN ('FINALIZADO', 'FINALIZADA')\n" +
-                    "ORDER BY SC.COD_CITA;";
+                    "ORDER BY SC.COD_CITA";
 
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, fechainical);
@@ -138,7 +139,8 @@ public class ReporteCarrotanques {
             // Estilo de encabezados
             CellStyle headerStyle = workbook.createCellStyle();
             Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
+            // En POI 3.10.1 para Java 6 se usa setBoldweight
+            headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
             headerStyle.setFont(headerFont);
 
             // Escribir cabeceras dinámicamente
@@ -176,10 +178,13 @@ public class ReporteCarrotanques {
             String fileName = "ReporteCitas_" + fechainical + "_a_" + fechafinal + ".xlsx";
             try (FileOutputStream fileOut = new FileOutputStream(fileName)) {
                 workbook.write(fileOut);
+                fileOut.close();
             }
-            workbook.close();
 
             System.out.println("✅ Reporte generado en: " + fileName);
+
+            return new File(fileName);
+
 
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ReporteCarrotanques.class.getName()).log(Level.SEVERE, null, ex);
@@ -191,5 +196,6 @@ public class ReporteCarrotanques {
             if (pstmt != null) try { pstmt.close(); } catch (SQLException ignore) {}
             if (conn != null) try { conn.close(); } catch (SQLException ignore) {}
         }
+        return null;
     }
 }

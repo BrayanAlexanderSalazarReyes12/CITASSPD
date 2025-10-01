@@ -460,21 +460,6 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 
                 boolean guardadoExitoso = false;
                 try {
-                    // Guardar en BD (cita carrotanque + barcaza)
-                    formdbConRetry(fp, URL_CITAS, json2);
-                    citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
-                    
-                    guardadoExitoso = true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    session = request.getSession();
-                    session.setAttribute("Activo", true);
-                    session.setAttribute("Error", "Error: no se pudo guardar la cita en la base de datos.");
-                    response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
-                    return;
-                }
-
-                if (guardadoExitoso) {
                     // Solo si guarda bien en BD, se envía al ministerio
                     System.out.println("Enviando RIEN (carrotanque) y CitaBarcaza...");
                     String response1 = postConRetry(fp, URL_RIEM, json);
@@ -522,6 +507,21 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                             );
                         }
                     }
+                    
+                    guardadoExitoso = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    session = request.getSession();
+                    session.setAttribute("Activo", true);
+                    session.setAttribute("Error", "Error: no se pudo guardar la cita en la base de datos.");
+                    response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
+                    return;
+                }
+
+                if (guardadoExitoso) {
+                    // Guardar en BD (cita carrotanque + barcaza)
+                    formdbConRetry(fp, URL_CITAS, json2);
+                    //citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
                     return;
                 }
 

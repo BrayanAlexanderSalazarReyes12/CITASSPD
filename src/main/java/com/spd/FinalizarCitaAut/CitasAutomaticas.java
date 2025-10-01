@@ -108,10 +108,10 @@ public class CitasAutomaticas {
              "        TO_CHAR(CAST(tb.HORA_SALIDA AS DATE), 'DD/MM/YY HH24:MI:SS') AS HORA_SALIDA, " +
              "        tb.PESO_INGRESO,  " +
              "        tb.PESO_SALIDA, " +
-             "        ABS(TRUNC(tb.FECHA_ENTRADA) - TRUNC(v.FE_CREACION)) AS DIF_DIAS, " +
+             "        ABS(TRUNC(tb.FECHA_ENTRADA) - TRUNC(v.FECHA_CITA)) AS DIF_DIAS, " +
              "        ROW_NUMBER() OVER ( " +
              "            PARTITION BY v.COD_CITA, t.PLACA " +
-             "            ORDER BY ABS(tb.FECHA_ENTRADA - v.FE_CREACION) ASC " +
+             "            ORDER BY ABS(tb.FECHA_ENTRADA - v.FECHA_CITA) ASC " +
              "        ) AS rn " +
              "    FROM SPD_CITAS v " +
              "    JOIN SPD_CITA_VEHICULOS t ON t.COD_CITA = v.COD_CITA " +
@@ -120,7 +120,7 @@ public class CitasAutomaticas {
              "    WHERE t.ESTADO = 'ACTIVA' " +
              "      AND t.HORA_CITAS IS NOT NULL " +
              "      AND tb.HORA_SALIDA IS NOT NULL " +
-             "      AND tb.FECHA_ENTRADA BETWEEN v.FE_CREACION - 2 AND v.FE_CREACION + 2 " +
+             "      AND tb.FECHA_ENTRADA BETWEEN v.FECHA_CITA - 2 AND v.FECHA_CITA + 2 " +
              ") sub " +
              "WHERE rn = 1";
             

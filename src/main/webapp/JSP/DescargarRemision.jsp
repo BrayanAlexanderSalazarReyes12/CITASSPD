@@ -6,26 +6,37 @@
 
 <%@page import="java.io.OutputStream"%>
 <%@page import="java.util.Base64"%>
+<%@page import="java.io.*" %>
 
 <%
     String nombre = request.getParameter("nombre");
-    String base64 = request.getParameter("base64");
+    String ruta = request.getParameter("ruta");
 
-    if (base64 != null && nombre != null) {
-        // Eliminar encabezado si lo tiene
-        base64 = base64.replaceFirst("^data:application/pdf;base64,", "");
+    if (ruta != null && nombre != null) {
+        File archivo = new File(ruta);
 
-        byte[] decodedBytes = Base64.getDecoder().decode(base64);
+        if (archivo.exists() && archivo.isFile()) {
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment;filename=\"" + nombre + "\"");
+            response.setContentLength((int) archivo.length());
 
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment;filename=\"" + nombre + "\"");
-        response.setContentLength(decodedBytes.length);
+            FileInputStream fis = new FileInputStream(archivo);
+            OutputStream os = response.getOutputStream();
 
-        OutputStream os = response.getOutputStream();
-        os.write(decodedBytes);
-        os.flush();
-        os.close();
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+
+            fis.close();
+            os.flush();
+            os.close();
+        } else {
+            out.println("Error: archivo no encontrado en la ruta especificada.");
+        }
     } else {
-        out.println("Error: archivo no disponible.");
+        out.println("Error: parámetros 'nombre' o 'ruta' faltantes.");
     }
 %>

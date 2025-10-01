@@ -77,18 +77,46 @@
             <version>1.6.2</version>
         </dependency>
         
-        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+        <!-- Núcleo POI -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>5.4.1</version>
+            <version>3.10.1</version>
         </dependency>
-        
-        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+
+        <!-- Formatos OOXML (.xlsx, .docx, etc) -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>3.9</version>
+            <version>3.10.1</version>
+        </dependency>
+
+        <!-- Esquemas OOXML (necesario para Excel XLSX avanzado) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-schemas</artifactId>
+            <version>3.10.1</version>
+        </dependency>
+
+        <!-- XMLBeans requerido por POI -->
+        <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <!-- Librería para manejo XML usada por POI -->
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+
+        <!-- StAX API necesaria en JDK 6 -->
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>1.0.1</version>
         </dependency>
     </dependencies>
 
