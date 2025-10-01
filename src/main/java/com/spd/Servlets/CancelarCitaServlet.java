@@ -154,7 +154,7 @@ public class CancelarCitaServlet extends HttpServlet {
             cancelacioncita.put("codcita", registro);
             cancelacioncita.put("placa", placa);
             cancelacioncita.put("manifiesto", manifiesto);
-            //cancelacioncita.put("usuMovimiento",USLOGIN);
+            cancelacioncita.put("usuMovimiento",USLOGIN);
             
             // Crear una lista y agregar el mapa
             List<Map<String, Object>> listaCancelaciones = new ArrayList<>();

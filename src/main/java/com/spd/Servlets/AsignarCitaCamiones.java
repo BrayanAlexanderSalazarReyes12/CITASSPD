@@ -76,7 +76,7 @@ public class AsignarCitaCamiones extends HttpServlet {
                     Map<String, String> data = new HashMap<>();
                     data.put("codigo", registro);
                     data.put("estado", "Asignado");
-                    //data.put("usuAprobacion",USLOGIN);
+                    data.put("usuAprobacion",USLOGIN);
                     data.put("cedula", vehiculo.get("cedula"));
                     data.put("fe_aprobacion", fecha+":00-05:00");
                     data.put("nom_conductor", vehiculo.get("nombre"));
@@ -90,7 +90,7 @@ public class AsignarCitaCamiones extends HttpServlet {
                     data.put("codigo", registro);
                     data.put("estado", "Asignado");
                     data.put("manifiesto",vehiculo.get("manifiesto"));
-                    //data.put("usuAprobacion",USLOGIN);
+                    data.put("usuAprobacion",USLOGIN);
                     data.put("cedula", vehiculo.get("cedula"));
                     data.put("fe_aprobacion", fecha+":00-05:00");
                     data.put("nom_conductor", vehiculo.get("nombre"));

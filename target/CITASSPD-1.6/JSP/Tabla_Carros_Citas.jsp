@@ -184,7 +184,7 @@
                                 <td>
                                     <input type="button" 
                                            value="Remision valorizada"
-                                           onclick="descargarPDF('<%= listado.getFacturaRemision() %>.pdf', '<%= listado.getArchivo().replaceAll("\n", "").replaceAll("\r", "").replaceAll("'", "\\\\'") %>')">
+                                           onclick="descargarPDF('<%= listado.getFacturaRemision().replace("'", "\\'") %>.pdf', '<%= listado.getArchivo().replaceAll("[\\n\\r]", "").replace("'", "\\\\'") %>')">
                                 </td>
                                 <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
                                 <td>
@@ -403,35 +403,30 @@
         %>
     </div>
     <script>
-        function descargarPDF(nombre, base64) {
+        function descargarPDF(nombre, ruta) {
             const form = document.createElement("form");
             form.method = "post";
             form.action = "DescargarRemision.jsp";
             form.target = "_blank";
 
-            const input1 = document.createElement("input");
-            input1.type = "hidden";
-            input1.name = "nombre";
-            input1.value = nombre;
+            const inputNombre = document.createElement("input");
+            inputNombre.type = "hidden";
+            inputNombre.name = "nombre";
+            inputNombre.value = nombre;
 
-            const input2 = document.createElement("input");
-            input2.type = "hidden";
-            input2.name = "base64";
-            input2.value = base64;
+            const inputRuta = document.createElement("input");
+            inputRuta.type = "hidden";
+            inputRuta.name = "ruta";
+            inputRuta.value = ruta;
 
-            const accion = document.createElement("input");
-            accion.type = "hidden";
-            accion.name = "accion";
-            accion.value = "descargar";
-
-            form.appendChild(input1);
-            form.appendChild(input2);
-            form.appendChild(accion);
+            form.appendChild(inputNombre);
+            form.appendChild(inputRuta);
 
             document.body.appendChild(form);
             form.submit();
             document.body.removeChild(form);
         }
+
     </script>
 
     <script>
