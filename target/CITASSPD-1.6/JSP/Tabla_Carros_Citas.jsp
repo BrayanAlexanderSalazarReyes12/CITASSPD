@@ -1,3 +1,4 @@
+<%@page import="java.io.File"%>
 <%@page import="com.spd.Productos.Producto"%>
 <%@page import="java.time.LocalDateTime"%>
 <%@page import="java.time.OffsetDateTime"%>
@@ -182,9 +183,27 @@
                                 <td><%= vehiculo.getFechaOfertaSolicitud() == null ? fechaSinZona : vehiculo.getFechaOfertaSolicitud() %></td>
                                 <% System.out.println(fechaSinZona + "" + vehiculo.getFechaOfertaSolicitud()); %>
                                 <td>
+                                    <%
+                                        // Limpiar y normalizar archivo
+                                        String archivo = listado.getArchivo()
+                                                .replaceAll("[\\r\\n]", "")   // quitar saltos de línea
+                                                .replace("'", "\\\\'")        // escapar comillas simples
+                                                .trim();
+
+                                        // Solo nombre del archivo
+                                        String nombreArchivo = new File(archivo).getName();
+
+                                        // Normalizar extensión: si termina en .pdf.pdf lo deja en .pdf
+                                        nombreArchivo = nombreArchivo.replaceAll("\\.pdf+$", "");
+
+                                        // Nombre sin extensión
+                                        String nombreSinExt = nombreArchivo.replaceAll("\\.pdf$", "");
+                                    %>
+
                                     <input type="button" 
                                            value="Remision valorizada"
-                                           onclick="descargarPDF('<%= listado.getFacturaRemision().replace("'", "\\'") %>.pdf', '<%= listado.getArchivo().replaceAll("[\\n\\r]", "").replace("'", "\\\\'") %>')">
+                                           onclick="descargarPDF('<%= nombreArchivo %>', '<%= listado.getArchivo().replaceAll("[\\n\\r]", "").replace("'", "\\\\'") %>')">
+
                                 </td>
                                 <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
                                 <td>

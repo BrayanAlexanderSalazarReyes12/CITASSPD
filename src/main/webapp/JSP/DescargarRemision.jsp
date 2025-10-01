@@ -5,38 +5,43 @@
 --%>
 
 <%@page import="java.io.OutputStream"%>
-<%@page import="java.util.Base64"%>
-<%@page import="java.io.*" %>
+<%@page import="java.io.FileInputStream"%>
+<%@page import="java.io.File"%>
 
 <%
     String nombre = request.getParameter("nombre");
-    String ruta = request.getParameter("ruta");
 
-    if (ruta != null && nombre != null) {
+    if (nombre != null) {
+        String ruta = "E:\\T\\SPD\\" + nombre;
         File archivo = new File(ruta);
 
         if (archivo.exists() && archivo.isFile()) {
             response.setContentType("application/pdf");
-            response.setHeader("Content-Disposition", "attachment;filename=\"" + nombre + "\"");
+            response.setHeader("Content-Disposition", "attachment;filename=\"" + archivo.getName() + "\"");
             response.setContentLength((int) archivo.length());
 
-            FileInputStream fis = new FileInputStream(archivo);
-            OutputStream os = response.getOutputStream();
+            FileInputStream fis = null;
+            OutputStream os = null;
+            try {
+                fis = new FileInputStream(archivo);
+                os = response.getOutputStream();
 
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                os.write(buffer, 0, bytesRead);
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = fis.read(buffer)) != -1) {
+                    os.write(buffer, 0, bytesRead);
+                }
+                os.flush();
+            } catch (Exception e) {
+                out.println("Error leyendo archivo: " + e.getMessage());
+            } finally {
+                if (fis != null) try { fis.close(); } catch (Exception e) {}
+                // No cerramos os porque es el stream de la respuesta
             }
-
-            fis.close();
-            os.flush();
-            os.close();
         } else {
-            out.println("Error: archivo no encontrado en la ruta especificada.");
+            out.println("Error: archivo no encontrado en la ruta -> " + ruta);
         }
     } else {
-        out.println("Error: parámetros 'nombre' o 'ruta' faltantes.");
+        out.println("Error: parámetro 'nombre' faltante.");
     }
 %>
