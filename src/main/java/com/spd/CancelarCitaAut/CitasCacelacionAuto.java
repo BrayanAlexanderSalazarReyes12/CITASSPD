@@ -8,6 +8,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.spd.API.FormularioPost;
 import com.spd.FinalizarCitaAut.CitasAutomaticas;
+import com.spd.Operaciones.Operaciones;
+import com.spd.Operaciones.TipoOperacion;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -167,22 +169,25 @@ public class CitasCacelacionAuto {
         
         Map<String, Object> variables = new LinkedHashMap<>();
         variables.put("sistemaEnturnamiento", sistemaEnturnamiento);
-        String operacion = cita.getOperacion();
-
-        if (operacion != null) {
-            if (operacion.trim().toLowerCase().startsWith("Carrotanque")) {
-                // Es una operación de descargue
-                variables.put("tipoOperacionId", "2");
-            } else if (operacion.toLowerCase().contains("- Carrotanque")) {
-                // Es una operación de cargue
-                variables.put("tipoOperacionId", "1");
-            } else {
-                // No se puede determinar el tipo, asigna por defecto o lanza error
-                variables.put("tipoOperacionId", "operacion de cargue".equalsIgnoreCase(cita.getOperacion()) ? "1" : "2");
+        
+        Operaciones dao = new Operaciones();
+        
+        try {
+            List<TipoOperacion> operaciones = dao.LectorOpeaciones(DB_URL, DB_USER, DB_PASSWORD);
+            
+            for (TipoOperacion op : operaciones) {
+                if (op.getOPERACION().equalsIgnoreCase(cita.getOperacion())) {
+                    System.out.println("✅ Coincidencia encontrada:");
+                    System.out.println("Operación: " + op.getOPERACION());
+                    System.out.println("Tipo: " + op.getTIPO_OPERACION());
+                    variables.put("tipoOperacionId", op.getTIPO_OPERACION());
+                }
             }
-        } else {
-            // operación es null, asigna valor por defecto
-            variables.put("tipoOperacionId", "0");
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(CitasCacelacionAuto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(CitasCacelacionAuto.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         variables.put("empresaTransportadoraNit", cita.getNitTransportadora());
@@ -221,8 +226,10 @@ public class CitasCacelacionAuto {
         
         if ("operacion de descargue".equals(cita.getOperacion()) 
             || "operacion de cargue".equals(cita.getOperacion())
-            || cita.getOperacion().trim().toLowerCase().startsWith("Carrotanque")
-            || cita.getOperacion().toLowerCase().contains("- Carrotanque")) {
+            || "Carrotanque - Barcaza".equals(cita.getOperacion())
+            || "Barcaza - Carrotanque".equals(cita.getOperacion())
+            || "Carrotanque - Tanque".equals(cita.getOperacion())
+            || "Tanque - Carrotanque".equals(cita.getOperacion())) {
             
             String jsonMinisterio = gson.toJson(buildJsonMinisterio(cita));
             String jsonLocal = gson.toJson(buildJsonCancelacion(cita));

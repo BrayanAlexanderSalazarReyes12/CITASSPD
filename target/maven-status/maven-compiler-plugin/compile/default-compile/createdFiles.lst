@@ -67,8 +67,10 @@ com\spd\Productos\Producto.class
 com\spd\CItasDB\CantCitasProgram.class
 com\spd\Model\Usuarios_Tanques.class
 com\spd\citas\vehiculos\CitaVehiculo.class
+com\spd\Operaciones\Operaciones.class
 com\spd\CrearUsuarioJson\ActualizarUsuarioCompleto.class
 com\spd\Servlets\Finalizarcita.class
+com\spd\Operaciones\TipoOperacion.class
 com\spd\CreacionUsuarioNit\CreacionUsuarioEmpresaTransportadora.class
 com\spd\informacionCita\EstadoCIta.class
 com\spd\Servlets\CerrarSeccion.class
