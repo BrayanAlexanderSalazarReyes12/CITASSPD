@@ -165,14 +165,14 @@
             %>
                 <input type="submit" value="Crear Usuario" onclick="navegarInternamente('./JSP/CrearUsuario.jsp')"/>
                 <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('./JSP/ListadoUsuarios.jsp')"/>
+                <input type="submit" value="Listado de Citas" onclick="navegarInternamente('./JSP/Listados_Citas.jsp')"/>
             <%
-                } else if (rolObj != null && ((Integer) rolObj) != 5){
+                } else if (rolObj != null && ((Integer) rolObj) != 5 && ((Integer) rolObj) != 7){
             %>
                 <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('./JSP/OperacionesActivas.jsp')">
             <%
                 }
             %>
-            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('./JSP/Listados_Citas.jsp')"/>
             <input type="submit" value="Cerrar Sesión" onclick="window.location.href='./CerrarSeccion'"/>
         </div>
     </header>

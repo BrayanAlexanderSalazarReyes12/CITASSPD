@@ -121,9 +121,8 @@
                     ResultadoCitas rc = ldao.ObtenerContratos();
                     List<ListadoCItas> ListadoCitas = rc.getCitasVehiculos();
                     List<ListadoCItas> ListadoCitas2 = rc.getCitasVehiculos2();
-                    List<ListadoCitasBar> listadoCitasBars = rc.getCitasBarcazas();
                     
-                    if(ListadoCitas.isEmpty() && listadoCitasBars.isEmpty() && ListadoCitas2.isEmpty()){
+                    if(ListadoCitas.isEmpty() && ListadoCitas2.isEmpty()){
                 %>
                     <h1>⚠ No hay citas disponibles en este momento.</h1>
                 <%
@@ -286,6 +285,114 @@
                                                 <th>Manifiesto</th>
                                                 <th>Compañia</th>
                                                 <th>Fecha</th>
+                                                <th>Ingreso Carrotanque</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <%
+                                                for (ListadoCItas listado : ListadoCitas2) {
+                                                    
+                                                    String nit_final = nit.replaceAll("[^0-9]", "");
+                                                    
+                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                    List<Cliente> clientes = Arrays.asList(
+                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                        new Cliente("9018263370", "CONQUERS ZF")
+                                                    );
+                                                    
+                                                    String empresaUsuario = null;
+
+                                                    // Buscar la empresa asociada al NIT
+                                                    for (Cliente cliente : clientes) {
+                                                        if (cliente.getNit().equals(listado.getNit())) {
+                                                            empresaUsuario = cliente.getEmpresa();
+                                                            break;
+                                                        }
+                                                    }
+                                                    System.out.println("empresa: " + empresaUsuario);
+                                                    
+                                                    System.out.println(listado.getNit() + " " + nit_final);
+                                                
+                                                    // Convertir a OffsetDateTime (zona UTC, puedes cambiar el offset si deseas)
+                                                    OffsetDateTime offsetDateTime = Instant.ofEpochMilli(listado.getFeAprobacion()).atOffset(ZoneOffset.UTC);
+
+                                                    // Obtener LocalDate
+                                                    LocalDate fechaCita = offsetDateTime.toLocalDate();
+
+                                                    // Formatear con fecha y hora
+                                                    String fechaConHora = offsetDateTime.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                                                    if (fechaCita.equals(hoy)) {
+                                                        boolean mostrar = filtro == null || 
+                                                            (listado.getPlaca() != null && listado.getPlaca().toLowerCase().contains(filtro)) ||
+                                                            (listado.getManifiesto() != null && listado.getManifiesto().toLowerCase().contains(filtro));
+
+                                                        if (mostrar) {
+                                            %>
+                                            <%
+                                                        }
+                                                    }
+
+                                                    // Vehículos asociados
+                                                    List<ListaVehiculos> vehiculos = listado.getVehiculos();
+                                                    if (vehiculos != null) {
+                                                        for (ListaVehiculos v : vehiculos) {
+                                                            String fechaStr = v.getFechaOfertaSolicitud();
+                                                            if (fechaStr != null && !fechaStr.isEmpty()) {
+                                                                LocalDateTime fechaVehiculo = LocalDateTime.parse(fechaStr, DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a", Locale.ENGLISH));
+                                                                // Formatear sin la T
+                                                                String fechaFormateada = fechaVehiculo.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
+                                                                System.out.println(fechaFormateada);
+                                                                if (fechaVehiculo.toLocalDate().equals(hoy)) {
+                                                                    boolean mostrarVehiculo = filtro == null ||
+                                                                        (v.getVehiculoNumPlaca() != null && v.getVehiculoNumPlaca().toLowerCase().contains(filtro)) ||
+                                                                        (v.getNumManifiestoCarga() != null && v.getNumManifiestoCarga().toLowerCase().contains(filtro));
+
+                                                                    if (mostrarVehiculo) {
+                                            %>
+                                            <tr>
+                                                <td><%= v.getVehiculoNumPlaca() %></td>
+                                                <td><%= v.getConductorCedulaCiudadania() %></td>
+                                                <td><%= v.getNombreConductor() %></td>
+                                                <td><%= v.getNumManifiestoCarga() %></td>
+                                                <td><%= empresaUsuario %></td>
+                                                <td><%= fechaFormateada %></td>
+                                                <td><input type="submit" onclick="" value="INGRESAR"></td>
+                                            </tr>
+                                            <%
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            %>
+                                        </tbody>
+                                    </table>
+                                    
+                                    <%
+                                            }else if(rol == 8){ 
+                                    %>
+                                            <h3>📋 Lista de citas de camiones del día - <%= hoy %></h3>
+                                    <table id="myTable" class="display">
+                                        <thead>
+                                            <tr>
+                                                <th>Placa</th>
+                                                <th>Cedula conductor</th>
+                                                <th>Nombre conductor</th>
+                                                <th>Manifiesto</th>
+                                                <th>Compañia</th>
+                                                <th>Fecha</th>
                                                 <th>Fmm</th>
                                                 <th>Copiar FMM</th>
                                             </tr>
@@ -406,7 +513,7 @@
                                         }
                                     </script>
                                     <%
-                                            } else if (rol == 2) {
+                                            }else if (rol == 2) {
                                     %>
                                     <h3>📋 Lista de citas de camiones</h3>
                                     <table id="myTable" class="display">

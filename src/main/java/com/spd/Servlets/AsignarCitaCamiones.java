@@ -105,6 +105,7 @@ public class AsignarCitaCamiones extends HttpServlet {
                 // Enviar a API
                 FormularioPost fp = new FormularioPost();
                 String apiUrl = "http://www.siza.com.co/spdcitas-1.0/api/citas/aprobacion";
+                String apiUrl_directo = "http://127.0.0.1:26480/spdcitas-1.0/api/citas/aprobacion";
                 String APIPRUEBA = "http://192.168.10.80:26480/spdcitas/api/citas/aprobacion";
 
                 try {
@@ -115,6 +116,7 @@ public class AsignarCitaCamiones extends HttpServlet {
                     // Pasar como atributo al request
                     request.setAttribute("vehiculosFinales", listaFinal);
                     request.setAttribute("vehiculosFinalescorreo", listaFinalCorreo);
+                    request.setAttribute("apiResponse", apiResponse); // 🔹 Aquí pasas la respuesta de la API
                     // Llamar al servlet (por forward)
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/EnviarCorreoConfirmacionCIta");
                     dispatcher.forward(request, response);

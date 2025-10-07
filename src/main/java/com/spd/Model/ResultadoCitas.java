@@ -13,12 +13,10 @@ import java.util.List;
 public class ResultadoCitas {
     private List<ListadoCItas> citasVehiculos;
     private List<ListadoCItas> citasVehiculos2;
-    private List<ListadoCitasBar> citasBarcazas;
 
-    public ResultadoCitas(List<ListadoCItas> citasVehiculos, List<ListadoCItas> citasVehiculos2, List<ListadoCitasBar> citasBarcazas) {
+    public ResultadoCitas(List<ListadoCItas> citasVehiculos, List<ListadoCItas> citasVehiculos2) {
         this.citasVehiculos = citasVehiculos;
         this.citasVehiculos2 = citasVehiculos2;
-        this.citasBarcazas = citasBarcazas;
     }
     
     public List<ListadoCItas> getCitasVehiculos2() {
@@ -27,9 +25,5 @@ public class ResultadoCitas {
 
     public List<ListadoCItas> getCitasVehiculos() {
         return citasVehiculos;
-    }
-
-    public List<ListadoCitasBar> getCitasBarcazas() {
-        return citasBarcazas;
     }
 }

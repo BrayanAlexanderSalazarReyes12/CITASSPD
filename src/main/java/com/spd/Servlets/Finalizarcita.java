@@ -107,7 +107,7 @@ public class Finalizarcita extends HttpServlet {
                     USUARIOMINTRASPOR, CONTRAMINTRASPOR, RIEN));
 
             // 🔹 Construir JSON Local
-            String jsonLocal = gson.toJson(buildJsonFinalizacion(cita));
+            String jsonLocal = gson.toJson(buildJsonFinalizacion(cita,USLOGIN));
 
             System.out.println("➡️ Enviando cita placa: " + cita.getVehiculoNumPlaca());
 
@@ -180,12 +180,13 @@ public class Finalizarcita extends HttpServlet {
         return finalJson;
     }
 
-    private List<Map<String, Object>> buildJsonFinalizacion(CitaFInal cita) {
+    private List<Map<String, Object>> buildJsonFinalizacion(CitaFInal cita, String USLOGIN) {
         List<Map<String, Object>> listaFinal = new ArrayList<>();
         Map<String, Object> data = new HashMap<>();
         data.put("codcita", cita.Gettregistro());
         data.put("placa", cita.getVehiculoNumPlaca());
         data.put("manifiesto", cita.getNumManifiestoCarga());
+        data.put("usuMovimiento",USLOGIN);
         listaFinal.add(data);
         return listaFinal;
     }
@@ -193,8 +194,8 @@ public class Finalizarcita extends HttpServlet {
     private void registrarLocal(FormularioPost fp, String apiUrl, String jsonLocal,
                                 CitaFInal cita, HttpServletRequest request, HttpServletResponse response) {
         try {
-            fp.FinalizarCita(apiUrl, jsonLocal);
-
+            String res = fp.FinalizarCita(apiUrl, jsonLocal);
+            System.out.println(res);
             String registro = cita.Gettregistro();
             Map<String, String> vehiculosMap = new HashMap<>();
             vehiculosMap.put("rol", "Transportador");

@@ -23,6 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
   /**
  *
  * @author braya
@@ -32,38 +34,52 @@ public class ListadoDAO {
     public ResultadoCitas ObtenerContratos() {
         List<ListadoCItas> listado = new ArrayList<>();
         List<ListadoCItas> listado2 = new ArrayList<>();
-        List<ListadoCitasBar> listadobr = new ArrayList<>();
 
         String url = "http://www.siza.com.co/spdcitas-1.0/api/citas/?estado=PROGRAMADA";
         String url2 = "http://www.siza.com.co/spdcitas-1.0/api/citas/?estado=AGENDADA";
-        String url1 = "http://www.siza.com.co/spdcitas-1.0/api/citas/barcazas/?estado=PROGRAMADA";
 
         FormularioPost fp = new FormularioPost();
 
         try {
-            String respuestaJson = fp.ListarCitasVehiculos(url);
-            String respuestaJson1 = fp.ListarCitasVehiculos(url1);
-            String respuestaJson2 = fp.ListarCitasVehiculos(url2);
+            // Ejecutar llamadas HTTP en paralelo
+            CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return fp.ListarCitasVehiculos(url);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            CompletableFuture<String> future3 = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return fp.ListarCitasVehiculos(url2);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            // Esperar a que todas finalicen
+            CompletableFuture.allOf(future1, future3).join();
+
+            String respuestaJson = future1.get();
+            String respuestaJson2 = future3.get();
 
             Gson gson = new Gson();
             Type listType = new TypeToken<List<ListadoCItas>>(){}.getType();
             listado = gson.fromJson(respuestaJson, listType);
 
-            Type listType1 = new TypeToken<List<ListadoCitasBar>>(){}.getType();
-            listadobr = gson.fromJson(respuestaJson1, listType1);
-
             Type listType2 = new TypeToken<List<ListadoCItas>>(){}.getType();
             listado2 = gson.fromJson(respuestaJson2, listType2);
-            
-            System.out.println("Listado de citas barcazas recibido: " + listadobr.size() + " registros.");
 
-        } catch (IOException e) {
+            
+        } catch (InterruptedException | ExecutionException e) {
             System.err.println("Error al obtener contratos desde API: " + e.getMessage());
             e.printStackTrace();
         }
 
-        return new ResultadoCitas(listado, listado2, listadobr);
+        return new ResultadoCitas(listado, listado2);
     }
+
     
     public boolean InsertarCita(String jsonVariables) {
         Connection conn = null;

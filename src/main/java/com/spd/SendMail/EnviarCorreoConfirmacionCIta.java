@@ -26,6 +26,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -45,61 +46,72 @@ public class EnviarCorreoConfirmacionCIta extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+            // Destinatarios del correo
+            String[] destinatarios = { "bsalazar@zofranca.com" };
 
-        // Destinatarios del correo
-        String[] destinatarios = { "bsalazar@zofranca.com" };
+            // Recuperar datos de la cita
+            String NombreEmpresa = (String) request.getAttribute("NombreEmpresa");
+            String fecha = (String) request.getAttribute("fe_aprobacion");
+            String apiResponse = (String) request.getAttribute("apiResponse"); // 🔹 respuesta de la API
 
-        // Recuperar datos de la cita (puedes quitar si no usas JSON)
-        String NombreEmpresa = (String) request.getAttribute("NombreEmpresa");
-        String fecha = (String) request.getAttribute("fe_aprobacion");
+            if (NombreEmpresa == null) NombreEmpresa = "N/A";
+            if (fecha == null) fecha = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date());
+            if (apiResponse == null) apiResponse = "Sin respuesta de API";
 
-        if (NombreEmpresa == null) NombreEmpresa = "N/A";
-        if (fecha == null) fecha = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date());
+            // Recuperar lista de vehículos
+            List<Map<String, String>> vehiculosFinales = 
+                    (List<Map<String, String>>) request.getAttribute("vehiculosFinales");
 
-        // Recuperar lista de vehículos enviada como atributo
-        List<Map<String, String>> vehiculosFinales = (List<Map<String, String>>) request.getAttribute("vehiculosFinales");
+            // === Construcción del mensaje HTML ===
+            StringBuilder mensaje = new StringBuilder();
+            mensaje.append("<h3>AUTORIZACIÓN DE INGRESO</h3>");
+            mensaje.append("<p><b>FECHA:</b> ").append(formatearFecha(fecha)).append("</p>");
+            mensaje.append("<p><b>CLIENTE:</b> ").append(NombreEmpresa).append("</p>");
 
-        // === Construcción del mensaje HTML ===
-        StringBuilder mensaje = new StringBuilder();
-        mensaje.append("<h3>AUTORIZACIÓN DE INGRESO</h3>");
-        mensaje.append("<p><b>FECHA:</b> ").append(formatearFecha(fecha)).append("</p>");
-        mensaje.append("<p><b>CLIENTE:</b> ").append(NombreEmpresa).append("</p>");
+            // 🔹 Mostrar la respuesta de la API
+            mensaje.append("<p><b>ESTADO API:</b> ").append(apiResponse).append("</p>");
 
-        mensaje.append("<br><table border='1' cellpadding='5' cellspacing='0'>");
-        mensaje.append("<tr><th>ITEM</th><th>PLACA</th><th>TRAILER</th><th>MANIFIESTO</th><th>CONDUCTOR</th><th>CEDULA</th><th>PRODUCTO</th><th>NIT-TRANSPORTADORA</th></tr>");
+            mensaje.append("<br><table border='1' cellpadding='5' cellspacing='0'>");
+            mensaje.append("<tr><th>ITEM</th><th>PLACA</th><th>TRAILER</th><th>MANIFIESTO</th>"
+                         + "<th>CONDUCTOR</th><th>CEDULA</th><th>PRODUCTO</th><th>NIT-TRANSPORTADORA</th></tr>");
 
-        if (vehiculosFinales != null && !vehiculosFinales.isEmpty()) {
-            for (int i = 0; i < vehiculosFinales.size(); i++) {
-                Map<String, String> v = vehiculosFinales.get(i);
-                mensaje.append("<tr>");
-                mensaje.append("<td>").append(i + 1).append("</td>");
-                mensaje.append("<td>").append(v.get("placa")).append("</td>");
-                mensaje.append("<td>").append("N/A").append("</td>"); // Trailer (si no lo tienes)
-                mensaje.append("<td>").append(v.get("manifiesto")).append("</td>"); // Manifiesto (si no lo tienes)
-                mensaje.append("<td>").append(v.get("nom_conductor")).append("</td>");
-                mensaje.append("<td>").append(v.get("cedula")).append("</td>");
-                mensaje.append("<td>").append("N/A").append("</td>"); // Producto (si no lo tienes)
-                mensaje.append("<td>").append("N/A").append("</td>"); // NIT transportadora (si no lo tienes)
-                mensaje.append("</tr>");
+            if (vehiculosFinales != null && !vehiculosFinales.isEmpty()) {
+                for (int i = 0; i < vehiculosFinales.size(); i++) {
+                    Map<String, String> v = vehiculosFinales.get(i);
+                    mensaje.append("<tr>");
+                    mensaje.append("<td>").append(i + 1).append("</td>");
+                    mensaje.append("<td>").append(v.get("placa")).append("</td>");
+                    mensaje.append("<td>").append("N/A").append("</td>");
+                    mensaje.append("<td>").append(v.get("manifiesto")).append("</td>");
+                    mensaje.append("<td>").append(v.get("nom_conductor")).append("</td>");
+                    mensaje.append("<td>").append(v.get("cedula")).append("</td>");
+                    mensaje.append("<td>").append("N/A").append("</td>");
+                    mensaje.append("<td>").append("N/A").append("</td>");
+                    mensaje.append("</tr>");
+                }
+            } else {
+                mensaje.append("<tr><td colspan='8'>No se encontraron vehículos.</td></tr>");
             }
-        } else {
-            mensaje.append("<tr><td colspan='8'>No se encontraron vehículos.</td></tr>");
-        }
 
-        mensaje.append("</table>");
+            mensaje.append("</table>");
 
-        // === Enviar correo ===
-        try {
-            String asunto = "AUTORIZACIÓN INGRESO VEHÍCULOS - " 
-                    + NombreEmpresa.toUpperCase()
-                    + " - " + formatearFecha(fecha);
+            // === Enviar correo ===
+            try {
+                String asunto = "AUTORIZACIÓN INGRESO VEHÍCULOS - " 
+                        + NombreEmpresa.toUpperCase()
+                        + " - " + formatearFecha(fecha);
 
-            enviarCorreo(destinatarios, asunto, mensaje.toString());
-            //request.getSession().setAttribute("errorMsg", "CITA CREADA CON ÉXITO!!!");
-            response.sendRedirect(request.getContextPath() + "/JSP/Listados_Citas.jsp");
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Error al enviar correo", e);
-        }
+                enviarCorreo(destinatarios, asunto, mensaje.toString());
+
+                
+                // Redirigir al JSP usando forward
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/JSP/Listados_Citas_Error.jsp");
+                dispatcher.forward(request, response);
+
+            } catch (Exception e) {
+                LOG.log(Level.SEVERE, "Error al enviar correo", e);
+            }
+
     }
 
     private void enviarCorreo(String[] destinatarios, String asunto, String contenidoHtml) {

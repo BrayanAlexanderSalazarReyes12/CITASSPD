@@ -179,13 +179,26 @@ public class CitasAutomaticas {
         Map<String, Object> variables = new LinkedHashMap<>();
         variables.put("sistemaEnturnamiento", sistemaEnturnamiento);
         
-        String identificador = "operacion de cargue".equalsIgnoreCase(cita.getOPERACION()) ? "1" : "2";
-        
+        String operacion = cita.getOPERACION();
+
+        if (operacion != null) {
+            if (operacion.trim().toLowerCase().startsWith("Carrotanque")) {
+                // Es una operación de descargue
+                variables.put("tipoOperacionId", "2");
+            } else if (operacion.toLowerCase().contains("- Carrotanque")) {
+                // Es una operación de cargue
+                variables.put("tipoOperacionId", "1");
+            } else {
+                // No se puede determinar el tipo, asigna por defecto o lanza error
+                variables.put("tipoOperacionId", "operacion de cargue".equalsIgnoreCase(cita.getOPERACION()) ? "1" : "2");
+            }
+        } else {
+            // operación es null, asigna valor por defecto
+            variables.put("tipoOperacionId", "0");
+        }
         /*
         identificador = (operacion === "operacion de cargue") ? "1" : "2";
         */
-        
-        variables.put("tipoOperacionId", identificador);
         variables.put("empresaTransportadoraNit", cita.getNitempbascula());
         variables.put("vehiculoNumPlaca", cita.getVehiculoNumPlaca());
         variables.put("conductorCedulaCiudadania", cita.getConductorCedulaCiudadania());
@@ -212,6 +225,7 @@ public class CitasAutomaticas {
         data.put("codcita", cita.getCodcita());
         data.put("placa", cita.getVehiculoNumPlaca());
         data.put("manifiesto", cita.getNumManifiestoCarga());
+        data.put("usuMovimiento","sistemas");
         listaFinal.add(data);
         return listaFinal;
     }
@@ -222,7 +236,9 @@ public class CitasAutomaticas {
         String apiLocalUrl = "http://www.siza.com.co/spdcitas-1.0/api/citas/finalizacion";
 
         if ("operacion de descargue".equals(cita.getOPERACION()) 
-            || "operacion de cargue".equals(cita.getOPERACION())) {
+            || "operacion de cargue".equals(cita.getOPERACION())
+            || cita.getOPERACION().trim().toLowerCase().startsWith("Carrotanque")
+            || cita.getOPERACION().toLowerCase().contains("- Carrotanque")) {
 
             String jsonMinisterio = gson.toJson(buildJsonMinisterio(cita));
             String jsonLocal = gson.toJson(buildJsonFinalizacion(cita));
@@ -246,9 +262,12 @@ public class CitasAutomaticas {
 
                         if (errorCode != 0) {
                             log.info("❌ No se guarda en BD. Error del ministerio: " + errorText);
+                            finalizacionCIta(cita,respMinisterio);
+                            fp.FinalizarCita(apiLocalUrl, jsonLocal);
                         }
                     } else {
                         log.info("✅ Respuesta sin errores, guardando en local.");
+                        finalizacionCIta(cita,respMinisterio);
                         fp.FinalizarCita(apiLocalUrl, jsonLocal);
                     }
                 } catch (Exception e) {
@@ -271,7 +290,46 @@ public class CitasAutomaticas {
             log.info("📌 Guardado local: " + respLocal);
         }
     }
-
+    
+    private void finalizacionCIta(CitaFinalAuto cita, String respuestainside) throws SQLException, IOException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            // Cargar driver Oracle
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            // Conexión
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            
+            // Consulta SQL para insertar datos
+            String sql = "INSERT INTO SPD_FINALIZACION_CITA (COD_CITA, RESPUESTA_INSIDE, FECHA_HORA) VALUES (?, ?, ?)";
+            pstmt = conn.prepareStatement(sql);
+            
+            // Asignación de valores a los parámetros
+            pstmt.setString(1, cita.getCodcita()); // Suponiendo que codCita es un String
+            pstmt.setString(2, respuestainside); // Suponiendo que respuestaInside es un String
+            pstmt.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis())); // Fecha y hora actuales
+            
+            // Ejecutar inserción
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas > 0) {
+                log.info("✅ Inserción realizada correctamente.");
+            } else {
+                log.warning("⚠️ No se insertaron filas.");
+            }
+        
+        }catch (ClassNotFoundException e) {
+            log.log(Level.SEVERE, "\u274c No se encontr\u00f3 el driver JDBC: {0}", e.getMessage());
+        } catch (SQLException e) {
+            log.log(Level.SEVERE, "\u274c Error SQL al obtener informaci\u00f3n de la cita: {0}", e.getMessage());
+            throw e;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+            if (pstmt != null) try { pstmt.close(); } catch (Exception ignored) {}
+            if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+        }
+    }
+    
     /**
      * Envia con reintentos exponenciales para evitar baneo
      */

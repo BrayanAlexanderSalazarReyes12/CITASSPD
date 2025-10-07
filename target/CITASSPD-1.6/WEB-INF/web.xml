@@ -4,6 +4,10 @@
         <description>ServletContextListener</description>
         <listener-class>com.spd.FinalizarCitaAut.SchedulerListener</listener-class>
     </listener>
+    <listener>
+        <description>ServletContextListener</description>
+        <listener-class>com.spd.CancelarCitaAut.SchedulerListenerCanceCita</listener-class>
+    </listener>
     <servlet>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <servlet-class>com.spd.Servlets.Iniciar_Seccion_Servlet</servlet-class>

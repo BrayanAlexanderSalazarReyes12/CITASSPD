@@ -102,7 +102,7 @@
             <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
            <%
                 Object rolObj = session.getAttribute("Rol");
-                if (rolObj != null && ((Integer) rolObj) == 1 && ((Integer) rolObj) != 6) {
+                if (rolObj != null && ((Integer) rolObj) == 1 && ((Integer) rolObj) != 6 && ((Integer) rolObj) != 7) {
             %>
                 <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
                 <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
@@ -112,6 +112,10 @@
                 }else if(rolObj != null && ((Integer) rolObj) == 2){
             %>
                 <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+            <%
+                }else if (rolObj != null && ((Integer) rolObj) == 7){
+            %>
+                <input type="submit" value="Operaciones de Hoy" onclick="navegarInternamente('../ListarOperaciones')"/> 
             <%
                 }
             %>
@@ -146,7 +150,7 @@
         </div>
     </body>
     <%
-        } else if (rolObject1 != null && ((Integer) rolObject1) != 6){
+        } else if (rolObject1 != null && (((Integer) rolObject1) != 6 && ((Integer) rolObject1) != 7 )){
     %>
             
                     <body>
@@ -348,7 +352,7 @@
                                     // Ahora solo tienes los nombres como un array de strings en JS
                                     var nombresBarcazas = <%= nombresBarcazas.toString() %>;
                                     // Agregar barcazas fijas adicionales
-                                    nombresBarcazas.push("Roma 304", "Omega one", "Alpha uno", "MANFU I");
+                                    nombresBarcazas.push("Roma 304", "Omega one", "Alpha uno", "MANFU I", "Remolcador - Doña Clary");
 
                                     if (tipo === "Barcaza - Barcaza") {
                                         // Origen
@@ -435,7 +439,7 @@
                         </div>
                     </body>
                 <%
-                    }else {
+                    }else if (((Integer) rolObj) != 7){
                 %>
 
                     <body>
@@ -513,6 +517,16 @@
                             }
                         </script>
 
+
+                    </body>
+                <%
+                    }else {
+                %>
+                        <body>
+                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                        <div class="contenedor">
+                            <input type="submit" value="Operaciones de Hoy" onclick="navegarInternamente('../ListarOperaciones')"/>
+                        </div>
 
                     </body>
                 <%

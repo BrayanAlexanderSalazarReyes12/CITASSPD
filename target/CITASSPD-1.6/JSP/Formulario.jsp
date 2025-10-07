@@ -487,32 +487,38 @@
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
                 <script>
-                document.getElementById("Fecha").addEventListener("change", function () {
-                    const input = this;
-                    const selected = new Date(input.value);
+document.getElementById("Fecha").addEventListener("change", function () {
+    const input = this;
+    const selected = new Date(input.value); // fecha/hora que el usuario selecciona
+    const now = new Date(); // fecha/hora actual
 
-                    if (isNaN(selected.getTime())) return; // si no hay valor válido
+    if (isNaN(selected.getTime())) return; // fecha inválida
 
-                    const hours = selected.getHours();
-                    const minutes = selected.getMinutes();
+    // Verifica si la fecha seleccionada es hoy
+    const isSameDay =
+        selected.getFullYear() === now.getFullYear() &&
+        selected.getMonth() === now.getMonth() &&
+        selected.getDate() === now.getDate();
 
-                    // Rango permitido: 08:00 a 16:00
-                    const minHour = 8;
-                    const maxHour = 14;
+    // Si es hoy, verifica la hora actual
+    if (isSameDay) {
+        const currentHour = now.getHours();
+        const currentMinutes = now.getMinutes();
 
-                    if (hours < minHour || (hours >= maxHour && minutes > 0)) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Hora inválida',
-                            text: 'La hora seleccionada debe estar entre las 08:00 AM y las 02:00 PM.',
-                            confirmButtonText: 'Entendido',
-                            confirmButtonColor: '#3085d6'
-                        }).then(() => {
-                            input.value = ""; // limpia el valor inválido después del mensaje
-                        });
-                    }
-                });
-                </script>
+        if (currentHour > 14 || (currentHour === 14 && currentMinutes > 0)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'No se puede crear la cita',
+                text: 'Ya no se pueden crear citas para hoy después de las 2:00 PM.',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#3085d6'
+            }).then(() => {
+                input.value = ""; // limpia el input
+            });
+        }
+    }
+});
+</script>
 
 
                 <div class="form-group">
