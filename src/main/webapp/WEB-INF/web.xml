@@ -92,6 +92,10 @@
         <servlet-name>ListarOperaciones</servlet-name>
         <servlet-class>com.spd.citas.vehiculos.ListarOperaciones</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ServeletMovientoCarrotanque</servlet-name>
+        <servlet-class>com.spd.Registro_Ingreso_Salida_Carrotanques.ServeletMovientoCarrotanque</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <url-pattern>/Iniciar_Seccion_Servlet</url-pattern>
@@ -175,6 +179,10 @@
     <servlet-mapping>
         <servlet-name>ListarOperaciones</servlet-name>
         <url-pattern>/ListarOperaciones</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServeletMovientoCarrotanque</servlet-name>
+        <url-pattern>/ServeletMovientoCarrotanque</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

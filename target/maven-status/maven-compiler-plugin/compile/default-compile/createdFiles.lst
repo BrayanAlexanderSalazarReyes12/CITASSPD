@@ -29,6 +29,7 @@ com\spd\CItasDB\CitaBascula.class
 com\spd\ClasesJsonFormularioMinisterio\Acceso.class
 com\spd\Servlets\TipoProductosBarcaza.class
 com\spd\Model\ListadoCitasBar.class
+com\spd\Registro_Ingreso_Salida_Carrotanques\MovimientoCarrotanque.class
 com\spd\informacionCita\CitaInfo.class
 com\spd\API\FormularioPost.class
 com\spd\informacionCita\CitaFInal.class
@@ -45,9 +46,11 @@ com\spd\CancelarCitaAut\SchedulerListenerCanceCita.class
 com\spd\FinalizarCitaAut\SchedulerListener$1.class
 com\spd\API\TipoPorductosGet.class
 com\spd\Servlets\AsignarCitaCamiones$1.class
+com\spd\Registro_Ingreso_Salida_Carrotanques\ServeletMovientoCarrotanque.class
 com\spd\citas\vehiculos\CitasPorEmpresa.class
 com\spd\CancelarCitaAut\CitasCacelacionAuto.class
 com\spd\DAO\ListadoUsuarios.class
+com\spd\Registro_Ingreso_Salida_Carrotanques\InformacionCarrotanque.class
 com\spd\Servlets\Iniciar_Seccion_Servlet.class
 com\spd\Model\FormularioCompletoSPDCARROTANQUE.class
 com\spd\CItasDB\BarcazaCita.class

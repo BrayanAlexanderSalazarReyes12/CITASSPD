@@ -60,9 +60,10 @@
             <h4>VERSION: 1.8</h4>
         </div>
     </div>
-
+    
     <script>
         // Mostrar SweetAlert2 al cargar la página
+        /*
         window.onload = function() {
             Swal.fire({
                 title: '📢 Actualización Importante',
@@ -82,6 +83,7 @@
                 allowOutsideClick: true
             });
         }
+         */
     </script>
 </body>
 </html>

@@ -4,6 +4,8 @@
     Author     : braya
 --%>
 
+<%@page import="com.spd.Registro_Ingreso_Salida_Carrotanques.MovimientoCarrotanque"%>
+<%@page import="com.spd.Registro_Ingreso_Salida_Carrotanques.InformacionCarrotanque"%>
 <%@page import="java.nio.charset.StandardCharsets"%>
 <%@page import="java.net.URLDecoder"%>
 <%@page import="com.spd.CItasDB.ListaVehiculos"%>
@@ -118,9 +120,12 @@
         <div>
                 <%
                     ListadoDAO ldao = new ListadoDAO();
+                    MovimientoCarrotanque.inicializarDesdeContexto(request.getServletContext());
+                    MovimientoCarrotanque mcdao = new MovimientoCarrotanque();
                     ResultadoCitas rc = ldao.ObtenerContratos();
                     List<ListadoCItas> ListadoCitas = rc.getCitasVehiculos();
                     List<ListadoCItas> ListadoCitas2 = rc.getCitasVehiculos2();
+                    List<InformacionCarrotanque> ListadoCarrotanque = mcdao.LectorMovCarrotanque();
                     
                     if(ListadoCitas.isEmpty() && ListadoCitas2.isEmpty()){
                 %>
@@ -279,6 +284,7 @@
                                     <table id="myTable" class="display">
                                         <thead>
                                             <tr>
+                                                <th>CODCITA</th>
                                                 <th>Placa</th>
                                                 <th>Cedula conductor</th>
                                                 <th>Nombre conductor</th>
@@ -290,96 +296,229 @@
                                         </thead>
                                         <tbody>
                                             <%
-                                                for (ListadoCItas listado : ListadoCitas2) {
-                                                    
-                                                    String nit_final = nit.replaceAll("[^0-9]", "");
-                                                    
-                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                    List<Cliente> clientes = Arrays.asList(
-                                                        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
-                                                        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
-                                                        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
-                                                        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
-                                                        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("9018263370", "CONQUERS ZF")
-                                                    );
-                                                    
-                                                    String empresaUsuario = null;
+                                            for (ListadoCItas listado : ListadoCitas2) {
 
-                                                    // Buscar la empresa asociada al NIT
-                                                    for (Cliente cliente : clientes) {
-                                                        if (cliente.getNit().equals(listado.getNit())) {
-                                                            empresaUsuario = cliente.getEmpresa();
-                                                            break;
-                                                        }
+                                                String nit_final = nit.replaceAll("[^0-9]", "");
+
+                                                List<Cliente> clientes = Arrays.asList(
+                                                    new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
+                                                    new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
+                                                    new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                    new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                    new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                    new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
+                                                    new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                    new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                    new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
+                                                    new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                    new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                    new Cliente("9018263370", "CONQUERS ZF")
+                                                );
+
+                                                String empresaUsuario = null;
+                                                for (Cliente cliente : clientes) {
+                                                    if (cliente.getNit().equals(listado.getNit())) {
+                                                        empresaUsuario = cliente.getEmpresa();
+                                                        break;
                                                     }
-                                                    System.out.println("empresa: " + empresaUsuario);
-                                                    
-                                                    System.out.println(listado.getNit() + " " + nit_final);
-                                                
-                                                    // Convertir a OffsetDateTime (zona UTC, puedes cambiar el offset si deseas)
-                                                    OffsetDateTime offsetDateTime = Instant.ofEpochMilli(listado.getFeAprobacion()).atOffset(ZoneOffset.UTC);
+                                                }
 
-                                                    // Obtener LocalDate
-                                                    LocalDate fechaCita = offsetDateTime.toLocalDate();
+                                                // Conversión de fecha manual (sin Instant ni OffsetDateTime)
+                                                java.util.Date fechaAprobacion = new java.util.Date(listado.getFeAprobacion());
+                                                java.util.Calendar cal = java.util.Calendar.getInstance();
+                                                cal.setTime(fechaAprobacion);
+                                                java.util.Calendar hoyCal = java.util.Calendar.getInstance();
 
-                                                    // Formatear con fecha y hora
-                                                    String fechaConHora = offsetDateTime.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                                                boolean mismaFecha = cal.get(java.util.Calendar.YEAR) == hoyCal.get(java.util.Calendar.YEAR) &&
+                                                                     cal.get(java.util.Calendar.DAY_OF_YEAR) == hoyCal.get(java.util.Calendar.DAY_OF_YEAR);
 
-                                                    if (fechaCita.equals(hoy)) {
-                                                        boolean mostrar = filtro == null || 
-                                                            (listado.getPlaca() != null && listado.getPlaca().toLowerCase().contains(filtro)) ||
-                                                            (listado.getManifiesto() != null && listado.getManifiesto().toLowerCase().contains(filtro));
-
-                                                        if (mostrar) {
-                                            %>
-                                            <%
-                                                        }
-                                                    }
-
-                                                    // Vehículos asociados
+                                                if (mismaFecha) {
                                                     List<ListaVehiculos> vehiculos = listado.getVehiculos();
                                                     if (vehiculos != null) {
                                                         for (ListaVehiculos v : vehiculos) {
                                                             String fechaStr = v.getFechaOfertaSolicitud();
                                                             if (fechaStr != null && !fechaStr.isEmpty()) {
-                                                                LocalDateTime fechaVehiculo = LocalDateTime.parse(fechaStr, DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a", Locale.ENGLISH));
-                                                                // Formatear sin la T
-                                                                String fechaFormateada = fechaVehiculo.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
-                                                                System.out.println(fechaFormateada);
-                                                                if (fechaVehiculo.toLocalDate().equals(hoy)) {
-                                                                    boolean mostrarVehiculo = filtro == null ||
-                                                                        (v.getVehiculoNumPlaca() != null && v.getVehiculoNumPlaca().toLowerCase().contains(filtro)) ||
-                                                                        (v.getNumManifiestoCarga() != null && v.getNumManifiestoCarga().toLowerCase().contains(filtro));
 
-                                                                    if (mostrarVehiculo) {
+                                                                // Formateo manual compatible
+                                                                java.text.SimpleDateFormat sdfEntrada = new java.text.SimpleDateFormat("MMM d, yyyy h:mm:ss a", java.util.Locale.ENGLISH);
+                                                                java.text.SimpleDateFormat sdfSalida = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm");
+                                                                java.util.Date fechaVehiculo = null;
+                                                                try {
+                                                                    fechaVehiculo = sdfEntrada.parse(fechaStr);
+                                                                } catch (Exception e) {
+                                                                    e.printStackTrace();
+                                                                }
+
+                                                                if (fechaVehiculo != null) {
+                                                                    java.util.Calendar calVeh = java.util.Calendar.getInstance();
+                                                                    calVeh.setTime(fechaVehiculo);
+                                                                    boolean mismaFechaVeh = calVeh.get(java.util.Calendar.YEAR) == hoyCal.get(java.util.Calendar.YEAR) &&
+                                                                                            calVeh.get(java.util.Calendar.DAY_OF_YEAR) == hoyCal.get(java.util.Calendar.DAY_OF_YEAR);
+
+                                                                    if (mismaFechaVeh) {
+                                                                        boolean mostrarVehiculo = filtro == null ||
+                                                                            (v.getVehiculoNumPlaca() != null && v.getVehiculoNumPlaca().toLowerCase().contains(filtro)) ||
+                                                                            (v.getNumManifiestoCarga() != null && v.getNumManifiestoCarga().toLowerCase().contains(filtro));
+
+                                                                        if (mostrarVehiculo) {
+                                                                            // 🔍 Determinar estado
+                                                                            String estado = "pendiente"; // por defecto
+                                                                            if (ListadoCarrotanque != null && !ListadoCarrotanque.isEmpty()) {
+                                                                                for (InformacionCarrotanque lc : ListadoCarrotanque) {
+                                                                                    if (lc.getPlaca().equalsIgnoreCase(v.getVehiculoNumPlaca())) {
+                                                                                        // Si tu objeto tiene estado, úsalo. Si no, puedes decidir aquí:
+                                                                                        estado = lc.getEstado() != null ? lc.getEstado() : "ingresado";
+                                                                                        break;
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                            // 🎨 Asignar color, texto y acción (sin switch)
+                                                                            String color = "";
+                                                                            String textoBoton = "";
+                                                                            String accion = "";
+
+                                                                            if ("ingresado".equalsIgnoreCase(estado)) {
+                                                                                color = "background-color: orange;";
+                                                                                textoBoton = "FINALIZAR";
+                                                                                accion = "RegistrarSalida(this)";
+                                                                            } else if ("finalizado".equalsIgnoreCase(estado)) {
+                                                                                color = "background-color: #007bff; color: white;";
+                                                                                textoBoton = "FINALIZADO";
+                                                                                accion = "Finalizado(this)";
+                                                                            } else {
+                                                                                color = "background-color: #89b61f;";
+                                                                                textoBoton = "INGRESAR";
+                                                                                accion = "RegistrarIngreso(this)";
+                                                                            }
+
+                                                                            String fechaFormateada = sdfSalida.format(fechaVehiculo);
                                             %>
-                                            <tr>
-                                                <td><%= v.getVehiculoNumPlaca() %></td>
-                                                <td><%= v.getConductorCedulaCiudadania() %></td>
-                                                <td><%= v.getNombreConductor() %></td>
-                                                <td><%= v.getNumManifiestoCarga() %></td>
-                                                <td><%= empresaUsuario %></td>
-                                                <td><%= fechaFormateada %></td>
-                                                <td><input type="submit" onclick="" value="INGRESAR"></td>
-                                            </tr>
+                                                                            <tr>
+                                                                                <td><%= listado.getCodCita() %></td>
+                                                                                <td><%= v.getVehiculoNumPlaca() %></td>
+                                                                                <td><%= v.getConductorCedulaCiudadania() %></td>
+                                                                                <td><%= v.getNombreConductor() %></td>
+                                                                                <td><%= v.getNumManifiestoCarga() %></td>
+                                                                                <td><%= empresaUsuario %></td>
+                                                                                <td><%= fechaFormateada %></td>
+                                                                                <td>
+                                                                                    <input type="submit"
+                                                                                           onclick="<%= accion %>"
+                                                                                           value="<%= textoBoton %>"
+                                                                                           style="<%= color %> border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
+                                                                                </td>
+                                                                            </tr>
                                             <%
+                                                                        }
                                                                     }
                                                                 }
                                                             }
                                                         }
                                                     }
                                                 }
+                                            }
                                             %>
-                                        </tbody>
+                                            </tbody>
+
+
                                     </table>
-                                    
+                                            <script>
+                                                function RegistrarIngreso(boton) {
+                                                    // Obtener la fila <tr> donde está el botón
+                                                    const fila = boton.closest("tr");
+                                                    const celdas = fila.getElementsByTagName("td");
+
+                                                    // Extraer los datos de la fila (ajusta los índices si cambias el orden de columnas)
+                                                    const CodCita = celdas[0].textContent.trim();
+                                                    const placa = celdas[1].textContent.trim();
+                                                    const cedula = celdas[2].textContent.trim();
+                                                    const conductor = celdas[3].textContent.trim();
+                                                    const manifiesto = celdas[4].textContent.trim();
+                                                    const empresa = celdas[5].textContent.trim();
+                                                    const fecha = celdas[6].textContent.trim();
+
+                                                    // Puedes usar "manifiesto" o "cedula" como código de cita, según tu diseño
+                                                    const codCita = CodCita;
+
+                                                    // Armar los parámetros
+                                                    const data = {
+                                                        accion: "ingreso",
+                                                        codCita: codCita,
+                                                        placa: placa,
+                                                        empresa: empresa,
+                                                        estado: "ingresado"
+                                                    };
+
+                                                    // Convertir a formato x-www-form-urlencoded
+                                                    const formData = new URLSearchParams();
+                                                    for (const key in data) {
+                                                        formData.append(key, data[key]);
+                                                    }
+
+                                                    // Enviar al servlet
+                                                    fetch("../ServeletMovientoCarrotanque", {
+                                                        method: "POST",
+                                                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                                                        body: formData.toString()
+                                                    })
+                                                    .then(res => res.text())
+                                                    .then(resp => {
+                                                        location.reload();
+                                                    })
+                                                    .catch(err => {
+                                                        console.error("❌ Error:", err);
+                                                        alert("Error al registrar el ingreso");
+                                                    });
+                                                }
+                                                function RegistrarSalida(boton) {
+                                                    // Obtener la fila <tr> donde está el botón
+                                                    const fila = boton.closest("tr");
+                                                    const celdas = fila.getElementsByTagName("td");
+
+                                                    // Extraer los datos de la fila (ajusta los índices si cambias el orden de columnas)
+                                                    const CodCita = celdas[0].textContent.trim();
+                                                    const placa = celdas[1].textContent.trim();
+                                                    const cedula = celdas[2].textContent.trim();
+                                                    const conductor = celdas[3].textContent.trim();
+                                                    const manifiesto = celdas[4].textContent.trim();
+                                                    const empresa = celdas[5].textContent.trim();
+                                                    const fecha = celdas[6].textContent.trim();
+
+                                                    // Puedes usar "manifiesto" o "cedula" como código de cita, según tu diseño
+                                                    const codCita = CodCita;
+
+                                                    // Armar los parámetros
+                                                    const data = {
+                                                        accion: "salida",
+                                                        codCita: codCita,
+                                                        placa: placa,
+                                                        empresa: empresa,
+                                                        estado: "ingresado"
+                                                    };
+
+                                                    // Convertir a formato x-www-form-urlencoded
+                                                    const formData = new URLSearchParams();
+                                                    for (const key in data) {
+                                                        formData.append(key, data[key]);
+                                                    }
+
+                                                    // Enviar al servlet
+                                                    fetch("../ServeletMovientoCarrotanque", {
+                                                        method: "POST",
+                                                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                                                        body: formData.toString()
+                                                    })
+                                                    .then(res => res.text())
+                                                    .then(resp => {
+                                                        location.reload();
+                                                    })
+                                                    .catch(err => {
+                                                        console.error("❌ Error:", err);
+                                                        alert("Error al registrar el ingreso");
+                                                    });
+                                                }
+                                            </script>
                                     <%
                                             }else if(rol == 8){ 
                                     %>
