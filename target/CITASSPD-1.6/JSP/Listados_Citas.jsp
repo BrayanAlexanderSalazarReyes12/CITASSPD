@@ -324,7 +324,8 @@
                                                 }
 
                                                 // Conversión de fecha manual (sin Instant ni OffsetDateTime)
-                                                java.util.Date fechaAprobacion = new java.util.Date(listado.getFeAprobacion());
+                                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                                java.util.Date fechaAprobacion = sdf.parse(listado.getFecha_Creacion_Cita());
                                                 java.util.Calendar cal = java.util.Calendar.getInstance();
                                                 cal.setTime(fechaAprobacion);
                                                 java.util.Calendar hoyCal = java.util.Calendar.getInstance();

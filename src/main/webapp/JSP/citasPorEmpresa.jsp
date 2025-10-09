@@ -285,6 +285,9 @@
                         <th>Cédula</th>
                         <th>Nombre del Conductor</th>
                         <th>Manifiesto</th>
+                        <th>Operacion</th>
+                        <th>Tanque</th>
+                        <th>Barcaza</th>
                         <th>Código de Cita</th>
                         <th>Fecha de Cita</th>
                     </tr>
@@ -296,6 +299,27 @@
                             <td><%= cita.getCedula() %></td>
                             <td><%= cita.getNombre() %></td>
                             <td><%= cita.getManifiesto() %></td>
+                            <td>
+                                <%= 
+                                    "operacion de cargue".equalsIgnoreCase(cita.getOperacion()) 
+                                        ? (
+                                            (cita.getTanque() == null || cita.getTanque().isEmpty()) 
+                                                ? "barcaza - carrotanque" 
+                                                : (cita.getBarcaza() == null || cita.getBarcaza().isEmpty()) 
+                                                    ? "tanque - carrotanque" 
+                                                    : ""
+                                          )
+                                        : (
+                                            (cita.getTanque() == null || cita.getTanque().isEmpty()) 
+                                                ? "carrotanque - barcaza" 
+                                                : (cita.getBarcaza() == null || cita.getBarcaza().isEmpty()) 
+                                                    ? "carrotanque - tanque" 
+                                                    : ""
+                                            )
+                                %>
+                            </td>
+                            <td><%= (cita.getTanque() == null || cita.getTanque().isEmpty()) ? "" : cita.getTanque() %></td>
+                            <td><%= (cita.getBarcaza()== null || cita.getBarcaza().isEmpty()) ? "" : cita.getBarcaza() %></td>
                             <td><%= cita.getCodCita() %></td>
                             <td><%= cita.getFechacita() %></td>
                         </tr>

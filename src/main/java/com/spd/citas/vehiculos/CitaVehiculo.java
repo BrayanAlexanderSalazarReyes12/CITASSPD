@@ -18,6 +18,9 @@ public class CitaVehiculo {
     private String CodCita;
     private String Fechacita;
     private String NitempresaBas;
+    private String Operacion;
+    private String Tanque;
+    private String Barcaza;
 
     public CitaVehiculo() {
     }
@@ -76,6 +79,30 @@ public class CitaVehiculo {
 
     public void setNitempresaBas(String NitempresaBas) {
         this.NitempresaBas = NitempresaBas;
+    }
+
+    public String getOperacion() {
+        return Operacion;
+    }
+
+    public void setOperacion(String Operacion) {
+        this.Operacion = Operacion;
+    }
+
+    public String getTanque() {
+        return Tanque;
+    }
+
+    public void setTanque(String Tanque) {
+        this.Tanque = Tanque;
+    }
+
+    public String getBarcaza() {
+        return Barcaza;
+    }
+
+    public void setBarcaza(String Barcaza) {
+        this.Barcaza = Barcaza;
     }
     
     

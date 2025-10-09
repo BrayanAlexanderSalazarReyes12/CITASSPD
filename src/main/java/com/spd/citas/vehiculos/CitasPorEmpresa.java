@@ -57,7 +57,9 @@ public class CitasPorEmpresa {
         
         Class.forName("oracle.jdbc.driver.OracleDriver");
         
-        String sql = "SELECT CV.*, SC.NIT_EMP_BASCULA, " +
+        String sql = "SELECT CV.*, SC.NIT_EMP_BASCULA, SC.OPERACION,\n" +
+                     "    SC.TANQUE,\n" +
+                     "    SC.BARCAZA," +
                      "COUNT(*) OVER(PARTITION BY SC.COD_CITA, SC.NIT_EMP_BASCULA) AS NUMERO_DE_REGISTROS " +
                      "FROM SPD_CITA_VEHICULOS CV " +
                      "JOIN SPD_CITAS SC ON CV.COD_CITA = SC.COD_CITA " +
@@ -78,6 +80,9 @@ public class CitasPorEmpresa {
                 cita.setCodCita(rs.getString("COD_CITA"));
                 cita.setFechacita(rs.getString("HORA_CITAS")); // o FECHA_CITA si aplica
                 cita.setNitempresaBas(rs.getString("NIT_EMP_BASCULA"));
+                cita.setOperacion(rs.getString("OPERACION"));
+                cita.setTanque(rs.getString("TANQUE"));
+                cita.setBarcaza(rs.getString("BARCAZA"));
                 listaCitas.add(cita);
             }
         } catch (SQLException e) {
