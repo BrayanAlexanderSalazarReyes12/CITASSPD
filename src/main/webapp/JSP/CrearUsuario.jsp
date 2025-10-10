@@ -74,13 +74,14 @@
             <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
         </div>
         <div class="button-container">
-            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
            <%
                 Object rolObj = session.getAttribute("Rol");
                 if (rolObj != null && ((Integer) rolObj) == 1) {
             %>
                 <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
                 <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
+                
+                <input type="submit" value="Reporte Carrotanques I/S" onclick="navegarInternamente('../ReporteCitasIngreSalida')"/>
             <%
                 }
             %>

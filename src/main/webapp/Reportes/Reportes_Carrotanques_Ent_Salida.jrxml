@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.5.final using JasperReports Library version 6.21.5-74d586df47b25dbd05bd0957999819196e59934a  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reportes_Carrotanques_Ent_Salida" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0cb66e7e-c5dc-4797-b5d3-dc1cd3a8009a">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="db"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<queryString>
+		<![CDATA[SELECT 
+    COD_CITA,
+    PLACA,
+    EMPRESA_BAS,
+    TO_CHAR(HORA_INGRESO, 'DD/MM/YYYY HH24:MI:SS') AS HORA_INGRESO,
+    TO_CHAR(HORA_SALIDA, 'DD/MM/YYYY HH24:MI:SS') AS HORA_SALIDA
+FROM SPD_MOVIMIENTOS_CARROTANQUES WHERE TRUNC(HORA_INGRESO) <> TRUNC(SYSDATE)]]>
+	</queryString>
+	<field name="COD_CITA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="COD_CITA"/>
+		<property name="com.jaspersoft.studio.field.label" value="COD_CITA"/>
+	</field>
+	<field name="PLACA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="PLACA"/>
+		<property name="com.jaspersoft.studio.field.label" value="PLACA"/>
+	</field>
+	<field name="EMPRESA_BAS" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="EMPRESA_BAS"/>
+		<property name="com.jaspersoft.studio.field.label" value="EMPRESA_BAS"/>
+	</field>
+	<field name="HORA_INGRESO" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="HORA_INGRESO"/>
+		<property name="com.jaspersoft.studio.field.label" value="HORA_INGRESO"/>
+	</field>
+	<field name="HORA_SALIDA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="HORA_SALIDA"/>
+		<property name="com.jaspersoft.studio.field.label" value="HORA_SALIDA"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="31" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="139" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+			<image>
+				<reportElement x="0" y="0" width="278" height="139" uuid="8f25f991-cbcb-4342-badc-09a656adbcb9"/>
+				<imageExpression><![CDATA["http://citas.spdique.com/CITASSPD/Imagenes/sociedad_portuaria_del_dique-.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="278" y="0" width="277" height="139" uuid="cca72207-c0bb-4566-b8da-4d8ed3cf00e1"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Segoe UI" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Reporte de Carrotanques Entrada Y Salida Del Muelle - " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="26" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+			<staticText>
+				<reportElement x="0" y="0" width="111" height="26" uuid="7efdd8bd-e5b3-44a8-91e9-e8202c297210">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3b5ef68e-bf6d-4fe1-aa83-5f35225f81fe"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[COD_CITA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="111" y="0" width="111" height="26" uuid="35d168e2-c151-473a-bccb-b6009eff0d20">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8602a05e-4862-4aa1-9797-4429f4a55894"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[PLACA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="222" y="0" width="111" height="26" uuid="6accadd1-7614-43f7-a16b-843edad6408f">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4f6315da-aa62-4030-b818-0af20ebc8b8f"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[EMPRESA_BAS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="333" y="0" width="111" height="26" uuid="b15ed905-bd00-4812-b959-d922def15204">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="34716831-bfe8-499c-9e46-24e22a62ca0a"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[HORA_INGRESO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="444" y="0" width="111" height="26" uuid="2962f851-1a92-40ed-a219-b3dee9001f87">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="6cd7df93-2c85-4f85-a2fb-966b7c59182b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[HORA_SALIDA]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="24" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+			<textField>
+				<reportElement x="0" y="0" width="111" height="24" uuid="6f2fe24b-4c40-4625-9a78-e905c98f8133">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3b5ef68e-bf6d-4fe1-aa83-5f35225f81fe"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{COD_CITA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="111" y="0" width="111" height="24" uuid="446f4502-f689-462e-8cbc-20f7a4d03fce">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8602a05e-4862-4aa1-9797-4429f4a55894"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{PLACA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="222" y="0" width="111" height="24" uuid="2a8cf793-c6df-4551-9f10-7aefefaa3153">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4f6315da-aa62-4030-b818-0af20ebc8b8f"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{EMPRESA_BAS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="333" y="0" width="111" height="24" uuid="00bd9148-c969-4b4e-bce6-ab6f2b214d58">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="34716831-bfe8-499c-9e46-24e22a62ca0a"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{HORA_INGRESO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="444" y="0" width="111" height="24" uuid="80ea56be-c97e-4d8b-a835-616a78acfdd5">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="6cd7df93-2c85-4f85-a2fb-966b7c59182b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{HORA_SALIDA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

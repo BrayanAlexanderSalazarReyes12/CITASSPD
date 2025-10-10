@@ -100,6 +100,10 @@
         <servlet-name>ReporteCitasDiarias</servlet-name>
         <servlet-class>com.spd.reportes.CitasActuales.ReporteCitasDiarias</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ReporteCitasIngreSalida</servlet-name>
+        <servlet-class>com.spd.reportes.Citas_Carrotanque_Ingre_Sali.ReporteCitasIngreSalida</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <url-pattern>/Iniciar_Seccion_Servlet</url-pattern>
@@ -191,6 +195,10 @@
     <servlet-mapping>
         <servlet-name>ReporteCitasDiarias</servlet-name>
         <url-pattern>/ReporteCitasDiarias</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReporteCitasIngreSalida</servlet-name>
+        <url-pattern>/ReporteCitasIngreSalida</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
