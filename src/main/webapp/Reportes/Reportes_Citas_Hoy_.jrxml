@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.5.final using JasperReports Library version 6.21.5-74d586df47b25dbd05bd0957999819196e59934a  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reportes_Citas_Hoy_" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="6044c43c-f710-407e-8563-d4ddbb83e405">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="db"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT 
+    CV.COD_CITA,
+    CV.PLACA,
+    CV.CEDULA_CONDUCTOR,
+    CV.NOMBRE_CONDUCTOR,
+    CV.MANIFIESTO,
+    TO_CHAR(CV.HORA_CITAS, 'YYYY-MM-DD HH24:MI:SS') AS HORA_CITAS,
+    SC.NIT_EMP_BASCULA,
+    SC.OPERACION,
+    SC.TANQUE,
+    SC.BARCAZA,
+    SC.NIT_EMP_BASCULA,
+    COUNT(*) OVER (
+        PARTITION BY SC.COD_CITA, SC.NIT_EMP_BASCULA
+    ) AS NUMERO_DE_REGISTROS
+FROM SPD_CITA_VEHICULOS CV
+JOIN SPD_CITAS SC 
+    ON CV.COD_CITA = SC.COD_CITA
+WHERE SC.ESTADO = 'AGENDADA'
+  AND TRUNC(SC.FECHA_CITA) = TRUNC(SYSDATE)]]>
+	</queryString>
+	<field name="COD_CITA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="COD_CITA"/>
+		<property name="com.jaspersoft.studio.field.label" value="COD_CITA"/>
+	</field>
+	<field name="PLACA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="PLACA"/>
+		<property name="com.jaspersoft.studio.field.label" value="PLACA"/>
+	</field>
+	<field name="CEDULA_CONDUCTOR" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="CEDULA_CONDUCTOR"/>
+		<property name="com.jaspersoft.studio.field.label" value="CEDULA_CONDUCTOR"/>
+	</field>
+	<field name="NOMBRE_CONDUCTOR" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="NOMBRE_CONDUCTOR"/>
+		<property name="com.jaspersoft.studio.field.label" value="NOMBRE_CONDUCTOR"/>
+	</field>
+	<field name="MANIFIESTO" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="MANIFIESTO"/>
+		<property name="com.jaspersoft.studio.field.label" value="MANIFIESTO"/>
+	</field>
+	<field name="HORA_CITAS" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="HORA_CITAS"/>
+		<property name="com.jaspersoft.studio.field.label" value="HORA_CITAS"/>
+	</field>
+	<field name="NIT_EMP_BASCULA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="NIT_EMP_BASCULA"/>
+		<property name="com.jaspersoft.studio.field.label" value="NIT_EMP_BASCULA"/>
+	</field>
+	<field name="OPERACION" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="OPERACION"/>
+		<property name="com.jaspersoft.studio.field.label" value="OPERACION"/>
+	</field>
+	<field name="TANQUE" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="TANQUE"/>
+		<property name="com.jaspersoft.studio.field.label" value="TANQUE"/>
+	</field>
+	<field name="BARCAZA" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="BARCAZA"/>
+		<property name="com.jaspersoft.studio.field.label" value="BARCAZA"/>
+	</field>
+	<field name="COLUMN_11" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="NIT_EMP_BASCULA"/>
+		<property name="com.jaspersoft.studio.field.label" value="NIT_EMP_BASCULA"/>
+	</field>
+	<field name="NUMERO_DE_REGISTROS" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="NUMERO_DE_REGISTROS"/>
+		<property name="com.jaspersoft.studio.field.label" value="NUMERO_DE_REGISTROS"/>
+	</field>
+	<group name="COD_CITA">
+		<groupExpression><![CDATA[$F{COD_CITA}]]></groupExpression>
+	</group>
+	<group name="PLACA">
+		<groupExpression><![CDATA[$F{PLACA}]]></groupExpression>
+	</group>
+	<group name="CEDULA_CONDUCTOR">
+		<groupExpression><![CDATA[$F{CEDULA_CONDUCTOR}]]></groupExpression>
+	</group>
+	<group name="NOMBRE_CONDUCTOR">
+		<groupExpression><![CDATA[$F{NOMBRE_CONDUCTOR}]]></groupExpression>
+	</group>
+	<group name="MANIFIESTO">
+		<groupExpression><![CDATA[$F{MANIFIESTO}]]></groupExpression>
+	</group>
+	<group name="HORA_CITAS">
+		<groupExpression><![CDATA[$F{HORA_CITAS}]]></groupExpression>
+	</group>
+	<group name="NIT_EMP_BASCULA">
+		<groupExpression><![CDATA[$F{NIT_EMP_BASCULA}]]></groupExpression>
+	</group>
+	<group name="OPERACION">
+		<groupExpression><![CDATA[$F{OPERACION}]]></groupExpression>
+	</group>
+	<group name="TANQUE">
+		<groupExpression><![CDATA[$F{TANQUE}]]></groupExpression>
+	</group>
+	<group name="BARCAZA">
+		<groupExpression><![CDATA[$F{BARCAZA}]]></groupExpression>
+	</group>
+	<group name="NUMERO_DE_REGISTROS">
+		<groupExpression><![CDATA[$F{NUMERO_DE_REGISTROS}]]></groupExpression>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="35" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="110" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+			<image>
+				<reportElement x="0" y="0" width="278" height="105" uuid="cc64548c-bbd4-4d4b-95b0-cb9cf66f4d41"/>
+				<imageExpression><![CDATA["C:/Users/Brayan Salazar/Documents/REPORTES/sociedad_portuaria_del_dique-.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="283" y="5" width="277" height="105" uuid="3416a9e7-a1b2-4346-84bc-9d1ac9129f6f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Segoe UI" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["OPERACIONES PARA EL DIA DE HOY - " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="33" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+			<staticText>
+				<reportElement x="0" y="0" width="72" height="33" uuid="a276a261-b878-4b87-84ef-afd0692618f4">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="14be349b-4165-4b7c-9be4-cd100a36617a"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[NOMBRE DE LA EMPRESA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="72" y="0" width="69" height="33" uuid="e1837891-e92d-4ffe-9698-dbf9882f4d13">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5f687532-9a36-4022-9e2f-137cf8e1484b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[PLACA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="141" y="0" width="69" height="33" uuid="3a7a1a23-4768-4d1c-b195-5d47aceb2f47">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3efcdf4d-6492-4f49-b75b-7acb3626f410"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[CEDULA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="210" y="0" width="69" height="33" uuid="01a1a4e9-6c8d-47e1-ac0f-da2c89abface">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e004cd7f-aded-45f1-a122-919250daff6a"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[MANIFIESTO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="279" y="0" width="69" height="33" uuid="0c57d3d9-5d93-4e3e-93dd-ab8881c187e7">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="0c3128a6-3274-4b1e-9289-585f6af0a647"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[OPERACION]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="348" y="0" width="69" height="33" uuid="cfa2e40e-2ced-47f9-a77f-c0577108f66d">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e86b67e8-d67e-4ecb-965f-c459a81829f6"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[TANQUE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="417" y="0" width="69" height="33" uuid="0a13bfba-9db2-438a-b88f-93ddcd8b9d1b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ff5dbd21-7a88-4ce3-87de-eb0c9d103a12"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[BARCAZA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="486" y="0" width="69" height="33" uuid="898de7de-94ba-40a4-a3c4-57a2302ddddb">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d1aa13ff-6aef-41fc-bb7f-16802b55b79a"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[FECHA CITA]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="66" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+			<textField>
+				<reportElement x="0" y="0" width="72" height="66" uuid="d37eac0c-c04e-41a6-a4dd-3a74717dc994">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="14be349b-4165-4b7c-9be4-cd100a36617a"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{NIT_EMP_BASCULA}.equals("9003289140") ? "C I CARIBBEAN BUNKERS S A S" :
+$F{NIT_EMP_BASCULA}.equals("9006144232") ? "ATLANTIC MARINE FUELS S A S C I" :
+$F{NIT_EMP_BASCULA}.equals("8060058263") ? "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A" :
+$F{NIT_EMP_BASCULA}.equals("9013129603") ? "C I CONQUERS WORLD TRADE S A S (CWT)" :
+$F{NIT_EMP_BASCULA}.equals("9012220501") ? "C I FUELS AND BUNKERS COLOMBIA S A S" :
+$F{NIT_EMP_BASCULA}.equals("8020240114") ? "C I INTERNATIONAL FUELS S A S" :
+$F{NIT_EMP_BASCULA}.equals("9011235498") ? "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS" :
+$F{NIT_EMP_BASCULA}.equals("8060053461") ? "OPERACIONES TECNICAS MARINAS S A S" :
+$F{NIT_EMP_BASCULA}.equals("8190016678") ? "PETROLEOS DEL MILENIO S A S" :
+$F{NIT_EMP_BASCULA}.equals("9009922813") ? "C I PRODEXPORT DE COLOMBIA S A S" :
+$F{NIT_EMP_BASCULA}.equals("8904057693") ? "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A" :
+$F{NIT_EMP_BASCULA}.equals("9018263370") ? "CONQUERS ZF" :
+""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="72" y="0" width="69" height="66" uuid="3db3d9bb-84b9-4235-a981-cd81dbf9d4ef">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5f687532-9a36-4022-9e2f-137cf8e1484b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{PLACA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="141" y="0" width="69" height="66" uuid="03e11191-adfa-443c-a383-0144a5e12496">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3efcdf4d-6492-4f49-b75b-7acb3626f410"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{CEDULA_CONDUCTOR}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="210" y="0" width="69" height="66" uuid="fe614954-41c8-477c-be4f-f342381dbad4">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e004cd7f-aded-45f1-a122-919250daff6a"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{MANIFIESTO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="279" y="0" width="69" height="66" uuid="35cfac3f-2f8f-48cb-b6ea-4f6c2cafa3e1">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="0c3128a6-3274-4b1e-9289-585f6af0a647"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{OPERACION}.equalsIgnoreCase("operacion de cargue")
+    ? (
+        ($F{TANQUE}== null || $F{TANQUE}.isEmpty())
+            ? "Barcaza - Carrotanque"
+            : ($F{BARCAZA} == null || $F{BARCAZA}.isEmpty())
+                ? "Tanque - Carrotanque"
+                : ""
+      )
+    : (
+        ($F{TANQUE} == null || $F{TANQUE}.isEmpty())
+            ? "Carrotanque - Barcaza"
+            : ($F{BARCAZA} == null || $F{BARCAZA}.isEmpty())
+                ? "Carrotanque - Tanque"
+                : ""
+      )
+]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="348" y="0" width="69" height="66" uuid="f77781b5-ff3c-40c5-8f7c-c2f1791a0c7a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e86b67e8-d67e-4ecb-965f-c459a81829f6"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[($F{TANQUE} == null || $F{TANQUE}.isEmpty()) ? "" : $F{TANQUE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="417" y="0" width="69" height="66" uuid="76c30d73-7ec7-4cb5-8bdd-cecf5e7003cc">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ff5dbd21-7a88-4ce3-87de-eb0c9d103a12"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[($F{BARCAZA} == null || $F{BARCAZA}.isEmpty()) ? "" : $F{BARCAZA}
+]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="486" y="0" width="69" height="66" uuid="3a334a63-f12b-4010-a45e-ae348428f828">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d1aa13ff-6aef-41fc-bb7f-16802b55b79a"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{HORA_CITAS}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

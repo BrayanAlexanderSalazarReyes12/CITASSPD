@@ -323,6 +323,7 @@
                             <td><%= cita.getCodCita() %></td>
                             <td><%= cita.getFechacita() %></td>
                         </tr>
+                        
                     <% } %>
                 </tbody>
             </table>
@@ -330,6 +331,12 @@
     <%
         }
     %>
+    <div>
+        <input type="submit"
+            onclick="navegarInternamente('./ReporteCitasDiarias')"
+            value="Descargar Reporte"
+            style="background-color: #89b61f; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
+    </div> 
 </div>
 <%
     } // Fin else
