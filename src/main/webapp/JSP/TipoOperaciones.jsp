@@ -117,6 +117,10 @@
             %>
                 <input type="submit" value="Operaciones de Hoy" onclick="navegarInternamente('../ListarOperaciones')"/> 
             <%
+                }else if (rolObj != null && ((Integer) rolObj) == 8){
+            %>
+                <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/> 
+            <%
                 }
             %>
             <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
@@ -142,7 +146,7 @@
             response.sendRedirect(request.getContextPath());
             return;
         }
-        if (rolObject1 != null && ((Integer) rolObject1) == 0 || ((Integer) rolObject1) == 5){
+        if (rolObject1 != null && ((Integer) rolObject1) == 0 || ((Integer) rolObject1) == 5 || ((Integer) rolObject1) == 8){
     %>
     <body>
         <div class="contenedor">
@@ -150,7 +154,7 @@
         </div>
     </body>
     <%
-        } else if (rolObject1 != null && (((Integer) rolObject1) != 6 && ((Integer) rolObject1) != 7 )){
+        } else if (rolObject1 != null && (((Integer) rolObject1) != 6 && ((Integer) rolObject1) != 7 && ((Integer) rolObject1) != 8 )){
     %>
             
                     <body>
@@ -439,7 +443,7 @@
                         </div>
                     </body>
                 <%
-                    }else if (((Integer) rolObj) != 7){
+                    }else if (((Integer) rolObj) != 7 && ((Integer) rolObj) != 8){
                 %>
 
                     <body>

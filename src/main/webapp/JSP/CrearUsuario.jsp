@@ -117,6 +117,7 @@
                     <option value="5">Consultor Transportadora </option>
                     <option value="6">Consultor De Reportes</option>
                     <option value="7">Supervisor</option>
+                    <option value="8">Bascula</option>
                 </select>
 
                 <input type="submit" value="Crear usuario" />

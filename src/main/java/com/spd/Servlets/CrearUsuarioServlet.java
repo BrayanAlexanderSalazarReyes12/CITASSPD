@@ -84,7 +84,9 @@ public class CrearUsuarioServlet extends HttpServlet {
         
         Usuario_Insert usuario_Insert = new Usuario_Insert();
         
-        if(Rol.equals("5") || Rol.equals("6") || Rol.equals("7"))
+        System.out.println(Rol);
+        
+        if(Rol.equals("5") || Rol.equals("6") || Rol.equals("7") || Rol.equals("8"))
         {
             try {
                 CreacionUsuarioEmpresaTransportadora.inicializarDesdeContexto(getServletContext());

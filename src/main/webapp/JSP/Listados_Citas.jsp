@@ -247,11 +247,11 @@
                                 <div class="tab-container">
                                     <div class="tab-header">
                                         <%
-                                            if (rolObj != null && ((Integer) rolObj) != 5) {
+                                            if (rolObj != null && ((Integer) rolObj) != 5 || ((Integer) rolObj) == 8) {
                                         %>
                                             <button class="tab-button active" data-tab="camiones" onclick="mostrarTab(this)">📁 Citas camiones</button>
                                         <%
-                                            }if (rolObj != null && ((Integer) rolObj) != 0 && ((Integer) rolObj) != 2 && ((Integer) rolObj) != 5) {
+                                            }if (rolObj != null && ((Integer) rolObj) != 0 && ((Integer) rolObj) != 2 && ((Integer) rolObj) != 5 && ((Integer) rolObj) != 8) {
                                         %>
                                             <button class="tab-button" data-tab="camiones-por-finalizar" onclick="mostrarTab(this)">📁 Citas camiones por finalizar</button>
                                             <button class="tab-button" data-tab="barcazas" onclick="mostrarTab(this)">📁 Citas barcazas</button>
@@ -261,7 +261,7 @@
                                             <button class="tab-button" data-tab="camiones-por-finalizar" onclick="mostrarTab(this)">📁 Citas camiones aprobadas</button>
                                             <button class="tab-button" data-tab="barcazas" onclick="mostrarTab(this)">📁 Citas barcazas</button>
                                         <%
-                                            }else if (rolObj != null && ((Integer) rolObj) == 5) { 
+                                            }else if (rolObj != null && ((Integer) rolObj) == 5 ) { 
                                         %>
                                             <button class="tab-button" data-tab="camiones-por-finalizar" onclick="mostrarTab(this)">📁 Citas camiones aprobadas</button>
                                         <%
