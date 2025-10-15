@@ -301,21 +301,22 @@
 
                                                 String nit_final = nit.replaceAll("[^0-9]", "");
 
-                                                List<Cliente> clientes = Arrays.asList(
-                                                    new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                    new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                    new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                    new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                    new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                    new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                    new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                    new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                    new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                    new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                    new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                    new Cliente("901826337", "CONQUERS ZF"),
-                                                    new Cliente("901427892", "MONJASA")
-                                                );
+                                                // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
+                                                    List<Cliente> clientes = Arrays.asList(
+                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                        new Cliente("901826337-0", "CONQUERS ZF"),
+                                                        new Cliente("901427892", "MONJASA")
+                                                    );
 
                                                 String empresaUsuario = null;
                                                 for (Cliente cliente : clientes) {
@@ -547,18 +548,18 @@
                                                     
                                                     // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
                                                     List<Cliente> clientes = Arrays.asList(
-                                                        new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                        new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                        new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                        new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                        new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                        new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                        new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                        new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                        new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                        new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                        new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("901826337", "CONQUERS ZF"),
+                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                        new Cliente("901826337-0", "CONQUERS ZF"),
                                                         new Cliente("901427892", "MONJASA")
                                                     );
                                                     
@@ -677,18 +678,18 @@
                                                     
                                                     // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
                                                     List<Cliente> clientes = Arrays.asList(
-                                                        new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                        new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                        new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                        new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                        new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                        new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                        new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                        new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                        new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                        new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                        new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("901826337", "CONQUERS ZF"),
+                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                        new Cliente("901826337-0", "CONQUERS ZF"),
                                                         new Cliente("901427892", "MONJASA")
                                                     );
                                                     
@@ -753,18 +754,18 @@
                                                 
                                                     // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
                                                     List<Cliente> clientes = Arrays.asList(
-                                                        new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                        new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                        new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                        new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                        new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                        new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                        new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                        new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                        new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                        new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                        new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("901826337", "CONQUERS ZF"),
+                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                        new Cliente("901826337-0", "CONQUERS ZF"),
                                                         new Cliente("901427892", "MONJASA")
                                                     );
                                                     
@@ -838,20 +839,20 @@
                                                                 
                                                                     // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
                                                                     List<Cliente> clientes = Arrays.asList(
-                                                                       new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                                       new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                       new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                       new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                       new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                       new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                                       new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                       new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                       new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                                       new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                       new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901826337", "CONQUERS ZF"),
-                                                                       new Cliente("901427892", "MONJASA")
-                                                                   );
+                                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                        new Cliente("901826337-0", "CONQUERS ZF"),
+                                                                        new Cliente("901427892", "MONJASA")
+                                                                    );
 
                                                                     String empresaUsuario = null;
 
@@ -900,20 +901,20 @@
                                                                     
                                                                     // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
                                                                     List<Cliente> clientes = Arrays.asList(
-                                                                       new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                                       new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                       new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                       new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                       new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                       new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                                       new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                       new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                       new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                                       new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                       new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901826337", "CONQUERS ZF"),
-                                                                       new Cliente("901427892", "MONJASA")
-                                                                   );
+                                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                        new Cliente("901826337-0", "CONQUERS ZF"),
+                                                                        new Cliente("901427892", "MONJASA")
+                                                                    );
 
                                                                     String empresaUsuario = null;
 
@@ -988,21 +989,21 @@
                                                             for(ListadoCItas listado: ListadoCitas2){
                                                                 String nit_final = nit.replaceAll("[^0-9]", "");
                                                                 // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                   List<Cliente> clientes = Arrays.asList(
-                                                                       new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                                       new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                       new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                       new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                       new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                       new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                                       new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                       new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                       new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                                       new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                       new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901826337", "CONQUERS ZF"),
-                                                                       new Cliente("901427892", "MONJASA")
-                                                                   );
+                                                                List<Cliente> clientes = Arrays.asList(
+                                                                    new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                                    new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                    new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                    new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                    new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                    new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                                    new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                    new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                    new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                                    new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                    new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                    new Cliente("901826337-0", "CONQUERS ZF"),
+                                                                    new Cliente("901427892", "MONJASA")
+                                                                );
 
                                                                    String empresaUsuario = null;
 
@@ -1052,21 +1053,21 @@
                                                         <%
                                                             for(ListadoCItas listado: ListadoCitas2){
                                                                     // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                   List<Cliente> clientes = Arrays.asList(
-                                                                       new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                                       new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                       new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                       new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                       new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                       new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                                       new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                       new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                       new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                                       new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                       new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901826337", "CONQUERS ZF"),
-                                                                       new Cliente("901427892", "MONJASA")
-                                                                   );
+                                                                    List<Cliente> clientes = Arrays.asList(
+                                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                        new Cliente("901826337-0", "CONQUERS ZF"),
+                                                                        new Cliente("901427892", "MONJASA")
+                                                                    );
 
                                                                    String empresaUsuario = null;
 
@@ -1142,21 +1143,21 @@
                                                             for(ListadoCItas listado: ListadoCitas2){
                                                                 String nit_final = nit.replace("-", "");
                                                                 // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                   List<Cliente> clientes = Arrays.asList(
-                                                                       new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                                       new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                       new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                       new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                       new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                       new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                                       new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                       new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                       new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                                       new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                       new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901826337", "CONQUERS ZF"),
-                                                                       new Cliente("901427892", "MONJASA")
-                                                                   );
+                                                                List<Cliente> clientes = Arrays.asList(
+                                                                    new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                                    new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                    new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                    new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                    new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                    new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                                    new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                    new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                    new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                                    new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                    new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                    new Cliente("901826337-0", "CONQUERS ZF"),
+                                                                    new Cliente("901427892", "MONJASA")
+                                                                );
 
                                                                    String empresaUsuario = null;
 
@@ -1206,21 +1207,21 @@
                                                         <%
                                                             for(ListadoCItas listado: ListadoCitas2){
                                                                     // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                   List<Cliente> clientes = Arrays.asList(
-                                                                       new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
-                                                                       new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                       new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                       new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                       new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                       new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
-                                                                       new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                       new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                       new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
-                                                                       new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                       new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                       new Cliente("901826337", "CONQUERS ZF"),
-                                                                       new Cliente("901427892", "MONJASA")
-                                                                   );
+                                                                    List<Cliente> clientes = Arrays.asList(
+                                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
+                                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
+                                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+                                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+                                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+                                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
+                                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+                                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
+                                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
+                                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
+                                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+                                                                        new Cliente("901826337-0", "CONQUERS ZF"),
+                                                                        new Cliente("901427892", "MONJASA")
+                                                                    );
 
                                                                    String empresaUsuario = null;
 

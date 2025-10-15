@@ -39,14 +39,14 @@ FROM SPD_MOVIMIENTOS_CARROTANQUES WHERE TRUNC(HORA_INGRESO) <> TRUNC(SYSDATE)]]>
 		<band height="31" splitType="Stretch"/>
 	</title>
 	<pageHeader>
-		<band height="139" splitType="Stretch">
+		<band height="69" splitType="Stretch">
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
-			<image>
-				<reportElement x="0" y="0" width="278" height="139" uuid="8f25f991-cbcb-4342-badc-09a656adbcb9"/>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement x="0" y="0" width="278" height="69" uuid="8f25f991-cbcb-4342-badc-09a656adbcb9"/>
 				<imageExpression><![CDATA["http://citas.spdique.com/CITASSPD/Imagenes/sociedad_portuaria_del_dique-.png"]]></imageExpression>
 			</image>
 			<textField>
-				<reportElement x="278" y="0" width="277" height="139" uuid="cca72207-c0bb-4566-b8da-4d8ed3cf00e1"/>
+				<reportElement x="278" y="0" width="277" height="69" uuid="cca72207-c0bb-4566-b8da-4d8ed3cf00e1"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Segoe UI" size="14" isBold="true"/>
 				</textElement>

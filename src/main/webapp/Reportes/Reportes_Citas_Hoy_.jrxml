@@ -115,27 +115,26 @@ WHERE SC.ESTADO = 'AGENDADA'
 		</band>
 	</title>
 	<pageHeader>
-		<band height="110" splitType="Stretch">
+		<band height="65" splitType="Stretch">
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
-			<image>
-				<reportElement x="0" y="0" width="278" height="105" uuid="cc64548c-bbd4-4d4b-95b0-cb9cf66f4d41"/>
-				<imageExpression><![CDATA[new java.net.URL("http://citas.spdique.com/CITASSPD/Imagenes/sociedad_portuaria_del_dique-.png")
-                                ]]></imageExpression>
+			<image hAlign="Left">
+				<reportElement x="0" y="0" width="278" height="65" uuid="525f2216-b8b7-4941-9657-8588d4e8951d"/>
+				<imageExpression><![CDATA[new java.net.URL("http://citas.spdique.com/CITASSPD/Imagenes/sociedad_portuaria_del_dique-.png")]]></imageExpression>
 			</image>
 			<textField>
-				<reportElement x="283" y="5" width="277" height="105" uuid="3416a9e7-a1b2-4346-84bc-9d1ac9129f6f"/>
+				<reportElement x="278" y="0" width="277" height="65" uuid="2bfd38a9-490b-4f3c-8427-e5cc60f06e8d"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Segoe UI" size="14" isBold="true"/>
+					<font fontName="Segoe UI" size="12" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA["OPERACIONES PARA EL DIA DE HOY - " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>
 	<columnHeader>
-		<band height="33" splitType="Stretch">
+		<band height="22" splitType="Stretch">
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
 			<staticText>
-				<reportElement x="0" y="0" width="72" height="33" uuid="a276a261-b878-4b87-84ef-afd0692618f4">
+				<reportElement x="0" y="0" width="72" height="22" uuid="a276a261-b878-4b87-84ef-afd0692618f4">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="14be349b-4165-4b7c-9be4-cd100a36617a"/>
 				</reportElement>
 				<box>
@@ -145,7 +144,7 @@ WHERE SC.ESTADO = 'AGENDADA'
 				<text><![CDATA[NOMBRE DE LA EMPRESA]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="72" y="0" width="69" height="33" uuid="e1837891-e92d-4ffe-9698-dbf9882f4d13">
+				<reportElement x="72" y="0" width="69" height="22" uuid="e1837891-e92d-4ffe-9698-dbf9882f4d13">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5f687532-9a36-4022-9e2f-137cf8e1484b"/>
 				</reportElement>
 				<box>
@@ -156,7 +155,7 @@ WHERE SC.ESTADO = 'AGENDADA'
 				<text><![CDATA[PLACA]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="141" y="0" width="69" height="33" uuid="3a7a1a23-4768-4d1c-b195-5d47aceb2f47">
+				<reportElement x="141" y="0" width="69" height="22" uuid="3a7a1a23-4768-4d1c-b195-5d47aceb2f47">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3efcdf4d-6492-4f49-b75b-7acb3626f410"/>
 				</reportElement>
 				<box>
@@ -166,7 +165,7 @@ WHERE SC.ESTADO = 'AGENDADA'
 				<text><![CDATA[CEDULA]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="210" y="0" width="69" height="33" uuid="01a1a4e9-6c8d-47e1-ac0f-da2c89abface">
+				<reportElement x="210" y="0" width="69" height="22" uuid="01a1a4e9-6c8d-47e1-ac0f-da2c89abface">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e004cd7f-aded-45f1-a122-919250daff6a"/>
 				</reportElement>
 				<box>
@@ -176,7 +175,7 @@ WHERE SC.ESTADO = 'AGENDADA'
 				<text><![CDATA[MANIFIESTO]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="279" y="0" width="69" height="33" uuid="0c57d3d9-5d93-4e3e-93dd-ab8881c187e7">
+				<reportElement x="279" y="0" width="69" height="22" uuid="0c57d3d9-5d93-4e3e-93dd-ab8881c187e7">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="0c3128a6-3274-4b1e-9289-585f6af0a647"/>
 				</reportElement>
 				<box>
@@ -186,7 +185,7 @@ WHERE SC.ESTADO = 'AGENDADA'
 				<text><![CDATA[OPERACION]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="348" y="0" width="69" height="33" uuid="cfa2e40e-2ced-47f9-a77f-c0577108f66d">
+				<reportElement x="348" y="0" width="69" height="22" uuid="cfa2e40e-2ced-47f9-a77f-c0577108f66d">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e86b67e8-d67e-4ecb-965f-c459a81829f6"/>
 				</reportElement>
 				<box>
@@ -196,7 +195,7 @@ WHERE SC.ESTADO = 'AGENDADA'
 				<text><![CDATA[TANQUE]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="417" y="0" width="69" height="33" uuid="0a13bfba-9db2-438a-b88f-93ddcd8b9d1b">
+				<reportElement x="417" y="0" width="69" height="22" uuid="0a13bfba-9db2-438a-b88f-93ddcd8b9d1b">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ff5dbd21-7a88-4ce3-87de-eb0c9d103a12"/>
 				</reportElement>
 				<box>
@@ -206,7 +205,7 @@ WHERE SC.ESTADO = 'AGENDADA'
 				<text><![CDATA[BARCAZA]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="486" y="0" width="69" height="33" uuid="898de7de-94ba-40a4-a3c4-57a2302ddddb">
+				<reportElement x="486" y="0" width="69" height="22" uuid="898de7de-94ba-40a4-a3c4-57a2302ddddb">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d1aa13ff-6aef-41fc-bb7f-16802b55b79a"/>
 				</reportElement>
 				<box>
@@ -218,32 +217,33 @@ WHERE SC.ESTADO = 'AGENDADA'
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="66" splitType="Stretch">
+		<band height="37" splitType="Stretch">
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
 			<textField>
-				<reportElement x="0" y="0" width="72" height="66" uuid="d37eac0c-c04e-41a6-a4dd-3a74717dc994">
+				<reportElement x="0" y="0" width="72" height="37" uuid="d37eac0c-c04e-41a6-a4dd-3a74717dc994">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="14be349b-4165-4b7c-9be4-cd100a36617a"/>
 				</reportElement>
 				<box>
 					<pen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{NIT_EMP_BASCULA}.equals("9003289140") ? "C I CARIBBEAN BUNKERS S A S" :
-$F{NIT_EMP_BASCULA}.equals("9006144232") ? "ATLANTIC MARINE FUELS S A S C I" :
-$F{NIT_EMP_BASCULA}.equals("8060058263") ? "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A" :
-$F{NIT_EMP_BASCULA}.equals("9013129603") ? "C I CONQUERS WORLD TRADE S A S (CWT)" :
-$F{NIT_EMP_BASCULA}.equals("9012220501") ? "C I FUELS AND BUNKERS COLOMBIA S A S" :
-$F{NIT_EMP_BASCULA}.equals("8020240114") ? "C I INTERNATIONAL FUELS S A S" :
-$F{NIT_EMP_BASCULA}.equals("9011235498") ? "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS" :
-$F{NIT_EMP_BASCULA}.equals("8060053461") ? "OPERACIONES TECNICAS MARINAS S A S" :
-$F{NIT_EMP_BASCULA}.equals("8190016678") ? "PETROLEOS DEL MILENIO S A S" :
-$F{NIT_EMP_BASCULA}.equals("9009922813") ? "C I PRODEXPORT DE COLOMBIA S A S" :
-$F{NIT_EMP_BASCULA}.equals("8904057693") ? "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A" :
-$F{NIT_EMP_BASCULA}.equals("9018263370") ? "CONQUERS ZF" :
+				<textFieldExpression><![CDATA[$F{NIT_EMP_BASCULA}.equals("900328914-0") ? "C I CARIBBEAN BUNKERS S A S" :
+$F{NIT_EMP_BASCULA}.equals("900614423-2") ? "ATLANTIC MARINE FUELS S A S C I" :
+$F{NIT_EMP_BASCULA}.equals("806005826-3") ? "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A" :
+$F{NIT_EMP_BASCULA}.equals("901312960–3") ? "C I CONQUERS WORLD TRADE S A S (CWT)" :
+$F{NIT_EMP_BASCULA}.equals("901222050-1") ? "C I FUELS AND BUNKERS COLOMBIA S A S" :
+$F{NIT_EMP_BASCULA}.equals("802024011-4") ? "C I INTERNATIONAL FUELS S A S" :
+$F{NIT_EMP_BASCULA}.equals("901123549-8") ? "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS" :
+$F{NIT_EMP_BASCULA}.equals("806005346-1") ? "OPERACIONES TECNICAS MARINAS S A S" :
+$F{NIT_EMP_BASCULA}.equals("819001667-8") ? "PETROLEOS DEL MILENIO S A S" :
+$F{NIT_EMP_BASCULA}.equals("900992281-3") ? "C I PRODEXPORT DE COLOMBIA S A S" :
+$F{NIT_EMP_BASCULA}.equals("890405769-3") ? "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A" :
+$F{NIT_EMP_BASCULA}.equals("901826337-0") ? "CONQUERS ZF" :
+$F{NIT_EMP_BASCULA}.equals("901427892") ? "MONJASA" :
 ""]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="72" y="0" width="69" height="66" uuid="3db3d9bb-84b9-4235-a981-cd81dbf9d4ef">
+				<reportElement x="72" y="0" width="69" height="37" uuid="3db3d9bb-84b9-4235-a981-cd81dbf9d4ef">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5f687532-9a36-4022-9e2f-137cf8e1484b"/>
 				</reportElement>
 				<box>
@@ -253,7 +253,7 @@ $F{NIT_EMP_BASCULA}.equals("9018263370") ? "CONQUERS ZF" :
 				<textFieldExpression><![CDATA[$F{PLACA}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="141" y="0" width="69" height="66" uuid="03e11191-adfa-443c-a383-0144a5e12496">
+				<reportElement x="141" y="0" width="69" height="37" uuid="03e11191-adfa-443c-a383-0144a5e12496">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3efcdf4d-6492-4f49-b75b-7acb3626f410"/>
 				</reportElement>
 				<box>
@@ -263,7 +263,7 @@ $F{NIT_EMP_BASCULA}.equals("9018263370") ? "CONQUERS ZF" :
 				<textFieldExpression><![CDATA[$F{CEDULA_CONDUCTOR}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="210" y="0" width="69" height="66" uuid="fe614954-41c8-477c-be4f-f342381dbad4">
+				<reportElement x="210" y="0" width="69" height="37" uuid="fe614954-41c8-477c-be4f-f342381dbad4">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e004cd7f-aded-45f1-a122-919250daff6a"/>
 				</reportElement>
 				<box>
@@ -273,7 +273,7 @@ $F{NIT_EMP_BASCULA}.equals("9018263370") ? "CONQUERS ZF" :
 				<textFieldExpression><![CDATA[$F{MANIFIESTO}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="279" y="0" width="69" height="66" uuid="35cfac3f-2f8f-48cb-b6ea-4f6c2cafa3e1">
+				<reportElement x="279" y="0" width="69" height="37" uuid="35cfac3f-2f8f-48cb-b6ea-4f6c2cafa3e1">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="0c3128a6-3274-4b1e-9289-585f6af0a647"/>
 				</reportElement>
 				<box>
@@ -294,11 +294,10 @@ $F{NIT_EMP_BASCULA}.equals("9018263370") ? "CONQUERS ZF" :
             : ($F{BARCAZA} == null || $F{BARCAZA}.isEmpty())
                 ? "Carrotanque - Tanque"
                 : ""
-      )
-]]></textFieldExpression>
+      )]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="348" y="0" width="69" height="66" uuid="f77781b5-ff3c-40c5-8f7c-c2f1791a0c7a">
+				<reportElement x="348" y="0" width="69" height="37" uuid="f77781b5-ff3c-40c5-8f7c-c2f1791a0c7a">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e86b67e8-d67e-4ecb-965f-c459a81829f6"/>
 				</reportElement>
 				<box>
@@ -308,18 +307,17 @@ $F{NIT_EMP_BASCULA}.equals("9018263370") ? "CONQUERS ZF" :
 				<textFieldExpression><![CDATA[($F{TANQUE} == null || $F{TANQUE}.isEmpty()) ? "" : $F{TANQUE}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="417" y="0" width="69" height="66" uuid="76c30d73-7ec7-4cb5-8bdd-cecf5e7003cc">
+				<reportElement x="417" y="0" width="69" height="37" uuid="76c30d73-7ec7-4cb5-8bdd-cecf5e7003cc">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ff5dbd21-7a88-4ce3-87de-eb0c9d103a12"/>
 				</reportElement>
 				<box>
 					<pen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[($F{BARCAZA} == null || $F{BARCAZA}.isEmpty()) ? "" : $F{BARCAZA}
-]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{BARCAZA} == null || $F{BARCAZA}.isEmpty()) ? "" : $F{BARCAZA}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="486" y="0" width="69" height="66" uuid="3a334a63-f12b-4010-a45e-ae348428f828">
+				<reportElement x="486" y="0" width="69" height="37" uuid="3a334a63-f12b-4010-a45e-ae348428f828">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d1aa13ff-6aef-41fc-bb7f-16802b55b79a"/>
 				</reportElement>
 				<box>

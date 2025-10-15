@@ -101,17 +101,12 @@ public class Iniciar_Seccion_Servlet extends HttpServlet {
 
                 if (nit != null && !nit.isEmpty()) {
                     nit = nit.trim();
-                    if (nit.contains("-")) {
-                        nit = nit.substring(0, nit.indexOf("-"));
-                    } else if (nit.length() > 1) {
-                        nit = nit.substring(0, nit.length() - 1);
-                    }
                     e.setCodNit(nit);
                 }
                 Data = e.getCodNit();
                 //System.out.println(e.getCodciaUser() + " → " + e.getCodNit() + " → " + e.getRazonSocial());
             }
-            String safeNit = URLEncoder.encode(Data, "UTF-8");
+            String safeNit = Data;
 
             System.out.println("Código de estado: " + Data);
 
