@@ -209,21 +209,20 @@
 %>
 
 <%
-    // Lista de clientes (ideal mover a repositorio/DB)
     List<Cliente> clientes = Arrays.asList(
-        new Cliente("9003289140", "C I CARIBBEAN BUNKERS S A S"),
-        new Cliente("9006144232", "ATLANTIC MARINE FUELS S A S C I"),
-        new Cliente("8060058263", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-        new Cliente("9013129603", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-        new Cliente("9012220501", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-        new Cliente("8020240114", "C I INTERNATIONAL FUELS S A S"),
-        new Cliente("9011235498", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-        new Cliente("8060053461", "OPERACIONES TECNICAS MARINAS S A S"),
-        new Cliente("8190016678", "PETROLEOS DEL MILENIO S A S"),
-        new Cliente("9009922813", "C I PRODEXPORT DE COLOMBIA S A S"),
-        new Cliente("8904057693", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-        new Cliente("901.312.9603", "C I CONQUERS WORLD TRADE S A S"),
-        new Cliente("9018263370", "CONQUERS ZF")
+        new Cliente("900328914", "C I CARIBBEAN BUNKERS S A S"),
+        new Cliente("900614423", "ATLANTIC MARINE FUELS S A S C I"),
+        new Cliente("806005826", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
+        new Cliente("901312960", "C I CONQUERS WORLD TRADE S A S (CWT)"),
+        new Cliente("901222050", "C I FUELS AND BUNKERS COLOMBIA S A S"),
+        new Cliente("802024011", "C I INTERNATIONAL FUELS S A S"),
+        new Cliente("901123549", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
+        new Cliente("806005346", "OPERACIONES TECNICAS MARINAS S A S"),
+        new Cliente("819001667", "PETROLEOS DEL MILENIO S A S"),
+        new Cliente("900992281", "C I PRODEXPORT DE COLOMBIA S A S"),
+        new Cliente("890405769", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
+        new Cliente("901826337", "CONQUERS ZF"),
+        new Cliente("901427892", "MONJASA")
     );
 
     List<CitaVehiculo> listaCitas = (List<CitaVehiculo>) request.getAttribute("listaCitas");

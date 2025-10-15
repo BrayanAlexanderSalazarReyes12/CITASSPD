@@ -34,6 +34,7 @@
             $(document).ready(function () {
                 $('#myTable').DataTable({
                     scrollY: 400,
+                    pageLength: 50, // ← Aquí se especifica mostrar 20 registros por página
                     language: {
                         url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
                     }

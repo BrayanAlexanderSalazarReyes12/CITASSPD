@@ -206,7 +206,7 @@
                                 const tanquesPorCliente = {
                                   "cwtrade": ["TK101"],
                                   "conquers": ["TK110","TK109", "TK108", "TK102"],
-                                  "ocindustrial": ["TK105"],
+                                  "monjasa": ["TK105"],
                                   "amfuels": ["TK103", "TK104"],
                                   "prodexport": ["TK106"],
                                   "Puma Energy": ["TK107"]

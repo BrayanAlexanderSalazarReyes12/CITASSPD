@@ -20,7 +20,9 @@ import javax.servlet.http.HttpSession;
 import org.json.JSONObject;
 
 import com.google.gson.reflect.TypeToken;
+import com.spd.API.ListarEmpresas;
 import com.spd.CargarBarcazas.CargarBarcazas;
+import com.spd.ListarEmpresas.Empresas;
 import com.spd.Model.Usuario;
 
 import java.lang.reflect.Type;
@@ -45,155 +47,173 @@ public class Iniciar_Seccion_Servlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-       // Obtener los datos del formulario
-String usuario = request.getParameter("Usuario");
-String pass = request.getParameter("Contrasena");
+        // Obtener los datos del formulario
+        String usuario = request.getParameter("Usuario");
+        String pass = request.getParameter("Contrasena");
 
-// Limpiar sesión
-HttpSession session = request.getSession();
-session.setAttribute("hayOperacionValida", false);
-session.setAttribute("clienteForm", null);
-session.setAttribute("operacionesForm", null);
-session.setAttribute("fechaForm", null);
-session.setAttribute("verificacionForm", null);
-session.setAttribute("nitForm", null);
-session.setAttribute("cedulaForm", null);
-session.setAttribute("placaForm", null);
-session.setAttribute("manifiestoForm", null);
-session.setAttribute("cedulasExtras", null);
-session.setAttribute("placasExtras", null);
-session.setAttribute("manifiestosExtras", null);
-session.setAttribute("nombreconductor", null);
-session.setAttribute("nombreconductorExtras", null);
+        // Limpiar sesión
+        HttpSession session = request.getSession();
+        session.setAttribute("hayOperacionValida", false);
+        session.setAttribute("clienteForm", null);
+        session.setAttribute("operacionesForm", null);
+        session.setAttribute("fechaForm", null);
+        session.setAttribute("verificacionForm", null);
+        session.setAttribute("nitForm", null);
+        session.setAttribute("cedulaForm", null);
+        session.setAttribute("placaForm", null);
+        session.setAttribute("manifiestoForm", null);
+        session.setAttribute("cedulasExtras", null);
+        session.setAttribute("placasExtras", null);
+        session.setAttribute("manifiestosExtras", null);
+        session.setAttribute("nombreconductor", null);
+        session.setAttribute("nombreconductorExtras", null);
 
-// Guardar en sesión
-session.setAttribute("Usuario", usuario);
-session.setAttribute("Contrasena", pass);
+        // Guardar en sesión
+        session.setAttribute("Usuario", usuario);
+        session.setAttribute("Contrasena", pass);
 
-// Crear JSON del objeto
-Inicio_Seccion inicio = new Inicio_Seccion(usuario, pass);
-Gson gson = new Gson();
-String json = gson.toJson(inicio);
+        // Crear JSON del objeto
+        Inicio_Seccion inicio = new Inicio_Seccion(usuario, pass);
+        Gson gson = new Gson();
+        String json = gson.toJson(inicio);
 
-// Configurar respuesta
-response.setContentType("application/json");
-response.setCharacterEncoding("UTF-8");
+        // Configurar respuesta
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
 
-String url = "http://www.siza.com.co/spdcitas-1.0/api/citas/login";
+        String url = "http://www.siza.com.co/spdcitas-1.0/api/citas/login";
+        String Data = "";
+        
+        try {
+            LoginPost login = new LoginPost();
+            String response1 = login.Post(url, json);
+            System.out.println("Respuesta del servidor login: " + response1);
 
-try {
-    LoginPost login = new LoginPost();
-    String response1 = login.Post(url, json);
-    System.out.println("Respuesta del servidor login: " + response1);
+            JSONObject jsonResponse = new JSONObject(response1);
+            int status = jsonResponse.has("codigo") ? jsonResponse.getInt("codigo") : jsonResponse.optInt("error", -1);
+            long tiempo = jsonResponse.optLong("time", System.currentTimeMillis());
+            int rol = jsonResponse.has("rol") ? jsonResponse.getInt("rol") : jsonResponse.optInt("error", -1);
 
-    JSONObject jsonResponse = new JSONObject(response1);
-    int status = jsonResponse.has("codigo") ? jsonResponse.getInt("codigo") : jsonResponse.optInt("error", -1);
-    long tiempo = jsonResponse.optLong("time", System.currentTimeMillis());
-    int rol = jsonResponse.has("rol") ? jsonResponse.getInt("rol") : jsonResponse.optInt("error", -1);
-    String Data = jsonResponse.optString("data", "");
-    String safeNit = URLEncoder.encode(Data, "UTF-8");
-
-    System.out.println("Código de estado: " + Data);
-
-    switch (status) {
-        case 200:
-            // Guardar en sesión
-            session.setAttribute("Data", Data);
-
-            // Cookies
-            Cookie cookie2 = new Cookie("USUARIO", usuario);
-            cookie2.setMaxAge(3600);
-            cookie2.setPath("/CITASSPD");
-            response.addCookie(cookie2);
-
-            Cookie cookie1 = new Cookie("DATA",safeNit);
-            cookie1.setMaxAge(3600);
-            cookie1.setPath("/CITASSPD");
-            response.addCookie(cookie1);
-
-            Cookie cookie = new Cookie("SeccionIniciada", Long.toString(tiempo));
-            cookie.setMaxAge(3600);
-            cookie.setPath("/CITASSPD");
-            response.addCookie(cookie);
-
-            // Leer archivo de configuración
-            String path = getServletContext().getRealPath("/WEB-INF/json.env");
-            String content = new String(Files.readAllBytes(Paths.get(path)));
-            JSONObject jsonEnv = new JSONObject(content);
-            String TOKEN = jsonEnv.optString("TOKEN");
-
-            System.out.println("rol: " + rol);
+            List<Empresas> listaEmpresas = ListarEmpresas.GET("http://www.siza.com.co/spdcitas-1.0/api/citas/empresas");
             
-            session.setAttribute("Rol", rol);
-            
-            response.sendRedirect("JSP/TipoOperaciones.jsp");
-            break;
+            for (Empresas e : listaEmpresas) {
+                String nit = jsonResponse.optString("data", "");
 
-        case 400:
-            System.out.println("Error 400: Solicitud incorrecta.");
-            break;
-        case 401:
-            System.out.println("Error 401: No autorizado.");
-            Cookie cookieerror = new Cookie("ErrorConUser", "ErrorConUser");
-            cookieerror.setMaxAge(5);
-            response.addCookie(cookieerror);
-            response.sendRedirect("index.jsp");
-            break;
-        case 404:
-            System.out.println("Error 404: No encontrado.");
-            break;
-        case 500:
-            System.out.println("Error 500: Error del servidor.");
-            break;
-        default:
-            System.out.println("Respuesta inesperada: " + response1);
-            break;
-    }
+                if (nit != null && !nit.isEmpty()) {
+                    nit = nit.trim();
+                    if (nit.contains("-")) {
+                        nit = nit.substring(0, nit.indexOf("-"));
+                    } else if (nit.length() > 1) {
+                        nit = nit.substring(0, nit.length() - 1);
+                    }
+                    e.setCodNit(nit);
+                }
+                Data = e.getCodNit();
+                //System.out.println(e.getCodciaUser() + " → " + e.getCodNit() + " → " + e.getRazonSocial());
+            }
+            String safeNit = URLEncoder.encode(Data, "UTF-8");
 
-} catch (Exception e) {
-    System.out.println("Excepción en el servlet: " + e.getMessage());
-    e.printStackTrace();
-}
+            System.out.println("Código de estado: " + Data);
 
-    }
+            switch (status) {
+                case 200:
+                    // Guardar en sesión
+                    session.setAttribute("Data", Data);
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
+                    // Cookies
+                    Cookie cookie2 = new Cookie("USUARIO", usuario);
+                    cookie2.setMaxAge(3600);
+                    cookie2.setPath("/CITASSPD");
+                    response.addCookie(cookie2);
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
+                    Cookie cookie1 = new Cookie("DATA",safeNit);
+                    cookie1.setMaxAge(3600);
+                    cookie1.setPath("/CITASSPD");
+                    response.addCookie(cookie1);
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
+                    Cookie cookie = new Cookie("SeccionIniciada", Long.toString(tiempo));
+                    cookie.setMaxAge(3600);
+                    cookie.setPath("/CITASSPD");
+                    response.addCookie(cookie);
+
+                    // Leer archivo de configuración
+                    String path = getServletContext().getRealPath("/WEB-INF/json.env");
+                    String content = new String(Files.readAllBytes(Paths.get(path)));
+                    JSONObject jsonEnv = new JSONObject(content);
+                    String TOKEN = jsonEnv.optString("TOKEN");
+
+                    System.out.println("rol: " + rol);
+
+                    session.setAttribute("Rol", rol);
+
+                    response.sendRedirect("JSP/TipoOperaciones.jsp");
+                    break;
+
+                case 400:
+                    System.out.println("Error 400: Solicitud incorrecta.");
+                    break;
+                case 401:
+                    System.out.println("Error 401: No autorizado.");
+                    Cookie cookieerror = new Cookie("ErrorConUser", "ErrorConUser");
+                    cookieerror.setMaxAge(5);
+                    response.addCookie(cookieerror);
+                    response.sendRedirect("index.jsp");
+                    break;
+                case 404:
+                    System.out.println("Error 404: No encontrado.");
+                    break;
+                case 500:
+                    System.out.println("Error 500: Error del servidor.");
+                    break;
+                default:
+                    System.out.println("Respuesta inesperada: " + response1);
+                    break;
+            }
+
+        } catch (Exception e) {
+         System.out.println("Excepción en el servlet: " + e.getMessage());
+         e.printStackTrace();
+        }
+
+ }
+
+ // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+ /**
+  * Handles the HTTP <code>GET</code> method.
+  *
+  * @param request servlet request
+  * @param response servlet response
+  * @throws ServletException if a servlet-specific error occurs
+  * @throws IOException if an I/O error occurs
+  */
+ @Override
+ protected void doGet(HttpServletRequest request, HttpServletResponse response)
+         throws ServletException, IOException {
+     processRequest(request, response);
+ }
+
+ /**
+  * Handles the HTTP <code>POST</code> method.
+  *
+  * @param request servlet request
+  * @param response servlet response
+  * @throws ServletException if a servlet-specific error occurs
+  * @throws IOException if an I/O error occurs
+  */
+ @Override
+ protected void doPost(HttpServletRequest request, HttpServletResponse response)
+         throws ServletException, IOException {
+     processRequest(request, response);
+ }
+
+ /**
+  * Returns a short description of the servlet.
+  *
+  * @return a String containing servlet description
+  */
+ @Override
+ public String getServletInfo() {
+     return "Short description";
+ }// </editor-fold>
 
 }
