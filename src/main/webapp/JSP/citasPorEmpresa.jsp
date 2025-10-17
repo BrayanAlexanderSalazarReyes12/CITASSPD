@@ -182,50 +182,7 @@
 
 <h1>Listado de Citas por Empresa</h1>
 
-<%! 
-    // Clase Cliente simple
-    public static class Cliente {
-        private String nit;
-        private String nombre;
-
-        public Cliente(String nit, String nombre) {
-            this.nit = nit;
-            this.nombre = nombre;
-        }
-
-        public String getNit() { return nit; }
-        public String getNombre() { return nombre; }
-    }
-
-    // Buscar nombre de cliente por NIT
-    public String getNombreCliente(String nit, List<Cliente> clientes) {
-        for (Cliente c : clientes) {
-            if (c.getNit().equals(nit)) {
-                return c.getNombre();
-            }
-        }
-        return "Empresa Desconocida";
-    }
-%>
-
 <%
-    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-    List<Cliente> clientes = Arrays.asList(
-        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-        new Cliente("901826337-0", "CONQUERS ZF"),
-        new Cliente("901427892", "MONJASA")
-    );
-
     List<CitaVehiculo> listaCitas = (List<CitaVehiculo>) request.getAttribute("listaCitas");
 
     if (listaCitas == null || listaCitas.isEmpty()) {
@@ -239,10 +196,13 @@
     </script>
 <%
     } else {
-        // Agrupar por NIT  
+        // Crear un mapa para agrupar por NIT (compatible con Java 7)
         Map<String, List<CitaVehiculo>> agrupadoPorEmpresa = new LinkedHashMap<String, List<CitaVehiculo>>();
+
         for (CitaVehiculo cita : listaCitas) {
             String nit = cita.getNitempresaBas();
+            if (nit == null || nit.isEmpty()) continue;
+
             List<CitaVehiculo> lista = agrupadoPorEmpresa.get(nit);
             if (lista == null) {
                 lista = new ArrayList<CitaVehiculo>();
@@ -258,11 +218,11 @@
             int idx = 0;
             for (Map.Entry<String, List<CitaVehiculo>> entry : agrupadoPorEmpresa.entrySet()) {
                 String nit = entry.getKey();
-                String nombreEmpresa = getNombreCliente(nit, clientes);
         %>
             <button class="tab-button <%= idx == 0 ? "active" : "" %>"
+                    data-nit="<%= nit %>"
                     onclick="openTab(event, 'tab<%= nit.replaceAll("[^a-zA-Z0-9]", "") %>')">
-                <%= nombreEmpresa %> (NIT: <%= nit %>)
+                <span class="empresa" data-nit="<%= nit %>">Cargando...</span> (NIT: <%= nit %>)
             </button>
         <%
                 idx++;
@@ -271,14 +231,18 @@
     </div>
 
     <%
+        int index = 0;
         for (Map.Entry<String, List<CitaVehiculo>> entry : agrupadoPorEmpresa.entrySet()) {
             String nit = entry.getKey();
-            String nombreEmpresa = getNombreCliente(nit, clientes);
             String tableId = "myTable" + nit.replaceAll("[^a-zA-Z0-9]", "");
             List<CitaVehiculo> citasEmpresa = entry.getValue();
     %>
-        <div id="tab<%= nit.replaceAll("[^a-zA-Z0-9]", "") %>" class="tab-content">
-            <h2><%= nombreEmpresa %> – NIT: <%= nit %></h2>
+        <div id="tab<%= nit.replaceAll("[^a-zA-Z0-9]", "") %>" 
+             class="tab-content" 
+             style="<%= (index == 0) ? "display:block;" : "" %>">
+             
+            <h2><span class="empresa" data-nit="<%= nit %>">Cargando...</span> – NIT: <%= nit %></h2>
+            
             <table id="<%= tableId %>" class="display">
                 <thead>
                     <tr>
@@ -286,7 +250,7 @@
                         <th>Cédula</th>
                         <th>Nombre del Conductor</th>
                         <th>Manifiesto</th>
-                        <th>Operacion</th>
+                        <th>Operación</th>
                         <th>Tanque</th>
                         <th>Barcaza</th>
                         <th>Código de Cita</th>
@@ -294,54 +258,106 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% for (CitaVehiculo cita : citasEmpresa) { %>
+                    <% 
+                        for (CitaVehiculo cita : citasEmpresa) { 
+                    %>
                         <tr>
                             <td><%= cita.getPlaca() %></td>
                             <td><%= cita.getCedula() %></td>
                             <td><%= cita.getNombre() %></td>
                             <td><%= cita.getManifiesto() %></td>
                             <td>
-                                <%= 
-                                    "operacion de cargue".equalsIgnoreCase(cita.getOperacion()) 
-                                        ? (
-                                            (cita.getTanque() == null || cita.getTanque().isEmpty()) 
-                                                ? "barcaza - carrotanque" 
-                                                : (cita.getBarcaza() == null || cita.getBarcaza().isEmpty()) 
-                                                    ? "tanque - carrotanque" 
-                                                    : ""
-                                          )
-                                        : (
-                                            (cita.getTanque() == null || cita.getTanque().isEmpty()) 
-                                                ? "carrotanque - barcaza" 
-                                                : (cita.getBarcaza() == null || cita.getBarcaza().isEmpty()) 
-                                                    ? "carrotanque - tanque" 
-                                                    : ""
-                                            )
+                                <%
+                                    String operacion = cita.getOperacion() != null ? cita.getOperacion().toLowerCase() : "";
+                                    String descripcion = "";
+                                    
+                                    if ("operacion de cargue".equals(operacion)) {
+                                        if (cita.getTanque() == null || cita.getTanque().isEmpty()) {
+                                            descripcion = "barcaza - carrotanque";
+                                        } else if (cita.getBarcaza() == null || cita.getBarcaza().isEmpty()) {
+                                            descripcion = "tanque - carrotanque";
+                                        }
+                                    } else {
+                                        if (cita.getTanque() == null || cita.getTanque().isEmpty()) {
+                                            descripcion = "carrotanque - barcaza";
+                                        } else if (cita.getBarcaza() == null || cita.getBarcaza().isEmpty()) {
+                                            descripcion = "carrotanque - tanque";
+                                        }
+                                    }
                                 %>
+                                <%= descripcion %>
                             </td>
-                            <td><%= (cita.getTanque() == null || cita.getTanque().isEmpty()) ? "" : cita.getTanque() %></td>
-                            <td><%= (cita.getBarcaza()== null || cita.getBarcaza().isEmpty()) ? "" : cita.getBarcaza() %></td>
+                            <td><%= (cita.getTanque() != null) ? cita.getTanque() : "" %></td>
+                            <td><%= (cita.getBarcaza() != null) ? cita.getBarcaza() : "" %></td>
                             <td><%= cita.getCodCita() %></td>
                             <td><%= cita.getFechacita() %></td>
                         </tr>
-                        
                     <% } %>
                 </tbody>
             </table>
         </div>
     <%
-        }
+            index++;
+        } // fin for
     %>
-    <div>
+
+    <div style="margin-top:15px;">
         <input type="submit"
-            onclick="navegarInternamente('./ReporteCitasDiarias')"
-            value="Descargar Reporte"
-            style="background-color: #89b61f; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
-    </div> 
+               onclick="navegarInternamente('./ReporteCitasDiarias')"
+               value="Descargar Reporte"
+               style="background-color:#89b61f;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;">
+    </div>
 </div>
+
 <%
-    } // Fin else
+    } // fin else
 %>
 
+<!-- ✅ Script dinámico para cargar nombres de empresas desde el servlet y cachearlos -->
+<script>
+async function cargarEmpresas() {
+    const spans = document.querySelectorAll(".empresa[data-nit]");
+    let cacheClientes = JSON.parse(localStorage.getItem("cacheClientes")) || {};
+    let nuevos = 0;
+
+    for (const span of spans) {
+        const nit = span.dataset.nit.trim();
+        if (!nit) continue;
+
+        // Usa el nombre cacheado si existe
+        if (cacheClientes[nit]) {
+            span.textContent = cacheClientes[nit];
+            continue;
+        }
+
+        try {
+            const res = await fetch('./ObtenerCLientes?nit='+encodeURIComponent(nit));
+            if (!res.ok) throw new Error("Error HTTP " + res.status);
+            const data = await res.json();
+            let nombre = "Empresa desconocida";
+
+            if (data && data.length > 0) nombre = data[0].Nombre || "Sin nombre";
+            span.textContent = nombre;
+            cacheClientes[nit] = nombre;
+            nuevos++;
+
+        } catch (err) {
+            console.error("❌ Error consultando empresa:", err);
+            span.textContent = "Error";
+        }
+    }
+
+    // Guarda caché actualizado
+    if (nuevos > 0)
+        localStorage.setItem("cacheClientes", JSON.stringify(cacheClientes));
+}
+
+// Cargar nombres al iniciar
+document.addEventListener("DOMContentLoaded", cargarEmpresas);
+
+
+</script>
+
 </body>
+
 </html>

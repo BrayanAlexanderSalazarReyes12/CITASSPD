@@ -54,7 +54,7 @@
         
         <script>
             $(document).ready(function () {
-                ['#myTable', '#myTable2', '#myTable3', '#myTable4'].forEach(function (id) {
+                ['#myTable', '#myTable2', '#myTable3', '#myTable4', '#tablaFMM'].forEach(function (id) {
                     $(id).DataTable({
                         scrollY: 400,
                         pageLength: 50, // ← Aquí se especifica mostrar 20 registros por página
@@ -290,7 +290,7 @@
                                                 <th>Cedula conductor</th>
                                                 <th>Nombre conductor</th>
                                                 <th>Manifiesto</th>
-                                                <th>Compañia</th>
+                                                <th>Compañía</th>
                                                 <th>Fecha</th>
                                                 <th>Ingreso Carrotanque</th>
                                             </tr>
@@ -298,124 +298,74 @@
                                         <tbody>
                                             <%
                                             for (ListadoCItas listado : ListadoCitas2) {
+                                                List<ListaVehiculos> vehiculos = listado.getVehiculos();
+                                                if (vehiculos != null) {
+                                                    for (ListaVehiculos v : vehiculos) {
+                                                        String fechaStr = v.getFechaOfertaSolicitud();
+                                                        if (fechaStr != null && !fechaStr.isEmpty()) {
 
-                                                String nit_final = nit.replaceAll("[^0-9]", "");
+                                                            java.text.SimpleDateFormat sdfEntrada = new java.text.SimpleDateFormat("MMM d, yyyy h:mm:ss a", java.util.Locale.ENGLISH);
+                                                            java.text.SimpleDateFormat sdfSalida = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm");
+                                                            java.util.Date fechaVehiculo = null;
+                                                            try {
+                                                                fechaVehiculo = sdfEntrada.parse(fechaStr);
+                                                            } catch (Exception e) {
+                                                                e.printStackTrace();
+                                                            }
 
-                                                // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                    List<Cliente> clientes = Arrays.asList(
-                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("901826337-0", "CONQUERS ZF"),
-                                                        new Cliente("901427892", "MONJASA")
-                                                    );
+                                                            if (fechaVehiculo != null) {
+                                                                boolean mostrarVehiculo = filtro == null ||
+                                                                    (v.getVehiculoNumPlaca() != null && v.getVehiculoNumPlaca().toLowerCase().contains(filtro)) ||
+                                                                    (v.getNumManifiestoCarga() != null && v.getNumManifiestoCarga().toLowerCase().contains(filtro));
 
-                                                String empresaUsuario = null;
-                                                for (Cliente cliente : clientes) {
-                                                    if (cliente.getNit().equals(listado.getNit())) {
-                                                        empresaUsuario = cliente.getEmpresa();
-                                                        break;
-                                                    }
-                                                }
-
-                                                // Conversión de fecha manual (sin Instant ni OffsetDateTime)
-                                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                                                java.util.Date fechaAprobacion = sdf.parse(listado.getFecha_Creacion_Cita());
-                                                java.util.Calendar cal = java.util.Calendar.getInstance();
-                                                cal.setTime(fechaAprobacion);
-                                                java.util.Calendar hoyCal = java.util.Calendar.getInstance();
-
-                                                boolean mismaFecha = cal.get(java.util.Calendar.YEAR) == hoyCal.get(java.util.Calendar.YEAR) &&
-                                                                     cal.get(java.util.Calendar.DAY_OF_YEAR) == hoyCal.get(java.util.Calendar.DAY_OF_YEAR);
-
-                                                if (mismaFecha) {
-                                                    List<ListaVehiculos> vehiculos = listado.getVehiculos();
-                                                    if (vehiculos != null) {
-                                                        for (ListaVehiculos v : vehiculos) {
-                                                            String fechaStr = v.getFechaOfertaSolicitud();
-                                                            if (fechaStr != null && !fechaStr.isEmpty()) {
-
-                                                                // Formateo manual compatible
-                                                                java.text.SimpleDateFormat sdfEntrada = new java.text.SimpleDateFormat("MMM d, yyyy h:mm:ss a", java.util.Locale.ENGLISH);
-                                                                java.text.SimpleDateFormat sdfSalida = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm");
-                                                                java.util.Date fechaVehiculo = null;
-                                                                try {
-                                                                    fechaVehiculo = sdfEntrada.parse(fechaStr);
-                                                                } catch (Exception e) {
-                                                                    e.printStackTrace();
-                                                                }
-
-                                                                if (fechaVehiculo != null) {
-                                                                    java.util.Calendar calVeh = java.util.Calendar.getInstance();
-                                                                    calVeh.setTime(fechaVehiculo);
-                                                                    boolean mismaFechaVeh = calVeh.get(java.util.Calendar.YEAR) == hoyCal.get(java.util.Calendar.YEAR) &&
-                                                                                            calVeh.get(java.util.Calendar.DAY_OF_YEAR) == hoyCal.get(java.util.Calendar.DAY_OF_YEAR);
-
-                                                                    if (mismaFechaVeh) {
-                                                                        boolean mostrarVehiculo = filtro == null ||
-                                                                            (v.getVehiculoNumPlaca() != null && v.getVehiculoNumPlaca().toLowerCase().contains(filtro)) ||
-                                                                            (v.getNumManifiestoCarga() != null && v.getNumManifiestoCarga().toLowerCase().contains(filtro));
-
-                                                                        if (mostrarVehiculo) {
-                                                                            // 🔍 Determinar estado
-                                                                            String estado = "pendiente"; // por defecto
-                                                                            if (ListadoCarrotanque != null && !ListadoCarrotanque.isEmpty()) {
-                                                                                for (InformacionCarrotanque lc : ListadoCarrotanque) {
-                                                                                    if (lc.getPlaca().equalsIgnoreCase(v.getVehiculoNumPlaca())) {
-                                                                                        // Si tu objeto tiene estado, úsalo. Si no, puedes decidir aquí:
-                                                                                        estado = lc.getEstado() != null ? lc.getEstado() : "ingresado";
-                                                                                        break;
-                                                                                    }
-                                                                                }
+                                                                if (mostrarVehiculo) {
+                                                                    // Estado del carrotanque
+                                                                    String estado = "pendiente"; 
+                                                                    if (ListadoCarrotanque != null && !ListadoCarrotanque.isEmpty()) {
+                                                                        for (InformacionCarrotanque lc : ListadoCarrotanque) {
+                                                                            if (lc.getPlaca().equalsIgnoreCase(v.getVehiculoNumPlaca())) {
+                                                                                estado = lc.getEstado() != null ? lc.getEstado() : "ingresado";
+                                                                                break;
                                                                             }
-
-                                                                            // 🎨 Asignar color, texto y acción (sin switch)
-                                                                            String color = "";
-                                                                            String textoBoton = "";
-                                                                            String accion = "";
-
-                                                                            if ("ingresado".equalsIgnoreCase(estado)) {
-                                                                                color = "background-color: orange;";
-                                                                                textoBoton = "FINALIZAR";
-                                                                                accion = "RegistrarSalida(this)";
-                                                                            } else if ("finalizado".equalsIgnoreCase(estado)) {
-                                                                                color = "background-color: #007bff; color: white;";
-                                                                                textoBoton = "FINALIZADO";
-                                                                                accion = "Finalizado(this)";
-                                                                            } else {
-                                                                                color = "background-color: #89b61f;";
-                                                                                textoBoton = "INGRESAR";
-                                                                                accion = "RegistrarIngreso(this)";
-                                                                            }
-
-                                                                            String fechaFormateada = sdfSalida.format(fechaVehiculo);
-                                            %>
-                                                                            <tr>
-                                                                                <td><%= listado.getCodCita() %></td>
-                                                                                <td><%= v.getVehiculoNumPlaca() %></td>
-                                                                                <td><%= v.getConductorCedulaCiudadania() %></td>
-                                                                                <td><%= v.getNombreConductor() %></td>
-                                                                                <td><%= v.getNumManifiestoCarga() %></td>
-                                                                                <td><%= empresaUsuario %></td>
-                                                                                <td><%= fechaFormateada %></td>
-                                                                                <td>
-                                                                                    <input type="submit"
-                                                                                           onclick="<%= accion %>"
-                                                                                           value="<%= textoBoton %>"
-                                                                                           style="<%= color %> border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
-                                                                                </td>
-                                                                            </tr>
-                                            <%
                                                                         }
                                                                     }
+
+                                                                    String color = "";
+                                                                    String textoBoton = "";
+                                                                    String accion = "";
+
+                                                                    if ("ingresado".equalsIgnoreCase(estado)) {
+                                                                        color = "background-color: orange;";
+                                                                        textoBoton = "FINALIZAR";
+                                                                        accion = "RegistrarSalida(this)";
+                                                                    } else if ("finalizado".equalsIgnoreCase(estado)) {
+                                                                        color = "background-color: #007bff; color: white;";
+                                                                        textoBoton = "FINALIZADO";
+                                                                        accion = "Finalizado(this)";
+                                                                    } else {
+                                                                        color = "background-color: #89b61f;";
+                                                                        textoBoton = "INGRESAR";
+                                                                        accion = "RegistrarIngreso(this)";
+                                                                    }
+
+                                                                    String fechaFormateada = sdfSalida.format(fechaVehiculo);
+                                            %>
+                                            <tr data-nit="<%= listado.getNit() %>">
+                                                <td><%= listado.getCodCita() %></td>
+                                                <td><%= v.getVehiculoNumPlaca() %></td>
+                                                <td><%= v.getConductorCedulaCiudadania() %></td>
+                                                <td><%= v.getNombreConductor() %></td>
+                                                <td><%= v.getNumManifiestoCarga() %></td>
+                                                <td class="compania">Cargando...</td>
+                                                <td><%= fechaFormateada %></td>
+                                                <td>
+                                                    <input type="submit"
+                                                           onclick="<%= accion %>"
+                                                           value="<%= textoBoton %>"
+                                                           style="<%= color %> border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
+                                                </td>
+                                            </tr>
+                                            <%
                                                                 }
                                                             }
                                                         }
@@ -423,10 +373,73 @@
                                                 }
                                             }
                                             %>
-                                            </tbody>
-
-
+                                        </tbody>
                                     </table>
+
+                                    <!-- ✅ Script para manejar caché local de compañías -->
+                                    <script>
+                                        async function cargarCompanias() {
+                                            const filas = document.querySelectorAll("#myTable tbody tr");
+
+                                            // 🧠 Leer cache de localStorage (si no existe, crear vacío)
+                                            let cacheClientes = JSON.parse(localStorage.getItem("cacheClientes")) || {};
+                                            let nuevosConsultados = 0; // contador para saber cuántos se consultan nuevos
+
+                                            for (const fila of filas) {
+                                                const nit = fila.dataset.nit?.trim();
+                                                const celdaCompania = fila.querySelector(".compania");
+
+                                                if (!nit) {
+                                                    celdaCompania.textContent = "Sin NIT";
+                                                    continue;
+                                                }
+
+                                                // ✅ Si ya está guardado en cache, usarlo directamente
+                                                if (cacheClientes[nit]) {
+                                                    celdaCompania.textContent = cacheClientes[nit];
+                                                    continue;
+                                                }
+
+                                                // 🚀 Si no está en cache, consultar al servlet
+                                                try {
+                                                    const response = await fetch('../ObtenerCLientes?nit='+encodeURIComponent(nit));
+                                                    if (!response.ok) throw new Error("Error HTTP " + response.status);
+
+                                                    const data = await response.json();
+                                                    let nombreEmpresa = "No encontrado";
+
+                                                    if (data && data.length > 0) {
+                                                        nombreEmpresa = data[0].Nombre || "Sin nombre";
+                                                    }
+
+                                                    // Mostrar y guardar en cache
+                                                    celdaCompania.textContent = nombreEmpresa;
+                                                    cacheClientes[nit] = nombreEmpresa;
+                                                    localStorage.setItem("cacheClientes", JSON.stringify(cacheClientes));
+
+                                                    nuevosConsultados++;
+                                                } catch (error) {
+                                                    console.error("❌ Error al obtener cliente:", error);
+                                                    celdaCompania.textContent = "Error";
+                                                }
+                                            }
+
+                                            if (nuevosConsultados > 0) {
+                                                console.log(`🔄 Se consultaron ${nuevosConsultados} nuevos NIT(s) y se guardaron en caché.`);
+                                            } else {
+                                                console.log("✅ Todos los NIT ya estaban en caché. No se consultó nada nuevo.");
+                                            }
+                                        }
+
+                                        // 🧹 Limpieza manual del caché (opcional)
+                                        function limpiarCacheClientes() {
+                                            localStorage.removeItem("cacheClientes");
+                                            console.log("🧹 Caché de clientes eliminado manualmente.");
+                                        }
+
+                                        // 🚀 Ejecutar al cargar la página
+                                        document.addEventListener("DOMContentLoaded", cargarCompanias);
+                                </script>
                                             <script>
                                                 function RegistrarIngreso(boton) {
                                                     // Obtener la fila <tr> donde está el botón
@@ -527,114 +540,127 @@
                                             }else if(rol == 8){ 
                                     %>
                                             <h3>📋 Lista de citas de camiones del día - <%= hoy %></h3>
-                                    <table id="myTable" class="display">
-                                        <thead>
-                                            <tr>
-                                                <th>Placa</th>
-                                                <th>Cedula conductor</th>
-                                                <th>Nombre conductor</th>
-                                                <th>Manifiesto</th>
-                                                <th>Compañia</th>
-                                                <th>Fecha</th>
-                                                <th>Fmm</th>
-                                                <th>Copiar FMM</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <%
-                                                for (ListadoCItas listado : ListadoCitas2) {
-                                                    
-                                                    String nit_final = nit.replaceAll("[^0-9]", "");
-                                                    
-                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                    List<Cliente> clientes = Arrays.asList(
-                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("901826337-0", "CONQUERS ZF"),
-                                                        new Cliente("901427892", "MONJASA")
-                                                    );
-                                                    
-                                                    String empresaUsuario = null;
+                                            <table id="tablaFMM" class="display">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Placa</th>
+                                                        <th>Cedula conductor</th>
+                                                        <th>Nombre conductor</th>
+                                                        <th>Manifiesto</th>
+                                                        <th>Compañia</th>
+                                                        <th>Fecha</th>
+                                                        <th>Fmm</th>
+                                                        <th>Copiar FMM</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <%
+                                                    for (ListadoCItas listado : ListadoCitas2) {
 
-                                                    // Buscar la empresa asociada al NIT
-                                                    for (Cliente cliente : clientes) {
-                                                        if (cliente.getNit().equals(listado.getNit())) {
-                                                            empresaUsuario = cliente.getEmpresa();
-                                                            break;
-                                                        }
-                                                    }
-                                                    System.out.println("empresa: " + empresaUsuario);
-                                                    
-                                                    System.out.println(listado.getNit() + " " + nit_final);
-                                                
-                                                    // Convertir a OffsetDateTime (zona UTC, puedes cambiar el offset si deseas)
-                                                    OffsetDateTime offsetDateTime = Instant.ofEpochMilli(listado.getFeAprobacion()).atOffset(ZoneOffset.UTC);
+                                                        List<ListaVehiculos> vehiculos = listado.getVehiculos();
+                                                        if (vehiculos != null) {
+                                                            for (ListaVehiculos v : vehiculos) {
+                                                                String fechaStr = v.getFechaOfertaSolicitud();
+                                                                if (fechaStr != null && !fechaStr.isEmpty()) {
+                                                                    java.time.LocalDateTime fechaVehiculo = java.time.LocalDateTime.parse(
+                                                                        fechaStr,
+                                                                        java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a", java.util.Locale.ENGLISH)
+                                                                    );
 
-                                                    // Obtener LocalDate
-                                                    LocalDate fechaCita = offsetDateTime.toLocalDate();
+                                                                    String fechaFormateada = fechaVehiculo.format(
+                                                                        java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
+                                                                    );
 
-                                                    // Formatear con fecha y hora
-                                                    String fechaConHora = offsetDateTime.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-                                                    if (fechaCita.equals(hoy)) {
-                                                        boolean mostrar = filtro == null || 
-                                                            (listado.getPlaca() != null && listado.getPlaca().toLowerCase().contains(filtro)) ||
-                                                            (listado.getManifiesto() != null && listado.getManifiesto().toLowerCase().contains(filtro));
-
-                                                        if (mostrar) {
-                                            %>
-                                            <%
-                                                        }
-                                                    }
-
-                                                    // Vehículos asociados
-                                                    List<ListaVehiculos> vehiculos = listado.getVehiculos();
-                                                    if (vehiculos != null) {
-                                                        for (ListaVehiculos v : vehiculos) {
-                                                            String fechaStr = v.getFechaOfertaSolicitud();
-                                                            if (fechaStr != null && !fechaStr.isEmpty()) {
-                                                                LocalDateTime fechaVehiculo = LocalDateTime.parse(fechaStr, DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a", Locale.ENGLISH));
-                                                                // Formatear sin la T
-                                                                String fechaFormateada = fechaVehiculo.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
-                                                                System.out.println(fechaFormateada);
-                                                                if (fechaVehiculo.toLocalDate().equals(hoy)) {
                                                                     boolean mostrarVehiculo = filtro == null ||
                                                                         (v.getVehiculoNumPlaca() != null && v.getVehiculoNumPlaca().toLowerCase().contains(filtro)) ||
                                                                         (v.getNumManifiestoCarga() != null && v.getNumManifiestoCarga().toLowerCase().contains(filtro));
 
                                                                     if (mostrarVehiculo) {
-                                            %>
-                                            <tr>
-                                                <td><%= v.getVehiculoNumPlaca() %></td>
-                                                <td><%= v.getConductorCedulaCiudadania() %></td>
-                                                <td><%= v.getNombreConductor() %></td>
-                                                <td><%= v.getNumManifiestoCarga() %></td>
-                                                <td><%= empresaUsuario %></td>
-                                                <td><%= fechaFormateada %></td>
-                                                <td id="<%= listado.getFmm() %>">
-                                                    <%= listado.getFmm() %>
-                                                </td>
-                                                <td><button onclick="copiarTexto('<%= listado.getFmm() %>')">📋</button></td>
-                                            </tr>
-                                            <%
+                                                    %>
+                                                    <tr data-nit="<%= listado.getNit() %>">
+                                                        <td><%= v.getVehiculoNumPlaca() %></td>
+                                                        <td><%= v.getConductorCedulaCiudadania() %></td>
+                                                        <td><%= v.getNombreConductor() %></td>
+                                                        <td><%= v.getNumManifiestoCarga() %></td>
+                                                        <td class="compania">Cargando...</td>
+                                                        <td><%= fechaFormateada %></td>
+                                                        <td id="<%= listado.getFmm() %>"><%= listado.getFmm() %></td>
+                                                        <td><button onclick="copiarTexto('<%= listado.getFmm() %>')">📋</button></td>
+                                                    </tr>
+                                                    <%
                                                                     }
                                                                 }
                                                             }
                                                         }
                                                     }
+                                                    %>
+                                                </tbody>
+                                            </table>
+
+                                            <!-- ✅ Script para cargar compañías con caché local -->
+                                            <script>
+                                            async function cargarCompaniasFMM() {
+                                                const filas = document.querySelectorAll("#tablaFMM tbody tr");
+                                                let cacheClientes = JSON.parse(localStorage.getItem("cacheClientes")) || {};
+                                                let nuevosConsultados = 0;
+
+                                                for (const fila of filas) {
+                                                    const nit = fila.dataset.nit?.trim();
+                                                    const celdaCompania = fila.querySelector(".compania");
+
+                                                    if (!nit) {
+                                                        celdaCompania.textContent = "Sin NIT";
+                                                        continue;
+                                                    }
+
+                                                    // ✅ Si ya está guardado en cache, usarlo directamente
+                                                    if (cacheClientes[nit]) {
+                                                        celdaCompania.textContent = cacheClientes[nit];
+                                                        continue;
+                                                    }
+
+                                                    // 🚀 Si no está en cache, consultar al servlet
+                                                    try {
+                                                        const response = await fetch('../ObtenerCLientes?nit='+encodeURIComponent(nit));
+                                                        if (!response.ok) throw new Error("Error HTTP " + response.status);
+
+                                                        const data = await response.json();
+                                                        let nombreEmpresa = "No encontrado";
+
+                                                        if (data && data.length > 0) {
+                                                            nombreEmpresa = data[0].empresa || "Sin nombre";
+                                                        }
+
+                                                        celdaCompania.textContent = nombreEmpresa;
+
+                                                        // Guardar en caché
+                                                        cacheClientes[nit] = nombreEmpresa;
+                                                        localStorage.setItem("cacheClientes", JSON.stringify(cacheClientes));
+                                                        nuevosConsultados++;
+
+                                                    } catch (error) {
+                                                        console.error("❌ Error al obtener cliente:", error);
+                                                        celdaCompania.textContent = "Error";
+                                                    }
                                                 }
-                                            %>
-                                        </tbody>
-                                    </table>
+
+                                                if (nuevosConsultados > 0) {
+                                                    console.log(`🔄 Tabla FMM: se consultaron ${nuevosConsultados} nuevos NIT(s).`);
+                                                } else {
+                                                    console.log("✅ Tabla FMM: todos los NIT ya estaban en caché.");
+                                                }
+                                            }
+
+                                            // 🧹 Limpiar cache manualmente
+                                            function limpiarCacheClientes() {
+                                                localStorage.removeItem("cacheClientes");
+                                                console.log("🧹 Caché de clientes eliminado manualmente.");
+                                            }
+
+                                            // 🚀 Ejecutar al cargar la página
+                                            document.addEventListener("DOMContentLoaded", cargarCompaniasFMM);
+                                            </script>
+
                                     <script>
                                         function copiarTexto(idElemento) {
                                             const texto = document.getElementById(idElemento).innerText;
@@ -675,54 +701,26 @@
                                             <%
                                                 for (ListadoCItas listado : ListadoCitas) {
                                                     String nit_final = nit.replaceAll("[^0-9]", "");
-                                                    
-                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                    List<Cliente> clientes = Arrays.asList(
-                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("901826337-0", "CONQUERS ZF"),
-                                                        new Cliente("901427892", "MONJASA")
-                                                    );
-                                                    
+
                                                     String empresaUsuario = null;
 
-                                                    // Buscar la empresa asociada al NIT
-                                                    for (Cliente cliente : clientes) {
-                                                        if (cliente.getNit().equals(listado.getNit())) {
-                                                            empresaUsuario = cliente.getEmpresa();
-                                                            break;
-                                                        }
-                                                    }
-                                                    System.out.println("empresa: " + empresaUsuario);
-                                                    
                                                     System.out.println(listado.getVehiculos().size());
-                                                    
-                                                    
                                                     System.out.println(listado.getNit() + " " + nit_final);
+
                                                     if (listado.getNit().equals(nit_final)) {
                                                         OffsetDateTime odt = OffsetDateTime.parse(listado.getFecha_Creacion_Cita());
                                                         String fechaSinZona = odt.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                                                        
                                             %>
-                                            <tr>
+                                            <tr data-nit="<%= listado.getNit() %>">
                                                 <td><%= listado.getCodCita() %></td>
-                                                <td><%= empresaUsuario %></td>
+                                                <!-- Aquí se reemplazará dinámicamente el nombre de la empresa -->
+                                                <td class="empresa">Cargando...</td>
                                                 <td><%= listado.getTipo_Operacion() %></td>
                                                 <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                 <td><%= fechaSinZona %></td>
                                                 <td>
                                                     <div class="Botones_tabla">
                                                         <input type="button" onclick="window.location.href='../JSP/Tabla_Carros_Citas.jsp?registro=<%= listado.getCodCita() %>'" value="📋 Ver">
-                                                        
                                                     </div>
                                                 </td>
                                             </tr>
@@ -733,6 +731,60 @@
                                         </tbody>
                                     </table>
 
+                                    <!-- ✅ Script que obtiene el nombre de la empresa desde el servlet usando fetch -->
+                                    <script>
+                                    async function cargarEmpresas() {
+                                        const filas = document.querySelectorAll("#myTable tbody tr");
+                                        let cacheClientes = JSON.parse(localStorage.getItem("cacheClientes")) || {};
+                                        let nuevos = 0;
+
+                                        for (const fila of filas) {
+                                            const nit = fila.dataset.nit?.trim();
+                                            const celda = fila.querySelector(".empresa");
+
+                                            if (!nit) {
+                                                celda.textContent = "Sin NIT";
+                                                continue;
+                                            }
+
+                                            // Si ya está en caché, úsalo directamente
+                                            if (cacheClientes[nit]) {
+                                                celda.textContent = cacheClientes[nit];
+                                                continue;
+                                            }
+
+                                            // Si no está en caché, consultarlo desde el servlet
+                                            try {
+                                                const response = await fetch('../ObtenerCLientes?nit='+encodeURIComponent(nit));
+                                                if (!response.ok) throw new Error("Error HTTP " + response.status);
+
+                                                const data = await response.json();
+                                                let empresa = "No encontrado";
+
+                                                if (data && data.length > 0) {
+                                                    empresa = data[0].Nombre || "Sin nombre";
+                                                }
+
+                                                celda.textContent = empresa;
+                                                cacheClientes[nit] = empresa;
+                                                localStorage.setItem("cacheClientes", JSON.stringify(cacheClientes));
+                                                nuevos++;
+                                            } catch (err) {
+                                                console.error("Error al obtener empresa:", err);
+                                                celda.textContent = "Error";
+                                            }
+                                        }
+
+                                        if (nuevos > 0)
+                                            console.log(`🔄 Se consultaron ${nuevos} nuevos NIT.`);
+                                        else
+                                            console.log("✅ Todos los NIT ya estaban en caché.");
+                                    }
+
+                                    // Ejecutar al cargar la página
+                                    document.addEventListener("DOMContentLoaded", cargarEmpresas);
+
+                                    </script>
                                     <%
                                             } else {
                                     %>
@@ -751,58 +803,92 @@
                                         <tbody>
                                             <%
                                                 for (ListadoCItas listado : ListadoCitas) {
-                                                
-                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                    List<Cliente> clientes = Arrays.asList(
-                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                        new Cliente("901826337-0", "CONQUERS ZF"),
-                                                        new Cliente("901427892", "MONJASA")
-                                                    );
-                                                    
-                                                    String empresaUsuario = null;
-
-                                                    // Buscar la empresa asociada al NIT
-                                                    for (Cliente cliente : clientes) {
-                                                        if (cliente.getNit().equals(listado.getNit())) {
-                                                            empresaUsuario = cliente.getEmpresa();
-                                                            break;
-                                                        }
-                                                    }
                                                     String fechaCreacion = listado.getFecha_Creacion_Cita();
                                                     if (fechaCreacion != null && !fechaCreacion.isEmpty()) {
                                                         OffsetDateTime odt = OffsetDateTime.parse(listado.getFecha_Creacion_Cita());
                                                         String fechaSinZona = odt.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                                                    
-                                                    
                                             %>
-                                            <tr>
+                                            <!-- 🔹 Aquí añadimos el data-nit para usarlo desde JavaScript -->
+                                            <tr data-nit="<%= listado.getNit() %>">
                                                 <td><%= listado.getCodCita() %></td>
-                                                <td><%= empresaUsuario %></td>
+                                                <!-- 👇 Esta celda será reemplazada dinámicamente con el nombre real -->
+                                                <td class="empresa">Cargando...</td>
                                                 <td><%= listado.getTipo_Operacion() %></td>
                                                 <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                 <td><%= fechaSinZona %></td>
                                                 <td>
                                                     <div class="Botones_tabla">
-                                                        <input type="button" onclick="window.location.href='../JSP/Tabla_Carros_Citas.jsp?registro=<%= listado.getCodCita() %>'" value="📋 Ver">
-                                                       
+                                                        <input type="button"
+                                                               onclick="window.location.href='../JSP/Tabla_Carros_Citas.jsp?registro=<%= listado.getCodCita() %>'"
+                                                               value="📋 Ver">
                                                     </div>
                                                 </td>
                                             </tr>
                                             <%
-                                                }}
+                                                    }
+                                                }
                                             %>
                                         </tbody>
                                     </table>
+
+                                    <!-- ✅ Script para cargar nombres de empresa desde el servlet y guardar en cache -->
+                                    <script>
+                                    async function cargarEmpresas() {
+                                        const filas = document.querySelectorAll("#myTable tbody tr");
+                                        let cacheClientes = JSON.parse(localStorage.getItem("cacheClientes")) || {};
+                                        let nuevosConsultados = 0;
+
+                                        for (const fila of filas) {
+                                            const nit = fila.dataset.nit?.trim();
+                                            const celda = fila.querySelector(".empresa");
+
+                                            if (!nit) {
+                                                celda.textContent = "Sin NIT";
+                                                continue;
+                                            }
+
+                                            // Si ya está cacheado, úsalo
+                                            if (cacheClientes[nit]) {
+                                                celda.textContent = cacheClientes[nit];
+                                                continue;
+                                            }
+
+                                            // Consultar desde el servlet si no está en caché
+                                            try {
+                                                const response = await fetch('../ObtenerCLientes?nit='+encodeURIComponent(nit));
+                                                if (!response.ok) throw new Error("Error HTTP " + response.status);
+
+                                                const data = await response.json();
+                                                let nombreEmpresa = "No encontrado";
+
+                                                if (data && data.length > 0) {
+                                                    nombreEmpresa = data[0].Nombre || "Sin nombre";
+                                                }
+
+                                                celda.textContent = nombreEmpresa;
+
+                                                // Guardar en localStorage
+                                                cacheClientes[nit] = nombreEmpresa;
+                                                localStorage.setItem("cacheClientes", JSON.stringify(cacheClientes));
+                                                nuevosConsultados++;
+
+                                            } catch (error) {
+                                                console.error("❌ Error al obtener empresa:", error);
+                                                celda.textContent = "Error";
+                                            }
+                                        }
+
+                                        if (nuevosConsultados > 0)
+                                            console.log(`🔄 Se consultaron ${nuevosConsultados} nuevos NIT.`);
+                                        else
+                                            console.log("✅ Todos los NIT ya estaban en caché.");
+                                    }
+
+                                    // 🚀 Ejecutar cuando cargue la página
+                                    document.addEventListener("DOMContentLoaded", cargarEmpresas);
+
+                                    </script>
+
                                     <%
                                             }
                                         }
@@ -826,45 +912,16 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                
-                                                <%
-                                                    if (rolObj != null && ((Integer) rolObj) == 2){
-                                                 
+                                                    <%
+                                                        if (rolObj != null && ((Integer) rolObj) == 2){
                                                             for(ListadoCItas listado: ListadoCitas2){
                                                                 String nit_final = nit.replace("-", "");
-                                                    
                                                                 System.out.println(listado.getNit() + " " + nit_final);
-                                                                if (listado.getNit().equals(nit_final))
-                                                                {
+
+                                                                if (listado.getNit().equals(nit_final)) {
                                                                 
-                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                    List<Cliente> clientes = Arrays.asList(
-                                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                        new Cliente("901826337-0", "CONQUERS ZF"),
-                                                                        new Cliente("901427892", "MONJASA")
-                                                                    );
-
-                                                                    String empresaUsuario = null;
-
-                                                                    // Buscar la empresa asociada al NIT
-                                                                    for (Cliente cliente : clientes) {
-                                                                        if (cliente.getNit().equals(listado.getNit())) {
-                                                                            empresaUsuario = cliente.getEmpresa();
-                                                                            break;
-                                                                        }
-                                                                    }
                                                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
-                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
+                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal);
                                                                     LocalDateTime ldt = odt.toLocalDateTime();
                                                                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                                                                     DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -875,95 +932,111 @@
                                                                     LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                                                                     DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                                                                     String fechaactual = ldt1.format(formatter2);
-                                                                    
+
                                                                     if (fecha.equals(fechaactual)) {
-
-                                                %>
-                                                <tr>
-                                                    <td><%= listado.getCodCita() %></td>
-                                                    <td><%= empresaUsuario %></td>
-                                                    <td><%= listado.getTipo_Operacion() %></td>
-                                                    <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
-                                                    <td><%= fechaSinZona %></td>
-                                                    <td>
-                                                        <div class="Botones_tabla">
-                                                            <input type="button"
-                                                                   onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
-                                                                   value="📋 Ver">
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <%
-                                                    }}}} else if (rolObj != null && ((Integer) rolObj) == 1){
-                                                %>
-                                                        <%
-                                                            for(ListadoCItas listado: ListadoCitas2){
-                                                                    
-                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                    List<Cliente> clientes = Arrays.asList(
-                                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                        new Cliente("901826337-0", "CONQUERS ZF"),
-                                                                        new Cliente("901427892", "MONJASA")
-                                                                    );
-
-                                                                    String empresaUsuario = null;
-
-                                                                    // Buscar la empresa asociada al NIT
-                                                                    for (Cliente cliente : clientes) {
-                                                                        if (cliente.getNit().equals(listado.getNit())) {
-                                                                            empresaUsuario = cliente.getEmpresa();
-                                                                            break;
-                                                                        }
+                                                    %>
+                                                    <!-- 🔹 Añadido: data-nit y clase empresa -->
+                                                    <tr data-nit="<%= listado.getNit() %>">
+                                                        <td><%= listado.getCodCita() %></td>
+                                                        <td class="empresa">Cargando...</td>
+                                                        <td><%= listado.getTipo_Operacion() %></td>
+                                                        <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
+                                                        <td><%= fechaSinZona %></td>
+                                                        <td>
+                                                            <div class="Botones_tabla">
+                                                                <input type="button"
+                                                                       onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
+                                                                       value="📋 Ver">
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <%
                                                                     }
-                                                                    String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
-                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
-                                                                    LocalDateTime ldt = odt.toLocalDateTime();
-                                                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                                                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fecha = ldt.format(formatter1);
-                                                                    String fechaSinZona = ldt.format(formatter);
+                                                                }
+                                                            }
+                                                        } else if (rolObj != null && ((Integer) rolObj) == 1) {
+                                                            for(ListadoCItas listado: ListadoCitas2){
 
-                                                                    Date fecha_actual = new Date();
-                                                                    LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                                                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fechaactual = ldt1.format(formatter2);
+                                                                String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
+                                                                OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal);
+                                                                LocalDateTime ldt = odt.toLocalDateTime();
+                                                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                                String fechaSinZona = ldt.format(formatter);
+                                                    %>
+                                                    <tr data-nit="<%= listado.getNit() %>">
+                                                        <td><%= listado.getCodCita() %></td>
+                                                        <td class="empresa">Cargando...</td>
+                                                        <td><%= listado.getTipo_Operacion() %></td>
+                                                        <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
+                                                        <td><%= fechaSinZona %></td>
+                                                        <td>
+                                                            <div class="Botones_tabla">
+                                                                <input type="button"
+                                                                       onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
+                                                                       value="📋 Ver">
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <%
+                                                            }
+                                                        }
+                                                    %>
+                                                </tbody>
+                                            </table>
 
-                                                                    System.out.println(fechaSinZona); // Resultado: 2025-04-26 10:00:00
+                                            <!-- ✅ Script universal (idéntico al de las otras tablas) -->
+                                            <script>
+                                            async function cargarEmpresas() {
+                                                const filas = document.querySelectorAll("#myTable4 tbody tr");
+                                                let cacheClientes = JSON.parse(localStorage.getItem("cacheClientes")) || {};
+                                                let nuevosConsultados = 0;
 
- 
-                                                        %>
-                                                                        <tr>
-                                                                            <td><%= listado.getCodCita() %></td>
-                                                                            <td><%= empresaUsuario %></td>
-                                                                            <td><%= listado.getTipo_Operacion() %></td>
-                                                                            <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
-                                                                            <td><%= fechaSinZona %></td>
-                                                                            <td>
-                                                                                <div class="Botones_tabla">
-                                                                                    <input type="button"
-                                                                                           onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
-                                                                                           value="📋 Ver">
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                   <%
-                                                                       }
-                                                                   %>
-                                                <%
+                                                for (const fila of filas) {
+                                                    const nit = fila.dataset.nit?.trim();
+                                                    const celda = fila.querySelector(".empresa");
+
+                                                    if (!nit) {
+                                                        celda.textContent = "Sin NIT";
+                                                        continue;
                                                     }
-                                                %>
-                                            </tbody>
-                                        </table>
+
+                                                    if (cacheClientes[nit]) {
+                                                        celda.textContent = cacheClientes[nit];
+                                                        continue;
+                                                    }
+
+                                                    try {
+                                                        const response = await fetch('../ObtenerCLientes?nit='+encodeURIComponent(nit));
+                                                        if (!response.ok) throw new Error("Error HTTP " + response.status);
+
+                                                        const data = await response.json();
+                                                        let nombreEmpresa = "No encontrado";
+
+                                                        if (data && data.length > 0) {
+                                                            nombreEmpresa = data[0].Nombre || "Sin nombre";
+                                                        }
+
+                                                        celda.textContent = nombreEmpresa;
+
+                                                        cacheClientes[nit] = nombreEmpresa;
+                                                        localStorage.setItem("cacheClientes", JSON.stringify(cacheClientes));
+                                                        nuevosConsultados++;
+
+                                                    } catch (error) {
+                                                        console.error("❌ Error al obtener empresa:", error);
+                                                        celda.textContent = "Error";
+                                                    }
+                                                }
+
+                                                if (nuevosConsultados > 0)
+                                                    console.log(`🔄 Se consultaron ${nuevosConsultados} nuevos NIT.`);
+                                                else
+                                                    console.log("✅ Todos los NIT ya estaban en caché.");
+                                            }
+
+                                            document.addEventListener("DOMContentLoaded", cargarEmpresas);
+                                            </script>
+
                                     <%
                                         }else if (rolObj != null && ((Integer) rolObj) != 5){
                                     %>
@@ -982,142 +1055,120 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                
-                                                <%
-                                                    if (rolObj != null && ((Integer) rolObj) == 2){
-                                                 
-                                                            for(ListadoCItas listado: ListadoCitas2){
+                                                    <%
+                                                        if (rolObj != null && ((Integer) rolObj) == 2) {
+                                                            for (ListadoCItas listado : ListadoCitas2) {
                                                                 String nit_final = nit.replaceAll("[^0-9]", "");
-                                                                // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                List<Cliente> clientes = Arrays.asList(
-                                                                    new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                                    new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                    new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                    new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                    new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                    new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                                    new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                    new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                    new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                                    new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                    new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                    new Cliente("901826337-0", "CONQUERS ZF"),
-                                                                    new Cliente("901427892", "MONJASA")
-                                                                );
 
-                                                                   String empresaUsuario = null;
-
-                                                                   // Buscar la empresa asociada al NIT
-                                                                   for (Cliente cliente : clientes) {
-                                                                       if (cliente.getNit().equals(listado.getNit())) {
-                                                                           empresaUsuario = cliente.getEmpresa();
-                                                                           break;
-                                                                       }
-                                                                   }
-                                                                if (listado.getNit().equals(nit_final))
-                                                                {
-                                                                    
-                                                                    System.out.println(listado.getNit() + " " + nit_final);
+                                                                if (listado.getNit().equals(nit_final)) {
                                                                     String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
-                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
+                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal);
                                                                     LocalDateTime ldt = odt.toLocalDateTime();
                                                                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                                                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fecha = ldt.format(formatter1);
                                                                     String fechaSinZona = ldt.format(formatter);
+                                                    %>
+                                                    <!-- 🔹 data-nit agregado -->
+                                                    <tr data-nit="<%= listado.getNit() %>">
+                                                        <td><%= listado.getCodCita() %></td>
+                                                        <td class="empresa">Cargando...</td>
+                                                        <td><%= listado.getTipo_Operacion() %></td>
+                                                        <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
+                                                        <td><%= fechaSinZona %></td>
+                                                        <td>
+                                                            <div class="Botones_tabla">
+                                                                <input type="button"
+                                                                       onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
+                                                                       value="📋 Ver">
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <%
+                                                                }
+                                                            }
+                                                        } else if (rolObj != null && ((Integer) rolObj) == 1) {
+                                                            for (ListadoCItas listado : ListadoCitas2) {
 
-                                                                    Date fecha_actual = new Date();
-                                                                    LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                                                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fechaactual = ldt1.format(formatter2);
-                                                                    
+                                                                String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
+                                                                OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal);
+                                                                LocalDateTime ldt = odt.toLocalDateTime();
+                                                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                                String fechaSinZona = ldt.format(formatter);
+                                                    %>
+                                                    <!-- 🔹 data-nit agregado -->
+                                                    <tr data-nit="<%= listado.getNit() %>">
+                                                        <td><%= listado.getCodCita() %></td>
+                                                        <td class="empresa">Cargando...</td>
+                                                        <td><%= listado.getTipo_Operacion() %></td>
+                                                        <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
+                                                        <td><%= fechaSinZona %></td>
+                                                        <td>
+                                                            <div class="Botones_tabla">
+                                                                <input type="button"
+                                                                       onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
+                                                                       value="📋 Ver">
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <%
+                                                            }
+                                                        }
+                                                    %>
+                                                </tbody>
+                                            </table>
 
-                                                %>
-                                                <tr>
-                                                    <td><%= listado.getCodCita() %></td>
-                                                    <td><%= empresaUsuario %></td>
-                                                    <td><%= listado.getTipo_Operacion() %></td>
-                                                    <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
-                                                    <td><%= fechaSinZona %></td>
-                                                    <td>
-                                                        <div class="Botones_tabla">
-                                                            <input type="button"
-                                                                   onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
-                                                                   value="📋 Ver">
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <%
-                                                    }}} else if (rolObj != null && ((Integer) rolObj) == 1){
-                                                %>
-                                                        <%
-                                                            for(ListadoCItas listado: ListadoCitas2){
-                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                    List<Cliente> clientes = Arrays.asList(
-                                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                        new Cliente("901826337-0", "CONQUERS ZF"),
-                                                                        new Cliente("901427892", "MONJASA")
-                                                                    );
+                                            <!-- ✅ Script dinámico (carga nombres desde servlet y guarda en caché local) -->
+                                            <script>
+                                            async function cargarEmpresas() {
+                                                const filas = document.querySelectorAll("#myTable4 tbody tr");
+                                                let cacheClientes = JSON.parse(localStorage.getItem("cacheClientes")) || {};
+                                                let nuevosConsultados = 0;
 
-                                                                   String empresaUsuario = null;
+                                                for (const fila of filas) {
+                                                    const nit = fila.dataset.nit?.trim();
+                                                    const celda = fila.querySelector(".empresa");
 
-                                                                   // Buscar la empresa asociada al NIT
-                                                                   for (Cliente cliente : clientes) {
-                                                                       if (cliente.getNit().equals(listado.getNit())) {
-                                                                           empresaUsuario = cliente.getEmpresa();
-                                                                           break;
-                                                                       }
-                                                                   }
-                                                                    String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
-                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
-                                                                    LocalDateTime ldt = odt.toLocalDateTime();
-                                                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                                                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fecha = ldt.format(formatter1);
-                                                                    String fechaSinZona = ldt.format(formatter);
-
-                                                                    Date fecha_actual = new Date();
-                                                                    LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                                                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fechaactual = ldt1.format(formatter2);
-
-                                                                    System.out.println(fechaSinZona); // Resultado: 2025-04-26 10:00:00
-
- 
-                                                        %>
-                                                                        <tr>
-                                                                            <td><%= listado.getNit() %></td>
-                                                                            <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                                            <td><%= empresaUsuario %></td>
-                                                                            <td><%= listado.getTipo_Operacion() %></td>
-                                                                            <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
-                                                                            <td><%= fechaSinZona %></td>
-                                                                            <td>
-                                                                                <div class="Botones_tabla">
-                                                                                    <input type="button"
-                                                                                           onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
-                                                                                           value="📋 Ver">
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                   <%
-                                                                       }
-                                                                   %>
-                                                <%
+                                                    if (!nit) {
+                                                        celda.textContent = "Sin NIT";
+                                                        continue;
                                                     }
-                                                %>
-                                            </tbody>
-                                        </table>
+
+                                                    if (cacheClientes[nit]) {
+                                                        celda.textContent = cacheClientes[nit];
+                                                        continue;
+                                                    }
+
+                                                    try {
+                                                        const response = await fetch('../ObtenerCLientes?nit='+encodeURIComponent(nit));
+                                                        if (!response.ok) throw new Error("Error HTTP " + response.status);
+
+                                                        const data = await response.json();
+                                                        let nombreEmpresa = "No encontrado";
+
+                                                        if (data && data.length > 0) {
+                                                            nombreEmpresa = data[0].Nombre || "Sin nombre";
+                                                        }
+
+                                                        celda.textContent = nombreEmpresa;
+                                                        cacheClientes[nit] = nombreEmpresa;
+                                                        localStorage.setItem("cacheClientes", JSON.stringify(cacheClientes));
+                                                        nuevosConsultados++;
+
+                                                    } catch (error) {
+                                                        console.error("❌ Error al obtener empresa:", error);
+                                                        celda.textContent = "Error";
+                                                    }
+                                                }
+
+                                                if (nuevosConsultados > 0)
+                                                    console.log(`🔄 Se consultaron ${nuevosConsultados} nuevos NIT.`);
+                                                else
+                                                    console.log("✅ Todos los NIT ya estaban en caché.");
+                                            }
+
+                                            // Ejecutar al cargar y refrescar cada minuto
+                                            document.addEventListener("DOMContentLoaded", cargarEmpresas);
+                                            </script>
+
                                     <%
                                         }else{
                                     %>
@@ -1136,60 +1187,24 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                
                                                 <%
-                                                    if (rolObj != null && ((Integer) rolObj) == 5){
-                                                 
-                                                            for(ListadoCItas listado: ListadoCitas2){
-                                                                String nit_final = nit.replace("-", "");
-                                                                // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                List<Cliente> clientes = Arrays.asList(
-                                                                    new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                                    new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                    new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                    new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                    new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                    new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                                    new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                    new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                    new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                                    new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                    new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                    new Cliente("901826337-0", "CONQUERS ZF"),
-                                                                    new Cliente("901427892", "MONJASA")
-                                                                );
+                                                    if (rolObj != null && ((Integer) rolObj) == 5) {
+                                                        for (ListadoCItas listado : ListadoCitas2) {
+                                                            String nit_final = nit.replace("-", "");
 
-                                                                   String empresaUsuario = null;
+                                                            if (listado.getNit_Empresa_Transportadora().equals(nit_final)
+                                                                    && listado.getEstado().equals("AGENDADA")) {
 
-                                                                   // Buscar la empresa asociada al NIT
-                                                                   for (Cliente cliente : clientes) {
-                                                                       if (cliente.getNit().equals(listado.getNit())) {
-                                                                           empresaUsuario = cliente.getEmpresa();
-                                                                           break;
-                                                                       }
-                                                                   }
-                                                                System.out.println(listado.getNit_Empresa_Transportadora() + " " + nit_final);
-                                                                if (listado.getNit_Empresa_Transportadora().equals(nit_final) && listado.getEstado().equals("AGENDADA"))
-                                                                {
-                                                                    String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
-                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
-                                                                    LocalDateTime ldt = odt.toLocalDateTime();
-                                                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                                                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fecha = ldt.format(formatter1);
-                                                                    String fechaSinZona = ldt.format(formatter);
-
-                                                                    Date fecha_actual = new Date();
-                                                                    LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                                                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fechaactual = ldt1.format(formatter2);
-                                                                    
-                                                                    
-
+                                                                String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
+                                                                OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal);
+                                                                LocalDateTime ldt = odt.toLocalDateTime();
+                                                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                                String fechaSinZona = ldt.format(formatter);
                                                 %>
-                                                <tr>
+                                                <!-- 🔹 data-nit agregado -->
+                                                <tr data-nit="<%= listado.getNit() %>">
                                                     <td><%= listado.getCodCita() %></td>
-                                                    <td><%= empresaUsuario %></td>
+                                                    <td class="empresa">Cargando...</td>
                                                     <td><%= listado.getTipo_Operacion() %></td>
                                                     <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
                                                     <td><%= fechaSinZona %></td>
@@ -1202,76 +1217,93 @@
                                                     </td>
                                                 </tr>
                                                 <%
-                                                    }}} else if (rolObj != null && ((Integer) rolObj) == 1){
+                                                            }
+                                                        }
+                                                    } else if (rolObj != null && ((Integer) rolObj) == 1) {
+                                                        for (ListadoCItas listado : ListadoCitas2) {
+                                                           
+                                                            String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
+                                                            OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal);
+                                                            LocalDateTime ldt = odt.toLocalDateTime();
+                                                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                                            String fechaSinZona = ldt.format(formatter);
                                                 %>
-                                                        <%
-                                                            for(ListadoCItas listado: ListadoCitas2){
-                                                                    // Lista de clientes (puedes mover esto a una clase utilitaria o a base de datos)
-                                                                    List<Cliente> clientes = Arrays.asList(
-                                                                        new Cliente("900328914-0", "C I CARIBBEAN BUNKERS S A S"),
-                                                                        new Cliente("900614423-2", "ATLANTIC MARINE FUELS S A S C I"),
-                                                                        new Cliente("806005826-3", "CODIS COLOMBIANA DE DISTRIBUCIONES Y SERVICIOS C I S A"),
-                                                                        new Cliente("901312960–3", "C I CONQUERS WORLD TRADE S A S (CWT)"),
-                                                                        new Cliente("901222050-1", "C I FUELS AND BUNKERS COLOMBIA S A S"),
-                                                                        new Cliente("802024011-4", "C I INTERNATIONAL FUELS S A S"),
-                                                                        new Cliente("901123549-8", "COMERCIALIZADORA INTERNACIONAL OCTANO INDUSTRIAL SAS"),
-                                                                        new Cliente("806005346-1", "OPERACIONES TECNICAS MARINAS S A S"),
-                                                                        new Cliente("819001667-8", "PETROLEOS DEL MILENIO S A S"),
-                                                                        new Cliente("900992281-3", "C I PRODEXPORT DE COLOMBIA S A S"),
-                                                                        new Cliente("890405769-3", "SOCIEDAD COLOMBIANA DE SERVICIOS PORTUARIOS S A SERVIPORT S A"),
-                                                                        new Cliente("901826337-0", "CONQUERS ZF"),
-                                                                        new Cliente("901427892", "MONJASA")
-                                                                    );
-
-                                                                   String empresaUsuario = null;
-
-                                                                   // Buscar la empresa asociada al NIT
-                                                                   for (Cliente cliente : clientes) {
-                                                                       if (cliente.getNit().equals(listado.getNit())) {
-                                                                           empresaUsuario = cliente.getEmpresa();
-                                                                           break;
-                                                                       }
-                                                                   }
-                                                                    String fechaCitaOriginal = listado.getFecha_Creacion_Cita();
-                                                                    OffsetDateTime odt = OffsetDateTime.parse(fechaCitaOriginal); // desde Java 8
-                                                                    LocalDateTime ldt = odt.toLocalDateTime();
-                                                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                                                                    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fecha = ldt.format(formatter1);
-                                                                    String fechaSinZona = ldt.format(formatter);
-
-                                                                    Date fecha_actual = new Date();
-                                                                    LocalDateTime ldt1 = fecha_actual.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                                                                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                                                    String fechaactual = ldt1.format(formatter2);
-
-                                                                    System.out.println(fechaSinZona); // Resultado: 2025-04-26 10:00:00
-
- 
-                                                        %>
-                                                                        <tr>
-                                                                            <td><%= listado.getNit() %></td>
-                                                                            <td><%= listado.getNit_Empresa_Transportadora() %></td>
-                                                                            <td><%= empresaUsuario %></td>
-                                                                            <td><%= listado.getTipo_Operacion() %></td>
-                                                                            <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
-                                                                            <td><%= fechaSinZona %></td>
-                                                                            <td>
-                                                                                <div class="Botones_tabla">
-                                                                                    <input type="button"
-                                                                                           onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
-                                                                                           value="📋 Ver">
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                   <%
-                                                                       }
-                                                                   %>
+                                                <tr data-nit="<%= listado.getNit() %>">
+                                                    <td><%= listado.getCodCita() %></td>
+                                                    <td class="empresa">Cargando...</td>
+                                                    <td><%= listado.getTipo_Operacion() %></td>
+                                                    <td><%= listado.getVehiculos() != null ? listado.getVehiculos().size() : 0 %></td>
+                                                    <td><%= fechaSinZona %></td>
+                                                    <td>
+                                                        <div class="Botones_tabla">
+                                                            <input type="button"
+                                                                   onclick="window.location.href='../JSP/CitaCamionesPorFinalizar.jsp?registro=<%= listado.getCodCita() %>&rol=<%= ((Integer) rolObj) %>'"
+                                                                   value="📋 Ver">
+                                                        </div>
+                                                    </td>
+                                                </tr>
                                                 <%
+                                                        }
                                                     }
                                                 %>
-                                            </tbody>
-                                        </table>
+                                                </tbody>
+                                            </table>
+
+                                            <!-- ✅ Script dinámico para cargar los nombres desde el servlet y cachear -->
+                                            <script>
+                                            async function cargarEmpresas() {
+                                                const filas = document.querySelectorAll("#myTable4 tbody tr");
+                                                let cacheClientes = JSON.parse(localStorage.getItem("cacheClientes")) || {};
+                                                let nuevosConsultados = 0;
+
+                                                for (const fila of filas) {
+                                                    const nit = fila.dataset.nit?.trim();
+                                                    const celda = fila.querySelector(".empresa");
+
+                                                    if (!nit) {
+                                                        celda.textContent = "Sin NIT";
+                                                        continue;
+                                                    }
+
+                                                    // 🔹 Si ya está cacheado, usar directamente
+                                                    if (cacheClientes[nit]) {
+                                                        celda.textContent = cacheClientes[nit];
+                                                        continue;
+                                                    }
+
+                                                    // 🔹 Consultar al servlet
+                                                    try {
+                                                        const response = await fetch('../ObtenerCLientes?nit='+encodeURIComponent(nit));
+                                                        if (!response.ok) throw new Error("Error HTTP " + response.status);
+
+                                                        const data = await response.json();
+                                                        let nombreEmpresa = "No encontrado";
+
+                                                        if (data && data.length > 0) {
+                                                            nombreEmpresa = data[0].empresa || "Sin nombre";
+                                                        }
+
+                                                        celda.textContent = nombreEmpresa;
+                                                        cacheClientes[nit] = nombreEmpresa;
+                                                        localStorage.setItem("cacheClientes", JSON.stringify(cacheClientes));
+                                                        nuevosConsultados++;
+
+                                                    } catch (error) {
+                                                        console.error("❌ Error al obtener empresa:", error);
+                                                        celda.textContent = "Error";
+                                                    }
+                                                }
+
+                                                if (nuevosConsultados > 0)
+                                                    console.log(`🔄 Se consultaron ${nuevosConsultados} nuevos NIT.`);
+                                                else
+                                                    console.log("✅ Todos los NIT ya estaban en caché.");
+                                            }
+
+                                            // Ejecutar al cargar y recargar cada minuto
+                                            document.addEventListener("DOMContentLoaded", cargarEmpresas);
+                                            </script>
+
                                     <%
                                         }
                                     %>

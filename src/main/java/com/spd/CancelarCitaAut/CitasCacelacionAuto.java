@@ -88,42 +88,30 @@ public class CitasCacelacionAuto {
             // Conexión
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             
-            String sql = "SELECT \n" +
+            String sql = "SELECT\n" +
                         "    sc.COD_CITA,\n" +
                         "    sc.NIT_TRANSPORTADORA,\n" +
                         "    sc.OPERACION,\n" +
-                        "    vb.PLACA, \n" +
-                        "    scv.CEDULA_CONDUCTOR, \n" +
+                        "    scv.PLACA,\n" +
+                        "    scv.CEDULA_CONDUCTOR,\n" +
                         "    scv.MANIFIESTO,\n" +
                         "    TRUNC(sc.FECHA_CITA) AS FECHA_CITA,\n" +
                         "    TO_CHAR(sc.FECHA_CITA, 'YYYY-MM-DD HH24:MI:SS') AS FECHAYHORA_CITA\n" +
-                        "FROM \n" +
-                        "    SPD_CITAS sc\n" +
-                        "JOIN \n" +
-                        "    SPD_CITA_VEHICULOS scv ON sc.COD_CITA = scv.COD_CITA\n" +
-                        "JOIN \n" +
-                        "    VEHICULO_BASC vb ON vb.PLACA = scv.PLACA\n" +
-                        "LEFT JOIN \n" +
-                        "    TRAN_BASCULA tb \n" +
-                        "    ON vb.ID_VEHICULO = tb.VEHICULO_ID_VEHICULO\n" +
-                        "    AND tb.FECHA_ENTRADA BETWEEN sc.FECHA_CITA - 2 AND sc.FECHA_CITA + 2\n" +
+                        "FROM SPD_CITAS sc\n" +
+                        "JOIN SPD_CITA_VEHICULOS scv\n" +
+                        "    ON scv.COD_CITA = sc.COD_CITA\n" +
+                        "JOIN VEHICULO_BASC vb\n" +
+                        "    ON vb.PLACA = scv.PLACA\n" +
+                        "    AND vb.CEDULA = scv.CEDULA_CONDUCTOR\n" +
+                        "LEFT JOIN TRAN_BASCULA tb\n" +
+                        "    ON tb.VEHICULO_ID_VEHICULO = vb.ID_VEHICULO\n" +
+                        "    AND TRUNC(tb.FECHA_ENTRADA) = TRUNC(sc.FECHA_CITA) -- 👈 aquí está la clave\n" +
                         "WHERE \n" +
-                        "    sc.ESTADO IN ('AGENDADA', 'AGENDADO')\n" +
+                        "    TRUNC(sc.FECHA_CITA) = TRUNC(SYSDATE -1)\n" +
+                        "    AND tb.VEHICULO_ID_VEHICULO IS NULL  -- 👈 el vehículo no tiene registro ese día\n" +
+                        "    AND sc.ESTADO = 'AGENDADA' OR sc.ESTADO = 'AGENDADO'\n" +
                         "    AND scv.ESTADO = 'ACTIVA'\n" +
-                        "    AND scv.HORA_CITAS IS NOT NULL\n" +
-                        "    AND TRUNC(sc.FECHA_CITA) <> TRUNC(SYSDATE)\n" +
-                        "    AND tb.VEHICULO_ID_VEHICULO IS NULL\n" +
-                        "GROUP BY \n" +
-                        "    sc.COD_CITA,\n" +
-                        "    sc.NIT_TRANSPORTADORA,\n" +
-                        "    sc.OPERACION,\n" +
-                        "    vb.PLACA,\n" +
-                        "    scv.CEDULA_CONDUCTOR,\n" +
-                        "    scv.MANIFIESTO,\n" +
-                        "    TRUNC(sc.FECHA_CITA),\n" +
-                        "    TO_CHAR(sc.FECHA_CITA, 'YYYY-MM-DD HH24:MI:SS')\n" +
-                        "ORDER BY \n" +
-                        "    FECHA_CITA, PLACA";
+                        "ORDER BY sc.COD_CITA;";
             
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();

@@ -104,6 +104,14 @@
         <servlet-name>ReporteCitasIngreSalida</servlet-name>
         <servlet-class>com.spd.reportes.Citas_Carrotanque_Ingre_Sali.ReporteCitasIngreSalida</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ObtenerTanques</servlet-name>
+        <servlet-class>com.spd.Tanques.ObtenerTanques</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ObtenerCLientes</servlet-name>
+        <servlet-class>com.spd.CLIENTES.ObtenerCLientes</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <url-pattern>/Iniciar_Seccion_Servlet</url-pattern>
@@ -199,6 +207,14 @@
     <servlet-mapping>
         <servlet-name>ReporteCitasIngreSalida</servlet-name>
         <url-pattern>/ReporteCitasIngreSalida</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ObtenerTanques</servlet-name>
+        <url-pattern>/ObtenerTanques</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ObtenerCLientes</servlet-name>
+        <url-pattern>/ObtenerCLientes</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

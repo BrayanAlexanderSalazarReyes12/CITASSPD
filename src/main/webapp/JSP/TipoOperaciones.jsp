@@ -202,15 +202,6 @@
 
                                 const usuario = getCookie("USUARIO");
                                 console.log("Cookie 'USUARIO':", usuario);
-                                
-                                const tanquesPorCliente = {
-                                  "cwtrade": ["TK101"],
-                                  "conquers": ["TK110","TK109", "TK108", "TK102"],
-                                  "monjasa": ["TK105"],
-                                  "amfuels": ["TK103", "TK104"],
-                                  "prodexport": ["TK106"],
-                                  "Puma Energy": ["TK107"]
-                                };
 
                                 const operaciones = [
                                   "Carrotanque - Barcaza",//✔
@@ -299,13 +290,20 @@
                                     selectTanqueDestino.required = true;
 
                                     const actualizarTanques = (cliente) => {
-                                      const tanques = tanquesPorCliente[cliente] || [];
-                                      let options = "<option value=''>Seleccione tanque</option>";
-                                      tanques.forEach(t => {
-                                        options += "<option value=\"" + t + "\">" + t + "</option>";
-                                      });
-                                      selectTanqueOrigen.innerHTML = options;
-                                      selectTanqueDestino.innerHTML = options;
+                                        if (!cliente) return;
+                                            
+                                        fetch('/ObtenerTanques?usuario="'+cliente+'"')
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                let options = "<option value=''>Seleccione tanque</option>";
+                                                data.forEach(t => {
+                                                    options += "<option value=\"" + t.tanques + "\">" + t.tanque + "</option>";
+                                                });
+                                                selectTanqueOrigen.innerHTML = options;
+                                                selectTanqueDestino.innerHTML = options;
+                                        })
+                                        .catch(error => console.error("Error cargando tanques:", error));
+                                      
                                     };
                                     
                                     actualizarTanques(usuario);
@@ -339,14 +337,24 @@
                                     selectTanque.required = true;
                                     selectTanque.innerHTML = "<option value=''>Seleccione tanque</option>";
 
-                                    const tanques = tanquesPorCliente[usuario] || [];
-                                    selectTanque.innerHTML = "<option value=''>Seleccione tanque</option>";
-                                    tanques.forEach(t => {
-                                      const option = document.createElement("option");
-                                      option.value = t;
-                                      option.textContent = t;
-                                      selectTanque.appendChild(option);
-                                    });
+                                    
+                                    const actualizarTanques = (cliente) => {
+                                        if (!cliente) return;
+                                            
+                                        fetch('../ObtenerTanques?usuario='+cliente)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                let options = "<option value=''>Seleccione tanque</option>";
+                                                data.forEach(t => {
+                                                    options += "<option value=\"" + t.Tanque + "\">" + t.Tanque + "</option>";
+                                                });
+                                                selectTanque.innerHTML = options;
+                                        })
+                                        .catch(error => console.error("Error cargando tanques:", error));
+                                      
+                                    };
+                                    
+                                    actualizarTanques(usuario);
                                     
                                     extras.appendChild(labelCliente);
                                     extras.appendChild(selectCliente);
