@@ -111,7 +111,7 @@ public class CitasCacelacionAuto {
                         "    AND tb.VEHICULO_ID_VEHICULO IS NULL  -- 👈 el vehículo no tiene registro ese día\n" +
                         "    AND sc.ESTADO = 'AGENDADA' OR sc.ESTADO = 'AGENDADO'\n" +
                         "    AND scv.ESTADO = 'ACTIVA'\n" +
-                        "ORDER BY sc.COD_CITA;";
+                        "ORDER BY sc.COD_CITA";
             
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();

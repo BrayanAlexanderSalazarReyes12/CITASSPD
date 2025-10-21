@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="CSS/Styles_modal.css"/>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Cuando se cargue la página, se borra todo el localStorage
+        window.onload = function() {
+            localStorage.clear();
+        };
+    </script>
 </head>
 
 <header>
