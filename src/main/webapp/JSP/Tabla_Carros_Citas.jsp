@@ -143,7 +143,19 @@
                             <th>Estado</th>
                             <th>Fecha</th>
                             <th>Remision</th>
-                            <th>Actualizar</th>
+                            <th>
+                                <label style="
+                                    display: inline-flex; 
+                                    align-items: center; 
+                                    gap: 6px; 
+                                    color: white; 
+                                    font-weight: bold; 
+                                    cursor: pointer;
+                                ">
+                                    Actualizar
+                                    <input type="checkbox" id="selectAll" style="margin: 0;" />
+                                </label>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -207,12 +219,12 @@
 
                                 </td>
                                 <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
-                                <td>
-                                    <input type="checkbox" name="vehiculos"
-                                           data-nombre="<%= vehiculo.getNombreConductor() %>"
-                                           data-cedula="<%= vehiculo.getConductorCedulaCiudadania() %>"
-                                           value="<%= vehiculo.getVehiculoNumPlaca() %>">
-                                </td>
+                                    <td>
+                                        <input type="checkbox" name="vehiculos" class="checkItem"
+                                               data-nombre="<%= vehiculo.getNombreConductor() %>"
+                                               data-cedula="<%= vehiculo.getConductorCedulaCiudadania() %>"
+                                               value="<%= vehiculo.getVehiculoNumPlaca() %>">
+                                    </td>
                                 <% }else{ %>
                                 <td>
                                     <input type="button" 
@@ -227,6 +239,23 @@
                                 }
                             }
                         %>
+                        <script>
+                            // Checkbox general
+                            const selectAll = document.getElementById('selectAll');
+                            const checkboxes = document.querySelectorAll('.checkItem');
+
+                            // Al hacer clic en el checkbox general
+                            selectAll.addEventListener('change', function() {
+                              checkboxes.forEach(chk => chk.checked = this.checked);
+                            });
+
+                            // Si se cambia un checkbox individual, actualizar el estado del general
+                            checkboxes.forEach(chk => {
+                              chk.addEventListener('change', () => {
+                                selectAll.checked = Array.from(checkboxes).every(item => item.checked);
+                              });
+                            });
+                        </script>
                     </tbody>
                 </table>
             </form>

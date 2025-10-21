@@ -159,11 +159,23 @@
                                 <th>Fecha cita programada</th>
                                 <% if(rolObj != null && ((Integer) rolObj) == 1) { %>
                                     <th>Cancelar</th>
-                                    <th>Selecionar</th>
+                                    <th>
+                                        <label style="
+                                            display: inline-flex; 
+                                            align-items: center; 
+                                            gap: 6px; 
+                                            color: white; 
+                                            font-weight: bold; 
+                                            cursor: pointer;
+                                        ">
+                                            Selecionar
+                                            <input type="checkbox" id="selectAll" style="margin: 0;" />
+                                        </label>
+                                    </th>
                                 <% System.out.println(rolObj);} %>
                             </tr>
                         </thead>
-
+                        
                         <tbody>
                             <%
                                 InformacionPesajeFinalizacionCIta.inicializarDesdeContexto(application);
@@ -242,7 +254,7 @@
                                     fecha_final_estado = fechaSinZona;
                                 %>
                                 <td>
-                                    <input type="checkbox" name="vehiculos"
+                                    <input type="checkbox" name="vehiculos" class="checkItem"
                                            data-operacion="<%= listado.getTipo_Operacion() %>"
                                            data-transportadora="<%= listado.getNit_Empresa_Transportadora() %>"
                                            data-nombre="<%= vehiculo.getNombreConductor() %>"
@@ -263,8 +275,25 @@
                                     }
                                 }
                             %>
-
+                            
                         </tbody>
+                        <script>
+                            // Checkbox general
+                            const selectAll = document.getElementById('selectAll');
+                            const checkboxes = document.querySelectorAll('.checkItem');
+
+                            // Al hacer clic en el checkbox general
+                            selectAll.addEventListener('change', function() {
+                              checkboxes.forEach(chk => chk.checked = this.checked);
+                            });
+
+                            // Si se cambia un checkbox individual, actualizar el estado del general
+                            checkboxes.forEach(chk => {
+                              chk.addEventListener('change', () => {
+                                selectAll.checked = Array.from(checkboxes).every(item => item.checked);
+                              });
+                            });
+                        </script>
                     </table>
                 </form>
                 <div style="margin-top: 20px; width: auto; height: auto;" class="Botones_tabla">

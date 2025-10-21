@@ -131,7 +131,19 @@
                             <th>Manifiesto</th>
                             <th>Estado</th>
                             <th>Fecha</th>
-                            <th>Seleccionar</th>
+                            <th>
+                                <label style="
+                                    display: inline-flex; 
+                                    align-items: center; 
+                                    gap: 6px; 
+                                    color: white; 
+                                    font-weight: bold; 
+                                    cursor: pointer;
+                                ">
+                                    Selecionar
+                                    <input type="checkbox" id="selectAll" style="margin: 0;" />
+                                </label>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -155,7 +167,7 @@
                                             <td><%= listado.getEstado()%></td>
                                             <td><%= fechaSinZona %></td>
                                             <td>
-                                                <input type="checkbox" name="vehiculos"
+                                                <input type="checkbox" name="vehiculos" class="checkItem"
                                                        data-nombre="<%= listado.getNomConductor() %>"
                                                        data-cedula="<%= listado.getCedConductor() %>"
                                                        value="<%= listado.getPlaca() %>"
@@ -177,7 +189,7 @@
                                 <td> PROGRAMADA </td>
                                 <td><%= vehiculo.getFechaOfertaSolicitud() %></td>
                                 <td>
-                                    <input type="checkbox" name="vehiculos"
+                                    <input type="checkbox" name="vehiculos" class="checkItem"
                                            data-nombre="<%= vehiculo.getNombreConductor() %>"
                                            data-cedula="<%= vehiculo.getConductorCedulaCiudadania() %>"
                                            value="<%= vehiculo.getVehiculoNumPlaca() %>">
@@ -190,6 +202,23 @@
                             }
                         %>
                     </tbody>
+                    <script>
+                        // Checkbox general
+                        const selectAll = document.getElementById('selectAll');
+                        const checkboxes = document.querySelectorAll('.checkItem');
+
+                        // Al hacer clic en el checkbox general
+                        selectAll.addEventListener('change', function() {
+                          checkboxes.forEach(chk => chk.checked = this.checked);
+                        });
+
+                        // Si se cambia un checkbox individual, actualizar el estado del general
+                        checkboxes.forEach(chk => {
+                          chk.addEventListener('change', () => {
+                            selectAll.checked = Array.from(checkboxes).every(item => item.checked);
+                          });
+                        });
+                    </script>
                 </table>
             </form>
             <div style="margin-top: 20px; width: auto; height: auto;" class="Botones_tabla">

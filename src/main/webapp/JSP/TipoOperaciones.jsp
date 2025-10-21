@@ -112,6 +112,8 @@
                 }else if(rolObj != null && ((Integer) rolObj) == 2){
             %>
                 <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
+                <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
+                <input type="submit" value="Solicitud Tiempo Extra" onclick="navegarInternamente('../JSP/SolicitudTiempoExtra.jsp')"/>
             <%
                 }else if (rolObj != null && ((Integer) rolObj) == 7){
             %>
@@ -160,15 +162,21 @@
                     <body>
                         <div class="Contenedor">
                             <h1>Tipo de operación</h1>
-                            <form action="../TipoOperacionServlet" method="POST" class="formulario-SelectorTipoOpeacion">
-                                <label for="CantidadOperaciones">Digite el numero de operaciones a realizar:</label>
+                            <form id="formOperaciones" action="../TipoOperacionServlet" method="POST" class="formulario-SelectorTipoOpeacion">
+                                <label for="CantidadOperaciones">Digite el número de operaciones a realizar:</label>
                                 <input type="number" name="CantidadOperaciones" id="CantidadOperaciones" min="1" required/>
                                 <button type="button" onclick="generarSelectores()">Generar Operaciones</button>
-
                                 <div id="contenedor-operaciones"></div>
-
-
                             </form>
+
+                            <script>
+                              document.getElementById("formOperaciones").addEventListener("keydown", function(event) {
+                                if (event.key === "Enter") {
+                                  event.preventDefault();
+                                }
+                              });
+                            </script>
+
                             <%
                                 CargarBarcazas.inicializarDesdeContexto(application);
                                 JSONArray barcazas = new JSONArray();

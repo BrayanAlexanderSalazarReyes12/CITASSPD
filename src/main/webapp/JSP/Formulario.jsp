@@ -394,6 +394,7 @@
             %>
             <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('./JSP/OperacionesActivas.jsp')">
             <input type="submit" value="Listado de Citas" onclick="navegarInternamente('./JSP/Listados_Citas.jsp')"/>
+            <input type="submit" value="Solicitud Tiempo Extra" onclick="navegarInternamente('../JSP/SolicitudTiempoExtra.jsp')"/>
             <input type="submit" value="Cerrar Sesión" onclick="window.location.href='./CerrarSeccion'"/>
         </div>
     </header>
@@ -690,7 +691,10 @@ document.getElementById("Fecha").addEventListener("change", function () {
 
                 <div class="form-group">
                     <label for="PrecioArticulo">Precio Unitario en USD:</label>
-                    <input id="PrecioArticulo" type="text" name="PrecioArticulo" value="<%= session.getAttribute("PrecioArticulo") != null ? session.getAttribute("PrecioArticulo") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, ''); calcularTotal();" required/>
+                    <input id="PrecioArticulo" type="text" name="PrecioArticulo"
+                        value="<%= session.getAttribute("PrecioArticulo") != null ? session.getAttribute("PrecioArticulo") : "" %>"
+                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'); calcularTotal();"
+                    required/>
                 </div>
 
                 <div class="form-group">
