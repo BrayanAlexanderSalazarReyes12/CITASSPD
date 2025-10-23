@@ -108,6 +108,8 @@
                 <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/> 
                 <input type="submit" value="Operaciones de Hoy" onclick="navegarInternamente('../ListarOperaciones')"/> 
                 <input type="submit" value="Reporte Carrotanques I/S" onclick="navegarInternamente('../ReporteCitasIngreSalida')"/>
+            
+                <input type="submit" value="Listar Tiempo Extra" onclick="navegarInternamente('ListadoTiempoExtra.jsp')"/>
             <%
                 }else if(rolObj != null && ((Integer) rolObj) == 2){
             %>

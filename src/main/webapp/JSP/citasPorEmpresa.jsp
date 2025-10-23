@@ -165,7 +165,7 @@
                 <input type="submit" value="Crear Usuario" onclick="navegarInternamente('./JSP/CrearUsuario.jsp')"/>
                 <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('./JSP/ListadoUsuarios.jsp')"/>
                 <input type="submit" value="Listado de Citas" onclick="navegarInternamente('./JSP/Listados_Citas.jsp')"/>
-                
+                <input type="submit" value="Listar Tiempo Extra" onclick="navegarInternamente('./JSP/ListadoTiempoExtra.jsp')"/>
                 <input type="submit" value="Reporte Carrotanques I/S" onclick="navegarInternamente('../ReporteCitasIngreSalida')"/>
             <%
                 } else if (rolObj != null && ((Integer) rolObj) != 5 && ((Integer) rolObj) != 7){

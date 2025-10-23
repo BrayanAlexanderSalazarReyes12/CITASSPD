@@ -217,6 +217,19 @@
     <div class="main-content">
         <div class="contenedor-formulario">
             <h2>Solicitud Tiempo Extra</h2>
+            <%
+                String nitEmpresa = "";
+                Cookie[] cookies4 = request.getCookies();
+                if (cookies != null) {
+                    for (javax.servlet.http.Cookie cookie : cookies4) {
+                        if ("DATA".equals(cookie.getName())) {
+                            nitEmpresa = cookie.getValue();
+                            break;
+                        }
+                    }
+                }
+            %>
+
             <form action="../RegistrarSolicitudTiempoExtra" method="post">
                 <table>
                     <tr>
@@ -232,13 +245,13 @@
                     <tr>
                         <td><label for="tipoOperacion">Tipo de Operación</label></td>
                         <td>
-                            <input type="checkbox" id="tiempoExtraordinario" name="tiempoExtraordinario" value="true">
+                            <input type="checkbox" id="tiempoExtraordinario" name="tiempoExtraordinario" value="tiempoExtraordinario">
                             <label for="tiempoExtraordinario">Tiempo Extraordinario</label>
                         </td>
 
                         <td><label for="aprobacionDoc">Aprobación de Documento</label></td>
                         <td>
-                            <input type="checkbox" id="aprobacionDoc" name="aprobacionDoc" value="true">
+                            <input type="checkbox" id="aprobacionDoc" name="aprobacionDoc" value="aprobacionDoc">
                         </td>
                     </tr>
 
@@ -259,6 +272,12 @@
                             <textarea id="observacion" name="observacion" rows="4" cols="60"></textarea>
                         </td>
                     </tr>
+
+                    <tr>
+                        <td colspan="3">
+                            <input type="hidden" name="empresa" value="<%= nitEmpresa %>">
+                        </td>
+                    </tr>
                 </table>
 
                 <div class="botones">
@@ -266,6 +285,7 @@
                     <input type="reset" value="Limpiar">
                 </div>
             </form>
+
         </div>
     </div>
 </body>
