@@ -144,6 +144,73 @@ public class CitasCacelacionAuto {
         }
     }
     
+    public void cancelarCitaauto2() throws SQLException, IOException{
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try{
+            // Cargar driver Oracle
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            
+            // Conexión
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            
+            String sql = "SELECT\n" +
+                        "    sc.COD_CITA,\n" +
+                        "    sc.NIT_TRANSPORTADORA,\n" +
+                        "    sc.OPERACION,\n" +
+                        "    scv.PLACA,\n" +
+                        "    scv.CEDULA_CONDUCTOR,\n" +
+                        "    scv.MANIFIESTO,\n" +
+                        "    TRUNC(sc.FECHA_CITA) AS FECHA_CITA,\n" +
+                        "    TO_CHAR(sc.FECHA_CITA, 'YYYY-MM-DD HH24:MI:SS') AS FECHAYHORA_CITA\n" +
+                        "FROM SPD_CITAS sc\n" +
+                        "JOIN SPD_CITA_VEHICULOS scv\n" +
+                        "    ON scv.COD_CITA = sc.COD_CITA\n" +
+                        "JOIN VEHICULO_BASC vb\n" +
+                        "    ON vb.PLACA = scv.PLACA\n" +
+                        "    AND vb.CEDULA = scv.CEDULA_CONDUCTOR\n" +
+                        "LEFT JOIN TRAN_BASCULA tb\n" +
+                        "    ON tb.VEHICULO_ID_VEHICULO = vb.ID_VEHICULO\n" +
+                        "    AND TRUNC(tb.FECHA_ENTRADA) = TRUNC(sc.FECHA_CITA) -- 👈 aquí está la clave\n" +
+                        "WHERE \n" +
+                        "    TRUNC(sc.FECHA_CITA) = TRUNC(SYSDATE -2)\n" +
+                        "    AND tb.VEHICULO_ID_VEHICULO IS NULL  -- 👈 el vehículo no tiene registro ese día\n" +
+                        "    AND sc.ESTADO = 'AGENDADA' OR sc.ESTADO = 'AGENDADO'\n" +
+                        "    AND scv.ESTADO = 'ACTIVA'\n" +
+                        "ORDER BY sc.COD_CITA";
+            
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                CitaCanceAuto cita = new CitaCanceAuto();
+                cita.setCodCita(rs.getString("COD_CITA"));
+                cita.setNitTransportadora(rs.getString("NIT_TRANSPORTADORA"));
+                cita.setOperacion(rs.getString("OPERACION"));
+                cita.setPlaca(rs.getString("PLACA"));
+                cita.setCedulaConductor(rs.getString("CEDULA_CONDUCTOR"));
+                cita.setManifiesto(rs.getString("MANIFIESTO"));
+                cita.setFechaCita(rs.getString("FECHAYHORA_CITA"));
+                
+                procesarcita(cita);
+            }   
+            
+            rs.close();
+            pstmt.close();
+            
+        }catch (ClassNotFoundException e) {
+            log.log(Level.SEVERE, "\u274c No se encontr\u00f3 el driver JDBC: {0}", e.getMessage());
+        } catch (SQLException e) {
+            log.log(Level.SEVERE, "\u274c Error SQL al obtener informaci\u00f3n de la cita: {0}", e.getMessage());
+            throw e;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+            if (pstmt != null) try { pstmt.close(); } catch (Exception ignored) {}
+            if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+        }
+    }
+    
     private Map<String, Object> buildJsonMinisterio(CitaCanceAuto cita){
         
         Map<String, Object> acceso = new LinkedHashMap<>();

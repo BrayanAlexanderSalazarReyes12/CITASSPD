@@ -6,10 +6,15 @@ package com.spd.FinalizarCitaAut;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletContextEvent;
@@ -22,55 +27,72 @@ import javax.servlet.ServletContextListener;
  */
 public class SchedulerListener implements ServletContextListener {
     
-    private Timer timer;
+    private ScheduledExecutorService scheduler;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        
-        timer = new Timer(true);
-        
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("▶️ Ejecutando tarea automática - 11:00 PM");
-                CitasAutomaticas job = new CitasAutomaticas();
-                job.inicializarDesdeContexto(sce.getServletContext());
-                try {
-                    job.ejecutarAutomatico();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SchedulerListener.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex) {
-                    Logger.getLogger(SchedulerListener.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        };
-        
-        Date primeraEjecucion = getProximaEjecucion(23, 0);
-        long periodo = 24 * 60 * 60 * 1000;
-        
-        timer.scheduleAtFixedRate(task, primeraEjecucion, periodo);
-        
+        System.out.println("🕒 Iniciando SchedulerListener...");
+
+        // Creamos un pool con 2 hilos para ejecutar las tareas
+        scheduler = Executors.newScheduledThreadPool(2);
+
+        // Programamos las tareas
+        programarTareaDiaria(sce, 23, 0); // 11:00 PM
+        programarTareaDiaria(sce, 8, 5);  // 8:00 AM
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        if(timer != null){
-            timer.cancel();
+        System.out.println("🛑 Deteniendo SchedulerListener...");
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdownNow();
         }
     }
-    
-    private Date getProximaEjecucion(int hora, int minuto){
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, hora);
-        cal.set(Calendar.MINUTE, minuto);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        
-        Date ejecucion = cal.getTime();
-        if(ejecucion.before(new Date())){
-            cal.add(Calendar.DAY_OF_MONTH, 1);
-            ejecucion = cal.getTime();
+
+    /**
+     * Programa una tarea que se ejecuta diariamente a una hora específica.
+     */
+    private void programarTareaDiaria(ServletContextEvent sce, int hora, int minuto) {
+        long delayInicial = calcularDelay(hora, minuto);
+        long periodo = TimeUnit.DAYS.toSeconds(1); // cada 24 horas
+
+        scheduler.scheduleAtFixedRate(() -> ejecutarJob(sce, hora, minuto),
+                delayInicial, periodo, TimeUnit.SECONDS);
+
+        System.out.printf("🗓️ Tarea programada para las %02d:%02d (inicia en %d segundos)%n",
+                hora, minuto, delayInicial);
+    }
+
+    /**
+     * Ejecuta el proceso automático.
+     */
+    private void ejecutarJob(ServletContextEvent sce, int hora, int minuto) {
+        System.out.printf("▶️ Ejecutando tarea automática - %02d:%02d%n", hora, minuto);
+        CitasAutomaticas job = new CitasAutomaticas();
+        job.inicializarDesdeContexto(sce.getServletContext());
+        try {
+            job.ejecutarAutomatico();
+        } catch (SQLException | IOException ex) {
+            Logger.getLogger(SchedulerListener.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            // Captura general para evitar que el scheduler se detenga
+            Logger.getLogger(SchedulerListener.class.getName())
+                    .log(Level.SEVERE, "Error inesperado en tarea automática", ex);
         }
-        return ejecucion;
+    }
+
+    /**
+     * Calcula el delay (en segundos) hasta la próxima ejecución.
+     */
+    private long calcularDelay(int hora, int minuto) {
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime proximaEjecucion = ahora.withHour(hora).withMinute(minuto).withSecond(0).withNano(0);
+
+        if (proximaEjecucion.isBefore(ahora)) {
+            proximaEjecucion = proximaEjecucion.plusDays(1);
+        }
+
+        Duration duracion = Duration.between(ahora, proximaEjecucion);
+        return duracion.getSeconds();
     }
 }
