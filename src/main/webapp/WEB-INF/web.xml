@@ -41,8 +41,16 @@
         <servlet-class>com.spd.Servlets.TiposProductos</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>TiposProductosAdministrador</servlet-name>
+        <servlet-class>com.spd.Servlets.TiposProductosAdministrador</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>TipoProductosBarcaza</servlet-name>
         <servlet-class>com.spd.Servlets.TipoProductosBarcaza</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TipoProductosBarcazaAdministrador</servlet-name>
+        <servlet-class>com.spd.Servlets.TipoProductosBarcazaAdministrador</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AsignarCitaCamiones</servlet-name>
@@ -153,8 +161,16 @@
         <url-pattern>/TiposProductos</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>TiposProductosAdministrador</servlet-name>
+        <url-pattern>/TiposProductosAdministrador</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>TipoProductosBarcaza</servlet-name>
         <url-pattern>/TipoProductosBarcaza</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TipoProductosBarcazaAdministrador</servlet-name>
+        <url-pattern>/TipoProductosBarcazaAdministrador</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>AsignarCitaCamiones</servlet-name>

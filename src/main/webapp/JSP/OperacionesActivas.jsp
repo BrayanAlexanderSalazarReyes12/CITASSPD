@@ -291,45 +291,88 @@
                                     if (operacionesper != null && operacionesper.contains(operacion)) {
                                         String ordenOp = (datos != null && datos.has("ordenOperacion")) ? datos.get("ordenOperacion").getAsString() : "";
                                         String estadoOP = (datos != null && datos.has("estado")) ? datos.get("estado").getAsString() : "";
-                                        if (estadoOP.equals("Activa")) {
+                                        
+                                        if (!DATA.equals("8060126542"))
+                                        {
+                                            if (estadoOP.equals("Activa")) {
                                 %>
-                                            <input 
-                                                type="button" 
-                                                value="Agendar cita" 
-                                                onclick="window.location.href='../TiposProductos?ordenOperacion=<%= ordenOp %>&operacion=<%= Tipooperacion.get(u) %>'"
-                                            />
+                                                <input 
+                                                    type="button" 
+                                                    value="Agendar cita" 
+                                                    onclick="window.location.href='../TiposProductos?ordenOperacion=<%= ordenOp %>&operacion=<%= Tipooperacion.get(u) %>'"
+                                                />
                                 <%
-                                        }else {
+                                            }else {
                                 %>
-                                            <input 
-                                                type="button"
-                                                value="Listo para enviar"
-                                                disabled
-                                            /> 
+                                                <input 
+                                                    type="button"
+                                                    value="Listo para enviar"
+                                                    disabled
+                                                /> 
                                 <%
-                                            z++; 
-                                        }                                                
+                                                z++; 
+                                            }
+                                        } else {
+                                            if (estadoOP.equals("Activa")) {
+                                %>
+                                                <input 
+                                                    type="button" 
+                                                    value="Agendar cita" 
+                                                    onclick="window.location.href='../TiposProductosAdministrador?ordenOperacion=<%= ordenOp %>&operacion=<%= Tipooperacion.get(u) %>'"
+                                                />
+                                <%
+                                            }else {
+                                %>
+                                                <input 
+                                                    type="button"
+                                                    value="Listo para enviar"
+                                                    disabled
+                                                />
+                                <%              
+                                                z++; 
+                                            }
+                                        }
                                         formFinalizado.add(new OperacionEstado(operacion, false));
                                     } else {
                                         String ordenOp = (datos != null && datos.has("ordenOperacion")) ? datos.get("ordenOperacion").getAsString() : "";
                                         String tipoOp = (datos != null && datos.has("operacion")) ? datos.get("operacion").getAsString() : "";
-
-                                        if ("Barcaza - Barcaza".equals(tipoOp)) {
+                                        if (!DATA.equals("8060126542"))
+                                        {
+                                            if ("Barcaza - Barcaza".equals(tipoOp)) {
                                 %>
-                                            <input 
-                                                type="button" 
-                                                value="Agendar cita" 
-                                                onclick="window.location.href='../TipoProductosBarcaza?ordenOperacion=<%= ordenOp %>'"
-                                            />
+                                                <input 
+                                                    type="button" 
+                                                    value="Agendar cita" 
+                                                    onclick="window.location.href='../TipoProductosBarcaza?ordenOperacion=<%= ordenOp %>'"
+                                                />
                                 <%
-                                        } else {
+                                            } else {
                                 %>
-                                            <input 
-                                                type="button" 
-                                                value="Agendar cita" 
-                                                onclick="window.location.href='../TipoProductosBarcaza?ordenOperacion=<%= ordenOp %>'"
-                                            />
+                                                <input 
+                                                    type="button" 
+                                                    value="Agendar cita" 
+                                                    onclick="window.location.href='../TipoProductosBarcaza?ordenOperacion=<%= ordenOp %>'"
+                                                />
                                 <%
+                                            }
+                                        }else {
+                                            if ("Barcaza - Barcaza".equals(tipoOp)) {
+                                %>
+                                                <input 
+                                                    type="button" 
+                                                    value="Agendar cita" 
+                                                    onclick="window.location.href='../TipoProductosBarcazaAdministrador?ordenOperacion=<%= ordenOp %>'"
+                                                />
+                                <%
+                                            } else{
+                                %>
+                                                <input 
+                                                    type="button" 
+                                                    value="Agendar cita" 
+                                                    onclick="window.location.href='../TipoProductosBarcazaAdministrador?ordenOperacion=<%= ordenOp %>'"
+                                                />
+                                <%
+                                            }
                                         }
                                     }
                                 %>
