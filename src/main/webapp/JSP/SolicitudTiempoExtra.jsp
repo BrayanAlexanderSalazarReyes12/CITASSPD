@@ -160,41 +160,11 @@
     if (!seccionIniciada) {
         response.sendRedirect(request.getContextPath());
     }
+    Object rolObj = session.getAttribute("Rol");
 %>
 
-<header>
-    <div class="logo">
-        <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
-    </div>
-    <div class="button-container">
-       <%
-            Object rolObj = session.getAttribute("Rol");
-            if (rolObj != null && ((Integer) rolObj) == 1 && ((Integer) rolObj) != 6 && ((Integer) rolObj) != 7) {
-        %>
-            <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-            <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
-            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/> 
-            <input type="submit" value="Operaciones de Hoy" onclick="navegarInternamente('../ListarOperaciones')"/> 
-            <input type="submit" value="Reporte Carrotanques I/S" onclick="navegarInternamente('../ReporteCitasIngreSalida')"/>
-        <%
-            }else if(rolObj != null && ((Integer) rolObj) == 2){
-        %>
-            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
-        <%
-            }else if (rolObj != null && ((Integer) rolObj) == 7){
-        %>
-            <input type="submit" value="Operaciones de Hoy" onclick="navegarInternamente('../ListarOperaciones')"/> 
-        <%
-            }else if (rolObj != null && ((Integer) rolObj) == 8){
-        %>
-            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/> 
-        <%
-            }
-        %>
-        <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/> 
-        <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
-    </div>
-</header>
+<jsp:include page= "Hearder.jsp"/>
+
 
 <%
     Object rolObject1 = session.getAttribute("Rol");

@@ -167,10 +167,10 @@
         if (!seccionIniciada) {
             response.sendRedirect(request.getContextPath());
         }
+        Object rolObj = session.getAttribute("Rol");
     %>
-    
-    <header>
-        <script>
+    <jsp:include page= "Hearder.jsp"/>
+    <script>
             function getCookie(name) {
                 const value = "; " + document.cookie;
                 const parts = value.split("; " + name + "=");
@@ -190,30 +190,7 @@
                 });
             }
         </script>
-        
-        <div class="logo">
-            <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
-        </div>
-        <div class="button-container">
-            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
-           <%
-                Object rolObj = session.getAttribute("Rol");
-                if (rolObj != null && ((Integer) rolObj) == 1) {
-            %>
-                <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
-            <%
-                }else if (rolObj != null && ((Integer) rolObj) != 6){
-            %>
-                <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('../JSP/OperacionesActivas.jsp')">
-                <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/>
-                <input type="submit" value="Solicitud Tiempo Extra" onclick="navegarInternamente('../JSP/SolicitudTiempoExtra.jsp')"/>
-                <input type="submit" value="Cerrar Sesión" onclick="window.location.href='../CerrarSeccion'"/>
-            <%
-                }
-            %>
-        </div>
-    </header>
+    
     
     <body>
         <%

@@ -186,27 +186,8 @@
     %>
     
     
-    <header>
-        <div class="logo">
-            <img src="./Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo"/>
-        </div>
-        <div class="button-container">
-            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
-           <%
-                Object rolObj = session.getAttribute("Rol");
-                if (rolObj != null && ((Integer) rolObj) == 1) {
-            %>
-                <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
-            <%
-                }
-            %>
-            <input type="submit" value="Operaciones Activas" onclick="navegarInternamente('./JSP/OperacionesActivas.jsp')">
-            <input type="submit" value="Listado de Citas" onclick="navegarInternamente('./JSP/Listados_Citas.jsp')"/>
-            <input type="submit" value="Solicitud Tiempo Extra" onclick="navegarInternamente('../JSP/SolicitudTiempoExtra.jsp')"/>
-            <input type="submit" value="Cerrar Sesión" onclick="window.location.href='./CerrarSeccion'"/>
-        </div>
-    </header>
+    <% Object rolObj = session.getAttribute("Rol"); %>
+    <jsp:include page= "Hearder.jsp"/>
     <body>
         <div class="Contenedor">
             <h1>Solicitud de citas</h1>

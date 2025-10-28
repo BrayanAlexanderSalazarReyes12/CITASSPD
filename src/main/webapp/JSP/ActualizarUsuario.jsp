@@ -122,25 +122,8 @@
             response.sendRedirect(request.getContextPath());
         }
     %>
-    <header>
-        <div class="logo">
-            <img src="../Imagenes/sociedad_portuaria_del_dique-.png" alt="Logo Sociedad Portuaria del Dique"/>
-        </div>
-        <div class="button-container">
-            <input type="submit" value="Inicio" onclick="navegarInternamente('https://spdique.com/')"/>
-            <%
-                Object rolObj = session.getAttribute("Rol");
-                if (rolObj != null && ((Integer) rolObj) == 1) {
-            %>
-                <input type="submit" value="Crear usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
-                <input type="submit" value="Listar usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
-            <%
-                }
-            %>
-            <input type="submit" value="Listados de citas" onclick="navegarInternamente('./Listados_Citas.jsp')"/>
-            <input type="submit" value="Cerrar sesión" onclick="window.location.href='../CerrarSeccion'"/>
-        </div>
-    </header>
+    <% Object rolObj = session.getAttribute("Rol"); %>
+    <jsp:include page= "Hearder.jsp"/>
     <body>
         <div class="Contenedor">
             <div class="version">
