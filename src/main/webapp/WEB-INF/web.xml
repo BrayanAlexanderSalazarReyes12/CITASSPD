@@ -128,6 +128,10 @@
         <servlet-name>AprobarTiempoExtraServlet</servlet-name>
         <servlet-class>com.spd.TiempoExtra.AprobarTiempoExtraServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>CrearBarcazaServlet</servlet-name>
+        <servlet-class>com.spd.CrearBarcaza.CrearBarcazaServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <url-pattern>/Iniciar_Seccion_Servlet</url-pattern>
@@ -247,6 +251,10 @@
     <servlet-mapping>
         <servlet-name>AprobarTiempoExtraServlet</servlet-name>
         <url-pattern>/AprobarTiempoExtraServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CrearBarcazaServlet</servlet-name>
+        <url-pattern>/CrearBarcazaServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -55,6 +55,7 @@ public class EnviarCorreo extends HttpServlet {
 
         // === Recuperar JSON reducido ===
         String json = (String) request.getSession().getAttribute("json");
+        String NombreEmpresa = (String) request.getAttribute("NombreEmpresa");
 
         System.out.println(json);
         if (json == null) {
@@ -100,8 +101,7 @@ public class EnviarCorreo extends HttpServlet {
         // === Construir mensaje HTML ===
         StringBuilder mensaje = new StringBuilder();
         mensaje.append("<h3>AUTORIZACIÓN DE INGRESO</h3>");
-        mensaje.append("<p><b>Cliente:</b> ").append(nombreCliente)
-               .append(" &nbsp;&nbsp; <b>NIT:</b> ").append(nit).append("</p>");
+        mensaje.append("<p><b>CLIENTE:</b> ").append(NombreEmpresa).append("</p>");
 
         mensaje.append("<br><table border='1' cellpadding='5' cellspacing='0'>");
         mensaje.append("<tr>")

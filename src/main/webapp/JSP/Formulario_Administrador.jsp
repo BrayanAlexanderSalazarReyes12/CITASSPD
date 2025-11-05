@@ -378,7 +378,7 @@
     %>
 
     <% Object rolObj = session.getAttribute("Rol"); %>
-    <jsp:include page= "Hearder.jsp"/>
+    <jsp:include page= "Hearder_Servelet.jsp"/>
 
     <body>
     <div class="Contenedor">

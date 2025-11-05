@@ -328,9 +328,6 @@ $F{NIT_EMP_BASCULA}.equals("9014278925") ? "MONJASA" :
 			</textField>
 		</band>
 	</detail>
-	<columnFooter>
-		<band height="45" splitType="Stretch"/>
-	</columnFooter>
 	<pageFooter>
 		<band height="54" splitType="Stretch"/>
 	</pageFooter>

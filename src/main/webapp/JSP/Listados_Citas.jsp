@@ -67,29 +67,33 @@
 
     </head>
     <%
-        Cookie[] cookies = request.getCookies();
+        // Configuración general
         response.setContentType("text/html");
+
+        Cookie[] cookies = request.getCookies();
         String usuario = "";
         String nit = "";
         boolean seccionIniciada = false;
 
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("SeccionIniciada")) {
+                if ("SeccionIniciada".equals(cookie.getName())) {
                     seccionIniciada = true;
-                }
-                if (cookie.getName().equals("USUARIO")){
+                } else if ("USUARIO".equals(cookie.getName())) {
                     usuario = cookie.getValue();
-                }
-                if (cookie.getName().equals("DATA")){
+                } else if ("DATA".equals(cookie.getName())) {
                     nit = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8.name());
                 }
             }
         }
 
+        // 🔒 Validar sesión iniciada
         if (!seccionIniciada) {
             response.sendRedirect(request.getContextPath());
+            return; // 🚫 Detiene la ejecución del JSP
         }
+
+        // Recuperar rol de sesión (si existe)
         Object rolObj = session.getAttribute("Rol");
     %>
     <jsp:include page= "Hearder.jsp"/>
@@ -605,7 +609,7 @@
                                                         let nombreEmpresa = "No encontrado";
 
                                                         if (data && data.length > 0) {
-                                                            nombreEmpresa = data[0].empresa || "Sin nombre";
+                                                            nombreEmpresa = data[0].Nombre || "Sin nombre";
                                                         }
 
                                                         celdaCompania.textContent = nombreEmpresa;

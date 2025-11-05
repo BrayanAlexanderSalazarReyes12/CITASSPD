@@ -16,6 +16,7 @@
             if (rolObj != null && ((Integer) rolObj) == 1 && ((Integer) rolObj) != 6 && ((Integer) rolObj) != 7) {
         %>
             <input type="submit" value="Crear Usuario" onclick="navegarInternamente('CrearUsuario.jsp')"/>
+            <input type="submit" value="Crear Barcaza" onclick="navegarInternamente('CrearBarcaza.jsp')"/>
             <input type="submit" value="Listar Usuarios" onclick="navegarInternamente('ListadoUsuarios.jsp')"/>
             <input type="submit" value="Listado de Citas" onclick="navegarInternamente('../JSP/Listados_Citas.jsp')"/> 
             <input type="submit" value="Operaciones de Hoy" onclick="navegarInternamente('../ListarOperaciones')"/> 

@@ -38,7 +38,7 @@ public class SchedulerListener implements ServletContextListener {
 
         // Programamos las tareas
         programarTareaDiaria(sce, 23, 0); // 11:00 PM
-        programarTareaDiaria(sce, 8, 5);  // 8:00 AM
+        programarTareaDiaria(sce, 8, 0);  // 8:00 AM
     }
 
     @Override

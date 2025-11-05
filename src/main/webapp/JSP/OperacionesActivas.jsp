@@ -126,6 +126,14 @@
     
 </script>
 
+<%
+    session = request.getSession(false);
+    List<String> placasFallidas = (session != null) ? (List<String>) session.getAttribute("placasFallidas") : null;
+    if (placasFallidas != null) {
+        session.removeAttribute("placasFallidas"); // Limpia la sesión para el próximo envío
+    }
+%>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -198,7 +206,30 @@
             String errorMsg = (String) session.getAttribute("errorMsg"); 
             Boolean correoEnviado1 = Boolean.TRUE.equals(session.getAttribute("correoEnviado"));
         %>
+        
+        <script>
+            <% if (placasFallidas != null && !placasFallidas.isEmpty()) { %>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Algunas placas no fueron enviadas',
+                    html: '<p>Las siguientes placas no se enviaron correctamente. Por favor verificar la información de la placa extra y elaborar una cita aparte para esta placa:</p>' +
+                          '<ul style="text-align:left">' +
+                          <% for (String placa : placasFallidas) { %>
+                              '<li><%= placa %></li>' +
+                          <% } %>
+                          '</ul>',
+                    confirmButtonText: 'Entendido'
+                });
+            <% } else { %>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Todos los extras fueron enviados correctamente',
+                    confirmButtonText: 'OK'
+                });
+            <% } %>
+        </script>
 
+        
         <% if (errorMsg != null) { %>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
