@@ -140,35 +140,43 @@
     </head>
     
     <%
-        
         Cookie[] cookies1 = request.getCookies();
         response.setContentType("text/html");
 
         boolean seccionIniciada = false;
         String DATA = "";
-
+        String USUARIO = "";
+        
         if (cookies1 != null) {
             for (Cookie cookie : cookies1) {
-                if (cookie.getName().equals("SeccionIniciada")) {
+                if ("SeccionIniciada".equals(cookie.getName())) {
                     seccionIniciada = true;
-                }
-                if(cookie.getName().equals("DATA")){
+                } else if ("DATA".equals(cookie.getName())) {
                     DATA = cookie.getValue();
+                }else if ("USUARIO".equals(cookie.getName())){
+                    USUARIO = cookie.getValue();
                 }
+                if (seccionIniciada && !DATA.isEmpty()) break;
             }
         }
+
+        String planilla = request.getParameter("planilla");
+        Boolean planillaval = planilla != null ? Boolean.parseBoolean(planilla) : null;
+
         
-        Boolean HayOperaciones = (Boolean) session.getAttribute("hayOperacionValida");
-        
-        if (Boolean.FALSE.equals(HayOperaciones)){
+        if (Boolean.FALSE.equals(planillaval)) {
             response.sendRedirect("./TipoOperaciones.jsp");
+            return;
         }
 
         if (!seccionIniciada) {
             response.sendRedirect(request.getContextPath());
+            return;
         }
+
         Object rolObj = session.getAttribute("Rol");
     %>
+
     <jsp:include page= "Hearder.jsp"/>
     <script>
             function getCookie(name) {
@@ -286,11 +294,6 @@
                 });
             <% } %>
         </script>
-
-
-
-        
-        
         <div class="contenedor">
             <table border="1">
                 <thead>
@@ -301,7 +304,7 @@
                 </thead>
                 <tbody>
                     <%
-                        List<String> operaciones = (List<String>) session.getAttribute("TodasOperaciones");
+                        List<String> operaciones = null;
                         List<String> operacionesper = (List<String>) session.getAttribute("Operacionespermitadas");
                         List<String> Tipooperacion = (List<String>) session.getAttribute("tipooperacionselect");
                         
@@ -313,9 +316,209 @@
                         int z = 0;
                         if (operaciones == null) {
                     %>
+                            <td>PLANILLA AGENDAMIENTO CITAS</td>
+                            <td>
+                                <input 
+                                    type="button" 
+                                    value="Subir archivo" 
+                                    onclick="subirExcel('<%= request.getContextPath() %>/SubirExcelServlet')" 
+                                />
+                            </td>
+                            
+                            <!-- PASAR DATA A JAVASCRIPT -->
                             <script>
-                                window.location.href = '../JSP/TipoOperacion.jsp';
+                                const USUARIO = "<%= USUARIO %>";
+                                const DATA = "<%= DATA %>";// <- Esta es tu empresa desde la cookie
                             </script>
+                            
+                            <script>
+                                async function subirExcel(urlSubida) {
+                                    
+                                    const { value: pdfFile } = await Swal.fire({
+                                        title: 'Sube la remisión en PDF (máx 200 KB)',
+                                        input: 'file',
+                                        inputAttributes: { accept: 'application/pdf' },
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Aceptar',
+                                        preConfirm: (file) => {
+
+                                            if (!file) {
+                                                Swal.showValidationMessage("Debes seleccionar un PDF");
+                                                return false;
+                                            }
+
+                                            // Validar tamaño
+                                            const maxBytes = 200 * 1024;
+                                            if (file.size > maxBytes) {
+                                                Swal.showValidationMessage(
+                                                    "El PDF supera los 200 KB. Tamaño actual: " + (file.size/1024).toFixed(2) + " KB"
+                                                );
+                                                return false;
+                                            }
+
+                                            return file;
+                                        }
+                                    });
+                                    
+
+                                    if (!pdfFile) return;
+
+                                    const pdfBase64 = await convertirArchivoBase64(pdfFile);
+
+                                    
+                                    await Swal.fire({
+                                        icon: "success",
+                                        title: "PDF cargado",
+                                        text: "La remisión fue cargada correctamente",
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                    
+                                    const { value: file } = await Swal.fire({
+                                        title: 'Selecciona un archivo Excel',
+                                        input: 'file',
+                                        inputAttributes: { accept: '.xlsx,.xls' },
+                                        showCancelButton: true,
+                                        cancelButtonText: 'Cancelar',
+                                        confirmButtonText: 'Subir',
+                                        showLoaderOnConfirm: true,
+                                        allowOutsideClick: () => !Swal.isLoading(),
+                                        preConfirm: (file) => {
+
+                                            // 1️⃣ Archivo no seleccionado
+                                            if (!file) {
+                                                Swal.showValidationMessage("Debe seleccionar un archivo.");
+                                                return false; // 🔥 mantiene el botón
+                                            }
+
+                                            // 2️⃣ Archivo vacío
+                                            if (file.size === 0) {
+                                                Swal.showValidationMessage("El archivo está vacío.");
+                                                return false;
+                                            }
+
+                                            // 3️⃣ Extensión válida
+                                            const ext = file.name.split('.').pop().toLowerCase();
+                                            const extensionesValidas = ["xlsx", "xls"];
+
+                                            if (!extensionesValidas.includes(ext)) {
+                                                Swal.showValidationMessage("Solo se permiten archivos Excel (.xlsx o .xls)");
+                                                return false; // 🔥 mantiene el botón
+                                            }
+
+                                            // 4️⃣ Tamaño máximo 1MB
+                                            const maxBytes = 1 * 1024 * 1024;
+                                            if (file.size > maxBytes) {
+                                                Swal.showValidationMessage(
+                                                    "El archivo supera 1MB. Tamaño:" + (file.size / 1024).toFixed(2) + "KB"
+                                                );
+                                                return false; // 🔥 mantiene botón visible
+                                            }
+
+                                            // Si todo está OK → SweetAlert permite continuar
+                                            return file;
+                                        }
+                                    });
+
+                                    if (!file) return;
+
+                                    // --------------------------------------
+                                    // YA PASÓ LAS VALIDACIONES → SUBIR EXCEL
+                                    // --------------------------------------
+
+                                    try {
+
+                                        const formData = new FormData();
+                                        formData.append("archivoExcel", file);
+                                        formData.append("empresa", USUARIO);
+                                        formData.append("pdfBase64", pdfBase64);
+
+                                        const responseSubida = await fetch(urlSubida, {
+                                            method: "POST",
+                                            body: formData
+                                        });
+
+                                        const nombreArchivo = await responseSubida.text();
+
+                                        Swal.fire({
+                                            title: "Procesando archivo...",
+                                            text: "Por favor espera",
+                                            allowOutsideClick: false,
+                                            didOpen: () => Swal.showLoading()
+                                        });
+
+                                        const responseLectura = await fetch("../LeerExcelServelet", {
+                                            method: "POST",
+                                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                            body:
+                                                "archivo=" + encodeURIComponent(nombreArchivo) +
+                                                "&UsuLogin=" + encodeURIComponent(USUARIO) +
+                                                "&NitUsuLogin=" + encodeURIComponent(DATA) +
+                                                "&pdfBase64=" + encodeURIComponent(pdfBase64)
+                                        });
+
+                                        const datos = await responseLectura.text();
+                                        
+                                        let respuestaJSON = null;
+                                        try {
+                                            respuestaJSON = JSON.parse(datos);
+                                        } catch (e) {
+                                            // No es JSON, lo tratamos como respuesta normal
+                                        }
+                                        
+                                        Swal.close();
+                                        
+                                        // SI EL SERVLET MANDÓ {"error": "..."} → MOSTRAR ERROR
+                                        if (respuestaJSON && respuestaJSON.error) {
+
+                                            Swal.fire({
+                                                title: "Error en el archivo Excel",
+                                                text: respuestaJSON.error,
+                                                icon: "error",
+                                                width: "80%",
+                                                confirmButtonText: "Aceptar"
+                                            });
+
+                                            return; // NO CONTINÚA
+                                        }
+
+                                        Swal.fire({
+                                            title: "Datos del Excel",
+                                            text: "La remisión fue cargada correctamente",
+                                            width: '80%',
+                                            scrollbarPadding: false,
+                                            icon: 'success',
+                                            confirmButtonText: 'Aceptar'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                // Redirigir a otra página
+                                                window.location.href = '<%= request.getContextPath() %>/JSP/OperacionesActivasPlanilla.jsp?planilla=true';
+
+                                                // O si quieres solo recargar la página actual:
+                                                // location.reload();
+                                            }
+                                        });
+
+
+                                    } catch (error) {
+                                        Swal.fire({ icon: "error", title: "Error", text: error.message });
+                                    }
+                                }
+                                
+                                // ------------------------------------------------------------
+                                // UTILIDAD: PDF → Base64
+                                // ------------------------------------------------------------
+                                function convertirArchivoBase64(file) {
+                                    return new Promise((resolve, reject) => {
+                                        const reader = new FileReader();
+                                        reader.onload = () => resolve(reader.result.split(",")[1]);
+                                        reader.onerror = reject;
+                                        reader.readAsDataURL(file);
+                                    });
+                                }
+                                
+                                </script>
+
                     <%
                         } else {
                             for (String operacion : operaciones) {

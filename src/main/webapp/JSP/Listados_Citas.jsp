@@ -492,7 +492,7 @@
                                                         codCita: codCita,
                                                         placa: placa,
                                                         empresa: empresa,
-                                                        estado: "ingresado"
+                                                        estado: "salida"
                                                     };
 
                                                     // Convertir a formato x-www-form-urlencoded

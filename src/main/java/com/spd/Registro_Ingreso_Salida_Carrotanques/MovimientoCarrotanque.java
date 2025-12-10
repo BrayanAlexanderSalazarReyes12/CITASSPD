@@ -151,8 +151,19 @@ public class MovimientoCarrotanque {
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             // Consulta SQL
-            String sql = "SELECT COD_CITA, PLACA, ESTADO " +
-                         "FROM SPD_MOVIMIENTOS_CARROTANQUES ";
+            String sql = "SELECT COD_CITA, PLACA, ESTADO\n" +
+                        "FROM (\n" +
+                        "    SELECT \n" +
+                        "        COD_CITA,\n" +
+                        "        PLACA,\n" +
+                        "        ESTADO,\n" +
+                        "        HORA_INGRESO,\n" +
+                        "        ROW_NUMBER() OVER (PARTITION BY PLACA ORDER BY HORA_INGRESO DESC) AS rn\n" +
+                        "    FROM SPD_MOVIMIENTOS_CARROTANQUES\n" +
+                        "    WHERE TRUNC(HORA_INGRESO) BETWEEN TRUNC(SYSDATE - 1) AND TRUNC(SYSDATE)\n" +
+                        ")\n" +
+                        "WHERE rn = 1\n" +
+                        "ORDER BY HORA_INGRESO DESC";
 
             pstmt = conn.prepareStatement(sql);
 

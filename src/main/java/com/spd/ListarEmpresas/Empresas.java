@@ -4,13 +4,18 @@
  */
 package com.spd.ListarEmpresas;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  *
  * @author Brayan Salazar
  */
 public class Empresas {
+    @SerializedName("codciaUser")
     private String CodciaUser;
+    @SerializedName("codnit")
     private String CodNit;
+    @SerializedName("razonSocial")
     private String RazonSocial;
 
     public Empresas() {

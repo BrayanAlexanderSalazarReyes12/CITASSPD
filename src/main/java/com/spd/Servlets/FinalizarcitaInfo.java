@@ -31,6 +31,7 @@ public class FinalizarcitaInfo extends HttpServlet {
             String fecha = request.getParameter("fecha");
             String soloFecha = fecha.split("T")[0]; // "2025-08-23"
             String cedula = request.getParameter("cedula");
+            String codcita = request.getParameter("codcita");
 
             if (placa == null || fecha == null) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Faltan parámetros obligatorios.");
@@ -49,7 +50,7 @@ public class FinalizarcitaInfo extends HttpServlet {
             // Inicializar contexto antes de consultar
             InformacionPesajeFinalizacionCIta.inicializarDesdeContexto(getServletContext());
 
-            List<CitaInfo> info = InformacionPesajeFinalizacionCIta.InformacionPesosFinalizacionCita(placa, cedula, fecha_fin);
+            List<CitaInfo> info = InformacionPesajeFinalizacionCIta.InformacionPesosFinalizacionCita(placa, cedula, fecha_fin, codcita);
 
             Gson gson = new Gson();
             String json = gson.toJson(info);

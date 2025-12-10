@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import com.spd.API.TipoPorductosGet;
+import com.spd.ListarEmpresas.ListaEmpresasLogueadas;
 import com.spd.Productos.Producto;
 import java.util.ArrayList;
 import javax.servlet.RequestDispatcher;
@@ -57,7 +58,7 @@ public class TiposProductos extends HttpServlet {
             System.out.println("No hay cookies en la solicitud.");
         }
         
-        String url = "http://www.siza.com.co/spdcitas-1.0/api/citas/productos/" + DATA;
+        String url = "http://www.siza.com.co/spdcitas-1.0/api/citas/productos/" + ListaEmpresasLogueadas.listaempresa(DATA);
         
         String path = getServletContext().getRealPath("/WEB-INF/json.env");
         String content = new String(Files.readAllBytes(Paths.get(path)));

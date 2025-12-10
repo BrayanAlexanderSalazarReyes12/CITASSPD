@@ -19,7 +19,10 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.*;
 import org.json.JSONObject;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.spd.API.FormularioPost;
 import com.spd.CItasDB.BarcazaCita;
 import com.spd.CItasDB.CitaBascula;
@@ -33,13 +36,17 @@ import com.spd.DAO.Correcion_Fecha;
 import com.spd.Model.Cliente;
 import com.spd.Model.FormularioCompletoSPDCARROTANQUE;
 import com.spd.SendMail.EnviarCorreo;
+import com.spd.fallos.DAOFallos;
 import com.spd.informacionCita.MaxCITA;
 import java.net.URLDecoder;
 import java.sql.SQLException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
+import org.json.JSONArray;
 import org.json.JSONException;
 
 // IMPORTANTE: ajusta los imports de tus clases de dominio:
@@ -62,7 +69,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
     private static final int POOL_SIZE_EXTRAS = 5;
 
     // === Endpoints ===
-    private static final String URL_RIEM = "https://rndcws2.mintransporte.gov.co/rest/RIEN";
+    private static final String URL_RIEM = "";//https://rndcws2.mintransporte.gov.co/rest/RIEN
     private static final String URL_CITAS = "http://www.siza.com.co/spdcitas-1.0/api/citas/";
     private static final String URL_CITAS_BARC = "http://www.siza.com.co/spdcitas-1.0/api/citas/barcazas/";
     private static final String URL_PRUEBAS = "http://192.168.10.80:26480/spdcitas/api/citas/";
@@ -73,11 +80,14 @@ public class Formulario_SPD_Servlet extends HttpServlet {
 
     // 👉 Lista segura para guardar fallas (no interrumpe otros hilos)
     private final List<String> placasFallidas = new CopyOnWriteArrayList<>();
+    
+    private String nuevaCita = "";
 
     @Override
     public void init() throws ServletException {
         super.init();
         extrasPool = Executors.newFixedThreadPool(POOL_SIZE_EXTRAS);
+        DAOFallos.inicializarDesdeContexto(getServletContext());
     }
 
     @Override
@@ -157,18 +167,74 @@ public class Formulario_SPD_Servlet extends HttpServlet {
         return null;
     }
 
-    private String formdbConRetry(FormularioPost fp, String url, String json) {
+    private String formdbConRetry(FormularioPost fp, String url, String json, String usuario) {
+
         long backoff = BACKOFF_MS_INICIAL;
+        DAOFallos daoFallos = new DAOFallos();
+
+        try {
+            // ========== FILTRAR JSON (parte original tuya) ==========
+            com.google.gson.JsonParser parser = new com.google.gson.JsonParser();
+            com.google.gson.JsonObject obj = parser.parse(json).getAsJsonObject();
+
+            if (obj.has("vehiculos")) {
+                com.google.gson.JsonArray vehiculos = obj.getAsJsonArray("vehiculos");
+                com.google.gson.JsonArray vehiculosFiltrados = new com.google.gson.JsonArray();
+
+                for (com.google.gson.JsonElement v : vehiculos) {
+                    com.google.gson.JsonObject vehiculo = v.getAsJsonObject();
+                    String placa = vehiculo.get("vehiculoNumPlaca").getAsString();
+
+                    if (!placasFallidas.contains(placa)) {
+                        vehiculosFiltrados.add(vehiculo);
+                    }
+                }
+                obj.add("vehiculos", vehiculosFiltrados);
+            }
+
+            json = new com.google.gson.Gson().toJson(obj);
+
+        } catch (Exception e) {
+            System.out.println("⚠️ Error filtrando JSON: " + e.getMessage());
+        }
+
+        // ========== REINTENTOS ==========
         for (int i = 0; i < MAX_REINTENTOS; i++) {
             try {
                 String resp = fp.FormDB(url, json);
-                if (resp != null && !resp.isEmpty()) return resp;
-            } catch (Exception ignore) { }
-            try { Thread.sleep(backoff); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
-            backoff *= 2;
+
+                if (resp != null && !resp.isEmpty()) {
+                    return resp; // ÉXITO
+                }
+
+            } catch (Exception e) {
+                System.err.println("❌ Intento " + (i + 1) + " fallido: " + e.getMessage());
+            }
+
+            // esperar antes del siguiente reintento
+            if (i < MAX_REINTENTOS - 1) {
+                try {
+                    Thread.sleep(backoff);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                backoff *= 2;
+            }
         }
+
+        // ========== SI TODOS LOS INTENTOS FALLAN → GUARDAR LOCAL ==========
+        try {
+            LocalBackup.save(json, getServletContext(), usuario, nuevaCita);
+            System.out.println("📁 JSON guardado localmente para reintento futuro.");
+        } catch (IOException ioe) {
+            System.err.println("⛔ ERROR: No se pudo guardar el JSON localmente: " + ioe.getMessage());
+        }
+
         return null;
     }
+
+
 
     private String citaBarcazaConRetry(FormularioPost fp, String url, String json) {
         long backoff = BACKOFF_MS_INICIAL;
@@ -235,6 +301,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
 
         extrasPool.submit(() -> {
             try {
+                // Construir el objeto JSON del formulario
                 Vehiculo vehiculoExtra = new Vehiculo(placa, cedula, fecha, manifiesto, remolque);
                 List<Vehiculo> lista = new ArrayList<>();
                 lista.add(vehiculoExtra);
@@ -242,21 +309,51 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 FormularioCompleto formulario = new FormularioCompleto(acceso, variables);
                 String json = gson.toJson(formulario);
 
+                // Enviar POST con reintentos
                 String resp = postConRetry(fp, URL, json);
 
+                // Caso sin respuesta
                 if (resp == null) {
-                    System.out.println("❌ Error enviando extra placa=" + placa + " (sin respuesta)");
-                    placasFallidas.add(placa); // 👈 Registrar falla
-                } else {
-                    System.out.println("✅ Extra enviado placa=" + placa);
+                    System.out.println("❌ Error enviando extra placa=" + placa + " (sin respuesta del servidor)");
+                    placasFallidas.add(placa);
+                    return;
+                }
+
+                // Intentar interpretar la respuesta JSON
+                try {
+                    org.json.JSONObject jsonResp = new org.json.JSONObject(resp);
+
+                    if (jsonResp.has("ErrorCode")) {
+                        int errorCode = jsonResp.optInt("ErrorCode", 0);
+                        String errorText = jsonResp.optString("ErrorText", "Error desconocido");
+                        System.out.println("❌ Error enviando extra placa=" + placa +
+                                           " -> Código: " + errorCode + " | " + errorText);
+                        placasFallidas.add(placa);
+
+                    } else if (jsonResp.has("SesionId")) {
+                        long sesionId = jsonResp.optLong("SesionId", -1);
+                        String ingresoId = jsonResp.optString("IngresoId", "");
+                        System.out.println("✅ Extra enviado correctamente. Placa=" + placa +
+                                           " | SesionId=" + sesionId + " | IngresoId=" + ingresoId);
+
+                    } else {
+                        System.out.println("⚠️ Respuesta desconocida del servidor para placa=" + placa + ": " + resp);
+                        placasFallidas.add(placa);
+                    }
+
+                } catch (Exception parseEx) {
+                    System.out.println("⚠️ Respuesta no es JSON válido para placa=" + placa + ": " + resp);
+                    placasFallidas.add(placa);
                 }
 
             } catch (Exception e) {
                 System.out.println("❌ Excepción en envío de extra placa=" + placa + " -> " + e.getMessage());
-                placasFallidas.add(placa); // 👈 Registrar falla
+                placasFallidas.add(placa);
             }
         });
     }
+
+
 
 
     // ====== Flujo principal ======
@@ -460,7 +557,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                     String nuevoNumeroStr = String.format("%012d", numero); // "000000000366"
 
                     // Armar la nueva cita
-                    String nuevaCita = "CTA" + nuevoNumeroStr;
+                    nuevaCita = "CTA" + nuevoNumeroStr;
 
                     // Guardar en la sesión
                     session.setAttribute("EnviarCita_"+orden, nuevaCita);
@@ -473,86 +570,114 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 try {
                     // Solo si guarda bien en BD, se envía al ministerio
                     System.out.println("Enviando RIEN (carrotanque) y CitaBarcaza...");
-                    String response1 = postConRetry(fp, URL_RIEM, json);
+                    
+                    // Llamada al servicio
+                    String response1 = formdbConRetry(fp, URL_CITAS, json2, usuario);
 
-                    if (response1 == null) {
-                        session = request.getSession();
-                        session.setAttribute("Activo", true);
-                        session.setAttribute("Error", "Error: no hay conexión con el servidor (RIEN). Intente más tarde.");
-                        response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
-                        return;
+                    // Parsear JSON
+                    JSONObject jsonResponse = new JSONObject(response1);
+
+                    // Listas para guardar placas
+                    List<String> placasExitosas = new ArrayList<>();
+                    List<String> placasFallidasERROR = new ArrayList<>();
+
+                    // ==========================
+                    // Detectar si es status 412 (todas fallidas)
+                    // ==========================
+                    boolean todasFallidas = false;
+
+                    // Si viene "vehiculos" y no hay "cita", asumimos 412
+                    if (jsonResponse.has("vehiculos") && !jsonResponse.has("cita")) {
+                        todasFallidas = true;
                     }
 
-                    JSONObject jsonResponse = null;
-                    try {
-                        jsonResponse = new JSONObject(response1);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        redirectTiposProductos(request, response, operacion, "Error: no hay conexión con el servidor (RIEN). Intente más tarde.");
-                    }
-                    if (jsonResponse.has("ErrorCode") && jsonResponse.optInt("ErrorCode", 0) != 0) {
-                        String msg = jsonResponse.optString("ErrorText", "Sin detalle");
-                        session = request.getSession();
-                        session.setAttribute("Error", "Error: " + msg);
-                        setFormSession(session, usuario, Operaciones, fecha, verificacion, Nitempresa, Cedula, placa,
-                                Manifiesto, cedulasExtras, placasExtras, manifiestosExtras, nombre, nombreconductorExtras,
-                                cantidadproducto, FacturaComercial, Observaciones, PrecioArticulo, Remolque, remolqueExtras,
-                                PesoProducto, Barcades, producto);
+                    // ==========================
+                    // Procesar placas fallidas
+                    // ==========================
+                    if (todasFallidas) {
+                        JSONArray vehiculosErrados = jsonResponse.getJSONArray("vehiculos");
+                        for (int i = 0; i < vehiculosErrados.length(); i++) {
+                            JSONObject item = vehiculosErrados.getJSONObject(i);
+                            String placaERROR = item.getString("placa");
+                            String errorText = "Error desconocido";
+                            if (item.has("error")) {
+                                JSONObject errObj = item.getJSONObject("error");
+                                errorText = errObj.optString("ErrorText", errorText);
+                            }
+                            placasFallidasERROR.add(placaERROR + "|" + errorText);
+                        }
+                    } else {
+                        // Caso mixto
+                        // placas exitosas
+                        if (jsonResponse.has("cita")) {
+                            JSONObject cita = jsonResponse.getJSONObject("cita");
+                            if (cita.has("vehiculos")) {
+                                JSONArray vehiculosExitosos = cita.getJSONArray("vehiculos");
+                                for (int i = 0; i < vehiculosExitosos.length(); i++) {
+                                    JSONObject item = vehiculosExitosos.getJSONObject(i);
+                                    placasExitosas.add(item.getString("vehiculoNumPlaca"));
+                                }
+                            }
+                        }
 
-                        setCookie(response, "CITACREADA", "true", 3600, "/CITASSPD");
-
-                        redirectTiposProductos(request, response, operacion, msg);
-                        return;
-                    }
-                    // ✅ Éxito RIEN → Guardar inmediatamente en la base de datos
-                    formdbConRetry(fp, URL_CITAS, json2);
-                    System.out.println("✅ Cita carrotanque + barcaza guardada en base de datos.");
-                    // Éxito RIEN
-                    int sesionId = jsonResponse.optInt("SesionId", -1);
-                    String ingresoId = jsonResponse.optString("IngresoId", "");
-                    session = request.getSession();
-                    session.setAttribute("Activo", true);
-                    session.setAttribute("Error", "Formulario Enviado Con Éxito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
-
-                    quitarOperacionTerminada(session);
-
-                    // Enviar extras en paralelo
-                    if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
-                        for (int i = 0; i < cedulasExtras.length; i++) {
-                            enviarVehiculoExtraAsync(
-                                fp, gson, URL_RIEM, fechaFormateada1, sistemaEnturnamiento, identificador, Nitempresa, acceso,
-                                placasExtras[i], cedulasExtras[i], manifiestosExtras[i],
-                                (remolqueExtras != null && remolqueExtras.length > i) ? remolqueExtras[i] : null
-                            );
+                        // placas fallidas
+                        if (jsonResponse.has("listaErrados")) {
+                            JSONArray errados = jsonResponse.getJSONArray("listaErrados");
+                            for (int i = 0; i < errados.length(); i++) {
+                                JSONObject item = errados.getJSONObject(i);
+                                String placaError = item.getString("placa");
+                                String errorText = "Error desconocido";
+                                if (item.has("error")) {
+                                    JSONObject errObj = item.getJSONObject("error");
+                                    errorText = errObj.optString("ErrorText", errorText);
+                                }
+                                placasFallidasERROR.add(placaError + "|" + errorText);
+                            }
                         }
                     }
+
+                    // ==========================
+                    // Guardar cookies de placas exitosas
+                    // ==========================
+                    if (!placasExitosas.isEmpty()) {
+                        Cookie cookieExitosas = new Cookie("placasExitosas", String.join(",", placasExitosas));
+                        cookieExitosas.setMaxAge(3600);
+                        cookieExitosas.setPath("/CITASSPD");
+                        response.addCookie(cookieExitosas);
+                    } else {
+                        Cookie clear = new Cookie("placasExitosas", "");
+                        clear.setMaxAge(0);
+                        clear.setPath("/CITASSPD");
+                        response.addCookie(clear);
+                    }
+
+                    // ==========================
+                    // Guardar cookies de placas fallidas
+                    // ==========================
+                    if (!placasFallidasERROR.isEmpty()) {
+                        Cookie cookieFallidas = new Cookie("placasFallidas", String.join(",", placasFallidasERROR));
+                        cookieFallidas.setMaxAge(3600);
+                        cookieFallidas.setPath("/CITASSPD");
+                        response.addCookie(cookieFallidas);
+                    } else {
+                        Cookie clear = new Cookie("placasFallidas", "");
+                        clear.setMaxAge(0);
+                        clear.setPath("/CITASSPD");
+                        response.addCookie(clear);
+                    }
+
+                    // ==========================
+                    // Redirigir al JSP
+                    // ==========================
+                    response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
+
                     
-                    guardadoExitoso = true;
                 } catch (Exception e) {
                     e.printStackTrace();
                     session = request.getSession();
                     session.setAttribute("Activo", true);
                     session.setAttribute("Error", "Error: no se pudo guardar la cita en la base de datos.");
                     response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
-                    return;
-                }
-
-                if (guardadoExitoso) {
-                    // Guardar en BD (cita carrotanque + barcaza)
-                    //formdbConRetry(fp, URL_CITAS, json2);
-                    //citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
-                    /*RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreoBarcaza");
-                    request.setAttribute("NombreEmpresa", empresaUsuario);
-                    request.setAttribute("json", json2);
-                    rd.forward(request, response);*/
-                    
-                    if (!placasFallidas.isEmpty()) {
-                        request.getSession().setAttribute("placasFallidas", placasFallidas);
-                    } else {
-                        request.getSession().removeAttribute("placasFallidas");
-                    }
-                    
-                    response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
                     return;
                 }
 
@@ -577,10 +702,7 @@ public class Formulario_SPD_Servlet extends HttpServlet {
                 }
                 
                 citaBarcazaConRetry(fp, URL_CITAS_BARC, json3);
-                /*RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreoBarcaza");
-                request.setAttribute("NombreEmpresa", empresaUsuario);
-                request.setAttribute("json", json3);
-                rd.forward(request, response);*/
+                
                 response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
                 return;
             }
@@ -588,135 +710,109 @@ public class Formulario_SPD_Servlet extends HttpServlet {
             // === Solo carrotanque ===
             if ("Carrotanque - Tanque".equals(operacion) || "Tanque - Carrotanque".equals(operacion)) {
                 System.out.println("Enviando RIEN (solo carrotanque)");
-                String response1 = postConRetry(fp, URL_RIEM, json);
-                if (response1 == null) {
-                    HttpSession session = request.getSession();
-                    session.setAttribute("Activo", true);
-                    session.setAttribute("Error", "Error: no hay conexión con el servidor (RIEN). Intente más tarde.");
-                    response.sendRedirect(request.getRequestURI() + "?ordenOperacion=" + OrdenOperacion + "&operacion=" + operacion);
-                    return;
-                }
-
-                JSONObject jsonResponse = null;
-                try {
-                    jsonResponse = new JSONObject(response1);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    redirectTiposProductos(request, response, operacion, "Error: no hay conexión con el servidor (RIEN). Intente más tarde.");
-                }
-
-                if (jsonResponse.has("ErrorCode") && jsonResponse.optInt("ErrorCode", 0) != 0) {
-                    String msg = jsonResponse.optString("ErrorText", "Sin detalle");
-                    HttpSession session = request.getSession();
-                    session.setAttribute("Error", "Error: " + msg);
-                    setFormSession(session, usuario, Operaciones, fecha, verificacion, Nitempresa, Cedula, placa,
-                            Manifiesto, cedulasExtras, placasExtras, manifiestosExtras, nombre, nombreconductorExtras,
-                            cantidadproducto, FacturaComercial, Observaciones, PrecioArticulo, Remolque, remolqueExtras,
-                            PesoProducto, Barcades, producto);
-                    redirectTiposProductos(request, response, operacion, msg);
-                    return;
-                }
                 
-                // ✅ Éxito RIEN → Guardar inmediatamente en la base de datos
-                formdbConRetry(fp, URL_CITAS, gson.toJson(cb));
-                System.out.println("✅ Cita carrotanque + barcaza guardada en base de datos.");
-                
-                
-                int sesionId = jsonResponse.optInt("SesionId", -1);
-                String ingresoId = jsonResponse.optString("IngresoId", "");
-                HttpSession session = request.getSession();
-                session.setAttribute("Activo", true);
-                session.setAttribute("Error", "Formulario Enviado Con Éxito: SesionId: " + sesionId + " IngresoId: " + ingresoId);
+                // Llamada al servicio
+                    String response1 = formdbConRetry(fp, URL_CITAS, json2, usuario);
 
-                quitarOperacionTerminada(session);
+                    // Parsear JSON
+                    JSONObject jsonResponse = new JSONObject(response1);
 
-                // Extras en paralelo
-                if (cedulasExtras != null && placasExtras != null && manifiestosExtras != null) {
-                    for (int i = 0; i < cedulasExtras.length; i++) {
-                        enviarVehiculoExtraAsync(
-                            fp, gson, URL_RIEM, fechaFormateada1, sistemaEnturnamiento, identificador, Nitempresa, acceso,
-                            placasExtras[i], cedulasExtras[i], manifiestosExtras[i],
-                            (remolqueExtras != null && remolqueExtras.length > i) ? remolqueExtras[i] : null
-                        );
+                    // Listas para guardar placas
+                    List<String> placasExitosas = new ArrayList<>();
+                    List<String> placasFallidasERROR = new ArrayList<>();
+
+                    // ==========================
+                    // Detectar si es status 412 (todas fallidas)
+                    // ==========================
+                    boolean todasFallidas = false;
+
+                    // Si viene "vehiculos" y no hay "cita", asumimos 412
+                    if (jsonResponse.has("vehiculos") && !jsonResponse.has("cita")) {
+                        todasFallidas = true;
                     }
-                }
 
-                // Guardar en BD (carrotanque)
-                //formdbConRetry(fp, URL_CITAS, gson.toJson(cb));
-                
-                // 🔹 Convertir a String (NO necesitamos codificar si usamos sesión)
-                String jsonStr = gson.toJson(cb);
+                    // ==========================
+                    // Procesar placas fallidas
+                    // ==========================
+                    if (todasFallidas) {
+                        JSONArray vehiculosErrados = jsonResponse.getJSONArray("vehiculos");
+                        for (int i = 0; i < vehiculosErrados.length(); i++) {
+                            JSONObject item = vehiculosErrados.getJSONObject(i);
+                            String placaERROR = item.getString("placa");
+                            String errorText = "Error desconocido";
+                            if (item.has("error")) {
+                                JSONObject errObj = item.getJSONObject("error");
+                                errorText = errObj.optString("ErrorText", errorText);
+                            }
+                            placasFallidasERROR.add(placaERROR + "|" + errorText);
+                        }
+                    } else {
+                        // Caso mixto
+                        // placas exitosas
+                        if (jsonResponse.has("cita")) {
+                            JSONObject cita = jsonResponse.getJSONObject("cita");
+                            if (cita.has("vehiculos")) {
+                                JSONArray vehiculosExitosos = cita.getJSONArray("vehiculos");
+                                for (int i = 0; i < vehiculosExitosos.length(); i++) {
+                                    JSONObject item = vehiculosExitosos.getJSONObject(i);
+                                    placasExitosas.add(item.getString("vehiculoNumPlaca"));
+                                }
+                            }
+                        }
 
-                // 🔹 Guardar en variable de sesión
-                session = request.getSession();
-                session.setAttribute("EnviarCorreo", jsonStr);
+                        // placas fallidas
+                        if (jsonResponse.has("listaErrados")) {
+                            JSONArray errados = jsonResponse.getJSONArray("listaErrados");
+                            for (int i = 0; i < errados.length(); i++) {
+                                JSONObject item = errados.getJSONObject(i);
+                                String placaError = item.getString("placa");
+                                String errorText = "Error desconocido";
+                                if (item.has("error")) {
+                                    JSONObject errObj = item.getJSONObject("error");
+                                    errorText = errObj.optString("ErrorText", errorText);
+                                }
+                                placasFallidasERROR.add(placaError + "|" + errorText);
+                            }
+                        }
+                    }
 
-                // 🔹 Para mostrar el contenido después (ejemplo en JSP o Servlet)
-                String data = (String) session.getAttribute("EnviarCorreo");
-                if (data != null) {
-                    System.out.println("Contenido de la variable de sesión EnviarCorreo:<br>");
-                    System.out.println(data);
-                } else {
-                    System.out.println("No hay datos en la sesión.");
-                }
-                
-                // 🔹 Convertir a String (NO necesitamos codificar si usamos sesión)
-                String jsonStr1 = gson.toJson(cb);
+                    // ==========================
+                    // Guardar cookies de placas exitosas
+                    // ==========================
+                    if (!placasExitosas.isEmpty()) {
+                        Cookie cookieExitosas = new Cookie("placasExitosas", String.join(",", placasExitosas));
+                        cookieExitosas.setMaxAge(3600);
+                        cookieExitosas.setPath("/CITASSPD");
+                        response.addCookie(cookieExitosas);
+                    } else {
+                        Cookie clear = new Cookie("placasExitosas", "");
+                        clear.setMaxAge(0);
+                        clear.setPath("/CITASSPD");
+                        response.addCookie(clear);
+                    }
 
-                System.out.println(json2);
-                
-                String orden = getCookie(request, "ORDEN_OPERACION");
-                
-                System.out.println(orden);
-                
-                // 🔹 Guardar en variable de sesión
-                session = request.getSession();
-                session.setAttribute("EnviarCorreo_"+orden, jsonStr1);
-                
-                MaxCITA.inicializarDesdeContexto(getServletContext());
-                
-                try {
-                    String cita = MaxCITA.maxcita(); // Supongamos que devuelve "CTA000000000365"
+                    // ==========================
+                    // Guardar cookies de placas fallidas
+                    // ==========================
+                    if (!placasFallidasERROR.isEmpty()) {
+                        Cookie cookieFallidas = new Cookie("placasFallidas", String.join(",", placasFallidasERROR));
+                        cookieFallidas.setMaxAge(3600);
+                        cookieFallidas.setPath("/CITASSPD");
+                        response.addCookie(cookieFallidas);
+                    } else {
+                        Cookie clear = new Cookie("placasFallidas", "");
+                        clear.setMaxAge(0);
+                        clear.setPath("/CITASSPD");
+                        response.addCookie(clear);
+                    }
 
-                    // Extraer la parte numérica (los últimos dígitos)
-                    String numeroStr = cita.substring(3); // "000000000365"
-                    int numero = Integer.parseInt(numeroStr); // 365
+                    // ==========================
+                    // Redirigir al JSP
+                    // ==========================
+                    response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
 
-                    // Sumar 1
-                    numero++;
-
-                    // Formatear con ceros a la izquierda (misma longitud que original)
-                    String nuevoNumeroStr = String.format("%012d", numero); // "000000000366"
-
-                    // Armar la nueva cita
-                    String nuevaCita = "CTA" + nuevoNumeroStr;
-
-                    // Guardar en la sesión
-                    session.setAttribute("EnviarCita_"+orden, nuevaCita);
-
-                } catch (SQLException ex) {
-                    Logger.getLogger(Formulario_SPD_Servlet.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-               /* RequestDispatcher rd = request.getRequestDispatcher("/EnviarCorreo");
-                request.setAttribute("NombreEmpresa", empresaUsuario);
-                request.setAttribute("json", json2);
-                rd.forward(request, response);
-                */
-               
-                if (!placasFallidas.isEmpty()) {
-                    request.getSession().setAttribute("placasFallidas", placasFallidas);
-                } else {
-                    request.getSession().removeAttribute("placasFallidas");
-                }
-               
-                response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
-                return;
+                    
             }
-
-            // Si no matchea ninguna operación conocida:
-            response.sendRedirect(request.getContextPath() + "/JSP/OperacionesActivas.jsp");
-            System.out.println("ERROR QUITAR ESTA LINEA CON LA DE ARRIBA");
         } catch (IOException e) {
             // Redirige a la misma URL en caso de I/O durante el flujo
             response.sendRedirect(request.getRequestURI());

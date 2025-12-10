@@ -132,6 +132,18 @@
         <servlet-name>CrearBarcazaServlet</servlet-name>
         <servlet-class>com.spd.CrearBarcaza.CrearBarcazaServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DescargarPlanillaCreacionCita</servlet-name>
+        <servlet-class>com.spd.Planilla.DescargarPlanillaCreacionCita</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SubirExcelServlet</servlet-name>
+        <servlet-class>com.spd.Planilla.SubirExcelServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LeerExcelServelet</servlet-name>
+        <servlet-class>com.spd.Planilla.LeerExcelServelet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Iniciar_Seccion_Servlet</servlet-name>
         <url-pattern>/Iniciar_Seccion_Servlet</url-pattern>
@@ -255,6 +267,18 @@
     <servlet-mapping>
         <servlet-name>CrearBarcazaServlet</servlet-name>
         <url-pattern>/CrearBarcazaServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DescargarPlanillaCreacionCita</servlet-name>
+        <url-pattern>/DescargarPlanillaCreacionCita</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SubirExcelServlet</servlet-name>
+        <url-pattern>/SubirExcelServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LeerExcelServelet</servlet-name>
+        <url-pattern>/LeerExcelServelet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

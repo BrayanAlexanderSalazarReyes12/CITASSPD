@@ -97,35 +97,40 @@ public class CitasAutomaticas {
             // Conexión
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             
-            String sql = "SELECT * " +
-             "FROM ( " +
-             "    SELECT  " +
-             "        v.COD_CITA, " +
-             "        v.NIT_TRANSPORTADORA, " +
-             "        v.OPERACION, " +
-             "        t.PLACA,  " +
-             "        t.CEDULA_CONDUCTOR,  " +
-             "        t.MANIFIESTO, " +
-             "        TO_CHAR(CAST(v.FECHA_CITA AS DATE), 'DD/MM/YY HH24:MI:SS') AS FECHAYHORAINSIDE, " +
-             "        TO_CHAR(CAST(tb.HORA_ENTRADA AS DATE), 'DD/MM/YY HH24:MI:SS') AS HORA_ENTRADA, " +
-             "        TO_CHAR(CAST(tb.HORA_SALIDA AS DATE), 'DD/MM/YY HH24:MI:SS') AS HORA_SALIDA, " +
-             "        tb.PESO_INGRESO,  " +
-             "        tb.PESO_SALIDA, " +
-             "        ABS(TRUNC(tb.FECHA_ENTRADA) - TRUNC(v.FECHA_CITA)) AS DIF_DIAS, " +
-             "        ROW_NUMBER() OVER ( " +
-             "            PARTITION BY v.COD_CITA, t.PLACA " +
-             "            ORDER BY ABS(tb.FECHA_ENTRADA - v.FECHA_CITA) ASC " +
-             "        ) AS rn " +
-             "    FROM SPD_CITAS v " +
-             "    JOIN SPD_CITA_VEHICULOS t ON t.COD_CITA = v.COD_CITA " +
-             "    JOIN VEHICULO_BASC vb ON vb.PLACA = t.PLACA " +
-             "    JOIN TRAN_BASCULA tb ON vb.ID_VEHICULO = tb.VEHICULO_ID_VEHICULO " +
-             "    WHERE t.ESTADO = 'ACTIVA' " +
-             "      AND t.HORA_CITAS IS NOT NULL " +
-             "      AND tb.HORA_SALIDA IS NOT NULL " +
-             "      AND tb.FECHA_ENTRADA BETWEEN v.FECHA_CITA - 2 AND v.FECHA_CITA + 2 " +
-             ") sub " +
-             "WHERE rn = 1";
+            String sql = "SELECT *\n" +
+                        "FROM (\n" +
+                        "    SELECT\n" +
+                        "        v.COD_CITA,\n" +
+                        "        v.NIT_TRANSPORTADORA,\n" +
+                        "        v.OPERACION,\n" +
+                        "        t.PLACA,\n" +
+                        "        t.CEDULA_CONDUCTOR,\n" +
+                        "        t.MANIFIESTO,\n" +
+                        "        TO_CHAR(CAST(v.FECHA_CITA AS DATE), 'DD/MM/YY HH24:MI:SS') AS FECHAYHORAINSIDE,\n" +
+                        "        TO_CHAR(CAST(tb.HORA_ENTRADA AS DATE), 'DD/MM/YY HH24:MI:SS') AS HORA_ENTRADA,\n" +
+                        "        TO_CHAR(CAST(tb.HORA_SALIDA AS DATE), 'DD/MM/YY HH24:MI:SS') AS HORA_SALIDA,\n" +
+                        "        tb.PESO_INGRESO,\n" +
+                        "        tb.PESO_SALIDA,\n" +
+                        "        tb.TIPO_MOV,\n" +
+                        "        ABS(TRUNC(tb.FECHA_ENTRADA) - TRUNC(v.FECHA_CITA)) AS DIF_DIAS,\n" +
+                        "        ROW_NUMBER() OVER (\n" +
+                        "            PARTITION BY v.COD_CITA, t.PLACA\n" +
+                        "            ORDER BY ABS(tb.FECHA_ENTRADA - v.FECHA_CITA) ASC\n" +
+                        "        ) AS rn\n" +
+                        "    FROM SPD_CITAS v\n" +
+                        "    JOIN SPD_CITA_VEHICULOS t ON t.COD_CITA = v.COD_CITA\n" +
+                        "    JOIN VEHICULO_BASC vb ON vb.PLACA = t.PLACA\n" +
+                        "    JOIN TRAN_BASCULA tb ON vb.ID_VEHICULO = tb.VEHICULO_ID_VEHICULO\n" +
+                        "    WHERE t.ESTADO = 'ACTIVA'\n" +
+                        "      AND t.HORA_CITAS IS NOT NULL\n" +
+                        "      AND tb.HORA_SALIDA IS NOT NULL\n" +
+                        "      AND tb.FECHA_ENTRADA BETWEEN v.FECHA_CITA - 2 AND v.FECHA_CITA + 2\n" +
+                        "      AND tb.TIPO_MOV = CASE \n" +
+                        "                            WHEN v.OPERACION = 'operacion de descargue' THEN 'E'\n" +
+                        "                            WHEN v.OPERACION = 'operacion de cargue' THEN 'S'\n" +
+                        "                        END\n" +
+                        ") sub\n" +
+                        "WHERE rn = 1";
             
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
@@ -166,10 +171,10 @@ public class CitasAutomaticas {
         Map<String, Object> tiemposProceso = new LinkedHashMap<>();
         tiemposProceso.put("entradaTerminal", formatFecha(cita.getFechaentrada()));
         tiemposProceso.put("pesajeEntrada", cita.getPesoentrada());
-        tiemposProceso.put("basculaEntrada", "B1374");
+        //tiemposProceso.put("basculaEntrada", "B1374");
         tiemposProceso.put("salidaTerminal", formatFecha(cita.getFechasalida()));
         tiemposProceso.put("pesajeSalida", cita.getPesosalida());
-        tiemposProceso.put("basculaSalida", "B1373");
+        //tiemposProceso.put("basculaSalida", "B1373");
 
         Map<String, Object> turnoAsignado = new LinkedHashMap<>();
         turnoAsignado.put("fecha", formatFecha(cita.getFECHAYHORAINSIDE()));

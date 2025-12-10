@@ -56,7 +56,8 @@ public class InformacionPesajeFinalizacionCIta {
     public static List<CitaInfo> InformacionPesosFinalizacionCita(
         String placa, 
         String cedula, 
-        Date fechaInicio) throws SQLException {
+        Date fechaInicio,
+        String codcita) throws SQLException {
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -71,23 +72,35 @@ public class InformacionPesajeFinalizacionCIta {
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             // Consulta fija con selección de la primera fila según FECHA_ENTRADA
-            String sql = "SELECT * FROM (" +
-                         "    SELECT v.ID_VEHICULO, " +
-                         "           v.PLACA, " +
-                         "           v.CEDULA, " +
-                         "           t.NMFORM_ZF, " +
-                         "           t.HORA_ENTRADA, " +
-                         "           t.HORA_SALIDA, " +
-                         "           t.PESO_INGRESO, " +
-                         "           t.PESO_SALIDA " +
-                         "    FROM VEHICULO_BASC v " +
-                         "    JOIN TRAN_BASCULA t " +
-                         "      ON v.ID_VEHICULO = t.VEHICULO_ID_VEHICULO " +
-                         "    WHERE v.PLACA = ? " +
-                         "      AND v.CEDULA = ? " +
-                         "      AND t.FECHA_ENTRADA BETWEEN ? AND SYSDATE " +
-                         "    ORDER BY t.FECHA_ENTRADA ASC" +
-                         ") WHERE ROWNUM = 1";
+            String sql = "SELECT *\n" +
+                        "FROM (\n" +
+                        "    SELECT \n" +
+                        "        v.ID_VEHICULO,\n" +
+                        "        v.PLACA,\n" +
+                        "        v.CEDULA,\n" +
+                        "        t.NMFORM_ZF,\n" +
+                        "        t.HORA_ENTRADA,\n" +
+                        "        t.HORA_SALIDA,\n" +
+                        "        t.PESO_INGRESO,\n" +
+                        "        t.PESO_SALIDA\n" +
+                        "    FROM VEHICULO_BASC v\n" +
+                        "    JOIN TRAN_BASCULA t\n" +
+                        "        ON v.ID_VEHICULO = t.VEHICULO_ID_VEHICULO\n" +
+                        "    JOIN SPD_CITA_VEHICULOS scv\n" +
+                        "        ON scv.PLACA = v.PLACA\n" +
+                        "    JOIN SPD_CITAS sc\n" +
+                        "        ON sc.COD_CITA = scv.COD_CITA\n" +
+                        "    WHERE v.PLACA = ? \n" +
+                        "      AND v.CEDULA = ? \n" +
+                        "      AND t.FECHA_ENTRADA BETWEEN ? AND SYSDATE\n" +
+                        "      AND sc.COD_CITA = ? \n" +
+                        "      AND t.TIPO_MOV = CASE \n" +
+                        "                            WHEN sc.OPERACION = 'operacion de descargue' THEN 'E'\n" +
+                        "                            WHEN sc.OPERACION = 'operacion de cargue' THEN 'S'\n" +
+                        "                        END\n" +
+                        "    ORDER BY t.FECHA_ENTRADA ASC\n" +
+                        ")\n" +
+                        "WHERE ROWNUM = 1";
 
 
             pstmt = conn.prepareStatement(sql);
@@ -96,6 +109,7 @@ public class InformacionPesajeFinalizacionCIta {
             pstmt.setString(1, placa);
             pstmt.setString(2, cedula);
             pstmt.setDate(3, new java.sql.Date(fechaInicio.getTime())); // Fecha inicio
+            pstmt.setString(4, codcita);
 
             rs = pstmt.executeQuery();
 

@@ -540,11 +540,12 @@ document.getElementById("Fecha").addEventListener("change", function () {
                     <label for="manifiesto">Número de Autorización del Manifiesto:</label>
                     <input id="manifiesto" type="text" maxlength="50" name="Manifiesto" value="<%= session.getAttribute("manifiestoForm") != null ? session.getAttribute("manifiestoForm") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/>
                 </div>
-
+                
                 <div class="form-group">
                     <label for="tipoProducto">Seleccione el Tipo de Producto:</label>
                     <%
                         String tipoProductoSeleccionado = (String) session.getAttribute("tipoproducto");
+                        
                     %>
                     <select id="tipoProducto" name="tipoProducto" required>
                         <option value="ninguna">Seleccione un producto</option>

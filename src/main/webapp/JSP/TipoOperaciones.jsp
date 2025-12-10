@@ -69,6 +69,7 @@
         <link rel="stylesheet" href="../CSS/Login.css"/>
         <link rel="stylesheet" href="../CSS/TipoOperacion.css"/>
         <link rel="stylesheet" href="../CSS/Styles_modal.css"/>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>
     
     <%
@@ -126,312 +127,345 @@
     <%
         } else if (rolObject1 != null && (((Integer) rolObject1) != 6 && ((Integer) rolObject1) != 7 && ((Integer) rolObject1) != 8 )){
     %>
-            
-                    <body>
-                        <div class="Contenedor">
-                            <h1>Tipo de operación</h1>
-                            <form id="formOperaciones" action="../TipoOperacionServlet" method="POST" class="formulario-SelectorTipoOpeacion">
-                                <label for="CantidadOperaciones">Digite el número de operaciones a realizar:</label>
-                                <input type="number" name="CantidadOperaciones" id="CantidadOperaciones" min="1" required/>
-                                <button type="button" onclick="generarSelectores()">Generar Operaciones</button>
-                                <div id="contenedor-operaciones"></div>
-                            </form>
+            <script>
+                function plantilla(e) {
+                    Swal.fire({
+                        title: '¿Cómo deseas subir las operaciones?',
+                        text: 'Puedes utilizar la plantilla Excel generada por el sistema o continuar llenando manualmente.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Subir por Excel',
+                        cancelButtonText: 'Seguir manual',
+                        reverseButtons: true
+                    }).then((result) => {
 
-                            <script>
-                              document.getElementById("formOperaciones").addEventListener("keydown", function(event) {
-                                if (event.key === "Enter") {
-                                  event.preventDefault();
-                                }
-                              });
-                            </script>
+                        if (result.isConfirmed) {
 
-                            <%
-                                CargarBarcazas.inicializarDesdeContexto(application);
-                                JSONArray barcazas = new JSONArray();
-                                JSONArray nombresBarcazas = new JSONArray(); // solo nombres
-
-                                try {
-                                    barcazas = new CargarBarcazas().carguebarcaza();
-                                    for (int i = 0; i < barcazas.length(); i++) {
-                                        JSONObject b = barcazas.getJSONObject(i);
-                                        if (b.has("BARCAZA")) {
-                                            nombresBarcazas.put(b.getString("BARCAZA"));
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            %>
-                            <script>
+                            Swal.fire({
+                                title: 'Descargando plantilla...',
+                                text: 'La plantilla Excel será descargada.',
+                                icon: 'info'
+                            }).then(() => {
+                                // marcar que se creó la plantilla usando localStorage
+                                localStorage.setItem('creacion_plantilla', true);
                                 
-                                const cookies = document.cookie;
-                                function getCookie(nombre) {
-                                    const cookies = document.cookie.split(';');
-                                    for (let cookie of cookies) {
-                                      const [key, value] = cookie.trim().split('=');
-                                      if (key === nombre) {
-                                        return decodeURIComponent(value);
-                                      }
-                                    }
-                                    return null;
+                                window.location.href = '../DescargarPlanillaCreacionCita';
+                                // luego de descargar, redireccionar a TipoOperaciones
+                                setTimeout(() => {
+                                    window.location.href = './OperacionesActivasPlanilla.jsp?planilla=' + localStorage.getItem('creacion_plantilla');
+                                }, 1000); // espera 1 segundo para asegurar que se complete la descarga
+                            });
+
+                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                            // Si se presiona "Seguir manual"
+                            if (e) e.target.submit();
+                        }
+
+                    });
+                }
+
+                </script>
+            <body>
+                <div class="Contenedor">
+                    <h1>Tipo de operación</h1>
+                    <form id="formOperaciones" action="../TipoOperacionServlet" method="POST" class="formulario-SelectorTipoOpeacion">
+                        <label for="CantidadOperaciones">Digite el número de operaciones a realizar:</label>
+                        <input type="number" name="CantidadOperaciones" id="CantidadOperaciones" min="1" required/>
+                        <button type="button" onclick="generarSelectores()">Generar Operaciones</button>
+                        <%
+                            if (DATA.equals("9018263370") || DATA.equals("9013129603"))
+                            {
+                        %>
+                                <button type="button" onclick="plantilla()">Descargar Planilla de Citas</button>
+                        <%
+                            }
+                        %>
+                        <div id="contenedor-operaciones"></div>
+                    </form>
+
+                    <script>
+                      document.getElementById("formOperaciones").addEventListener("keydown", function(event) {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                        }
+                      });
+                    </script>
+
+                    <%
+                        CargarBarcazas.inicializarDesdeContexto(application);
+                        JSONArray barcazas = new JSONArray();
+                        JSONArray nombresBarcazas = new JSONArray(); // solo nombres
+
+                        try {
+                            barcazas = new CargarBarcazas().carguebarcaza();
+                            for (int i = 0; i < barcazas.length(); i++) {
+                                JSONObject b = barcazas.getJSONObject(i);
+                                if (b.has("BARCAZA")) {
+                                    nombresBarcazas.put(b.getString("BARCAZA"));
                                 }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    %>
 
-                                const usuario = getCookie("USUARIO");
-                                console.log("Cookie 'USUARIO':", usuario);
+                    <script>
+                        const cookies = document.cookie;
+                        function getCookie(nombre) {
+                            const cookies = document.cookie.split(';');
+                            for (let cookie of cookies) {
+                              const [key, value] = cookie.trim().split('=');
+                              if (key === nombre) {
+                                return decodeURIComponent(value);
+                              }
+                            }
+                            return null;
+                        }
 
-                                const operaciones = [
-                                  "Carrotanque - Barcaza",//✔
-                                  "Barcaza - Carrotanque", //✔
-                                  "Barcaza - Tanque",
-                                  "Tanque - Barcaza",
-                                  "Carrotanque - Tanque",
-                                  "Tanque - Carrotanque",//✔
-                                  //"Tanque - Tanque", 
-                                  "Barcaza - Barcaza"
-                                ];
+                        const usuario = getCookie("USUARIO");
+                        console.log("Cookie 'USUARIO':", usuario);
 
-                                function generarSelectores() {
-                                  const cantidad = parseInt(document.getElementById("CantidadOperaciones").value);
-                                  const contenedor = document.getElementById("contenedor-operaciones");
-                                  contenedor.innerHTML = "";
+                        const operaciones = [
+                          "Carrotanque - Barcaza",
+                          "Barcaza - Carrotanque",
+                          "Barcaza - Tanque",
+                          "Tanque - Barcaza",
+                          "Carrotanque - Tanque",
+                          "Tanque - Carrotanque",
+                          "Barcaza - Barcaza"
+                        ];
 
-                                  if (!cantidad || cantidad <= 0) {
-                                    alert("Por favor ingrese un número válido.");
-                                    return;
-                                  }
-                                  //<input type="submit" value="Enviar">
-                                  const enviar = document.createElement("input");
-                                  enviar.type = "submit";
-                                  enviar.value = "Enviar";
-                                  enviar.style.marginBottom = "10px";
+                        function generarSelectores() {
+                          const cantidad = parseInt(document.getElementById("CantidadOperaciones").value);
+                          const contenedor = document.getElementById("contenedor-operaciones");
+                          contenedor.innerHTML = "";
 
-                                  for (let i = 1; i <= cantidad; i++) {
-                                    const div = document.createElement("div");
-                                    div.className = "operacion-container";
+                          if (!cantidad || cantidad <= 0) {
+                            alert("Por favor ingrese un número válido.");
+                            return;
+                          }
 
-                                    const labelOperacion = document.createElement("label");
-                                    labelOperacion.innerText = "Tipo de operación #" + i;
+                          const enviar = document.createElement("input");
+                          enviar.type = "submit";
+                          enviar.value = "Enviar";
+                          enviar.style.marginBottom = "10px";
 
-                                    const selectOperacion = document.createElement("select");
-                                    selectOperacion.name = "operacion_" + i;
-                                    selectOperacion.required = true;
-                                    selectOperacion.dataset.index = i;
+                          for (let i = 1; i <= cantidad; i++) {
+                            const div = document.createElement("div");
+                            div.className = "operacion-container";
 
-                                    let optionsHTML = "<option value=''>Seleccione</option>";
-                                    operaciones.forEach(op => {
-                                      optionsHTML += "<option value=\"" + op + "\">" + op + "</option>";
-                                    });
-                                    selectOperacion.innerHTML = optionsHTML;
+                            const labelOperacion = document.createElement("label");
+                            labelOperacion.innerText = "Tipo de operación #" + i;
 
-                                    selectOperacion.addEventListener("change", function (e) {
-                                      mostrarCamposExtras(e.target.value, i);
-                                    });
+                            const selectOperacion = document.createElement("select");
+                            selectOperacion.name = "operacion_" + i;
+                            selectOperacion.required = true;
+                            selectOperacion.dataset.index = i;
 
-                                    const extras = document.createElement("div");
-                                    extras.id = "extras_" + i;
-                                    extras.className = "extras";
+                            let optionsHTML = "<option value=''>Seleccione</option>";
+                            operaciones.forEach(op => {
+                              optionsHTML += "<option value=\"" + op + "\">" + op + "</option>";
+                            });
+                            selectOperacion.innerHTML = optionsHTML;
 
-                                    div.appendChild(labelOperacion);
-                                    div.appendChild(selectOperacion);
-                                    div.appendChild(extras);
-                                    contenedor.appendChild(div);
-                                  }
-                                  contenedor.appendChild(enviar);
-                                }
+                            selectOperacion.addEventListener("change", function (e) {
+                              mostrarCamposExtras(e.target.value, i);
+                            });
 
-                                function mostrarCamposExtras(tipo, index) {
-                                  const extras = document.getElementById("extras_" + index);
-                                  extras.innerHTML = "";
+                            const extras = document.createElement("div");
+                            extras.id = "extras_" + i;
+                            extras.className = "extras";
 
-                                  if (tipo === "Tanque - Tanque") {
-                                    const labelCliente = document.createElement("label");
-                                    labelCliente.innerText = "Cliente asociado (op #" + index + "):";
+                            div.appendChild(labelOperacion);
+                            div.appendChild(selectOperacion);
+                            div.appendChild(extras);
+                            contenedor.appendChild(div);
+                          }
+                          contenedor.appendChild(enviar);
+                        }
 
-                                    const selectCliente = document.createElement("select");
-                                    selectCliente.name = "cliente_" + index;
-                                    selectCliente.required = true;
+                        function mostrarCamposExtras(tipo, index) {
+                          const extras = document.getElementById("extras_" + index);
+                          extras.innerHTML = "";
 
-                                    const labelTanqueOrigen = document.createElement("label");
-                                    labelTanqueOrigen.innerText = "Tanque actual (origen):";
+                          if (tipo === "Tanque - Tanque") {
+                            const labelCliente = document.createElement("label");
+                            labelCliente.innerText = "Cliente asociado (op #" + index + "):";
 
-                                    const selectTanqueOrigen = document.createElement("select");
-                                    selectTanqueOrigen.name = "tanque_origen_" + index;
-                                    selectTanqueOrigen.required = true;
+                            const selectCliente = document.createElement("select");
+                            selectCliente.name = "cliente_" + index;
+                            selectCliente.required = true;
 
-                                    const labelTanqueDestino = document.createElement("label");
-                                    labelTanqueDestino.innerText = "Tanque destino:";
+                            const labelTanqueOrigen = document.createElement("label");
+                            labelTanqueOrigen.innerText = "Tanque actual (origen):";
 
-                                    const selectTanqueDestino = document.createElement("select");
-                                    selectTanqueDestino.name = "tanque_destino_" + index;
-                                    selectTanqueDestino.required = true;
+                            const selectTanqueOrigen = document.createElement("select");
+                            selectTanqueOrigen.name = "tanque_origen_" + index;
+                            selectTanqueOrigen.required = true;
 
-                                    const actualizarTanques = (cliente) => {
-                                        if (!cliente) return;
-                                            
-                                        fetch('/ObtenerTanques?usuario="'+cliente+'"')
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                let options = "<option value=''>Seleccione tanque</option>";
-                                                data.forEach(t => {
-                                                    options += "<option value=\"" + t.tanques + "\">" + t.tanque + "</option>";
-                                                });
-                                                selectTanqueOrigen.innerHTML = options;
-                                                selectTanqueDestino.innerHTML = options;
-                                        })
-                                        .catch(error => console.error("Error cargando tanques:", error));
-                                      
-                                    };
-                                    
-                                    actualizarTanques(usuario);
+                            const labelTanqueDestino = document.createElement("label");
+                            labelTanqueDestino.innerText = "Tanque destino:";
 
-                                    extras.appendChild(labelCliente);
-                                    extras.appendChild(selectCliente);
-                                    extras.appendChild(labelTanqueOrigen);
-                                    extras.appendChild(selectTanqueOrigen);
-                                    extras.appendChild(labelTanqueDestino);
-                                    extras.appendChild(selectTanqueDestino);
-                                  }
+                            const selectTanqueDestino = document.createElement("select");
+                            selectTanqueDestino.name = "tanque_destino_" + index;
+                            selectTanqueDestino.required = true;
 
-                                  else if (tipo.includes("Tanque")) {
-                                    const labelCliente = document.createElement("label");
-                                    labelCliente.innerText = "Cliente asociado (op #" + index + "):";
+                            const actualizarTanques = (cliente) => {
+                                if (!cliente) return;
 
-                                    // Crear el input
-                                    const selectCliente = document.createElement("input");
-                                    selectCliente.type = "text"; // tipo input texto
-                                    selectCliente.name = "cliente_" + index;
-                                    selectCliente.required = true;
-                                    selectCliente.value = usuario;
-                                    selectCliente.readOnly = true;
-
-                                    const labelTanque = document.createElement("label");
-                                    labelTanque.innerText = "Tanque asignado (op #" + index + "):";
-
-                                    const selectTanque = document.createElement("select");
-                                    selectTanque.name = "tanque_" + index;
-                                    selectTanque.id = "tanque_" + index;
-                                    selectTanque.required = true;
-                                    selectTanque.innerHTML = "<option value=''>Seleccione tanque</option>";
-
-                                    
-                                    const actualizarTanques = (cliente) => {
-                                        if (!cliente) return;
-                                            
-                                        fetch('../ObtenerTanques?usuario='+cliente)
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                let options = "<option value=''>Seleccione tanque</option>";
-                                                data.forEach(t => {
-                                                    options += "<option value=\"" + t.Tanque + "\">" + t.Tanque + "</option>";
-                                                });
-                                                selectTanque.innerHTML = options;
-                                        })
-                                        .catch(error => console.error("Error cargando tanques:", error));
-                                      
-                                    };
-                                    
-                                    actualizarTanques(usuario);
-                                    
-                                    extras.appendChild(labelCliente);
-                                    extras.appendChild(selectCliente);
-                                    extras.appendChild(labelTanque);
-                                    extras.appendChild(selectTanque);
-                                  }
-                                    // Ahora solo tienes los nombres como un array de strings en JS
-                                    var nombresBarcazas = <%= nombresBarcazas.toString() %>;
-                                    // Agregar barcazas fijas adicionales
-                                    nombresBarcazas.push("Roma 304", "Omega one", "Alpha uno", "MANFU I", "Remolcador - Doña Clary", "Roma 101");
-
-                                    if (tipo === "Barcaza - Barcaza") {
-                                        // Origen
-                                        const labelBarcazaOrigen = document.createElement("label");
-                                        labelBarcazaOrigen.innerText = "Nombre de la barcaza de origen (op #" + index + "):";
-
-                                        const selectBarcazaOrigen = document.createElement("select");
-                                        selectBarcazaOrigen.name = "barcaza_origen_" + index;
-                                        selectBarcazaOrigen.required = true;
-
-                                        const optionDefaultOrigen = document.createElement("option");
-                                        optionDefaultOrigen.value = "";
-                                        optionDefaultOrigen.text = "Seleccione una barcaza";
-                                        optionDefaultOrigen.disabled = true;
-                                        optionDefaultOrigen.selected = true;
-                                        selectBarcazaOrigen.appendChild(optionDefaultOrigen);
-
-                                        nombresBarcazas.forEach(nombre => {
-                                            const option = document.createElement("option");
-                                            option.value = nombre;
-                                            option.text = nombre;
-                                            selectBarcazaOrigen.appendChild(option);
+                                fetch('/ObtenerTanques?usuario="'+cliente+'"')
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        let options = "<option value=''>Seleccione tanque</option>";
+                                        data.forEach(t => {
+                                            options += "<option value=\"" + t.tanques + "\">" + t.tanque + "</option>";
                                         });
+                                        selectTanqueOrigen.innerHTML = options;
+                                        selectTanqueDestino.innerHTML = options;
+                                })
+                                .catch(error => console.error("Error cargando tanques:", error));
+                            };
 
-                                        // Destino
-                                        const labelBarcazaDestino = document.createElement("label");
-                                        labelBarcazaDestino.innerText = "Nombre de la barcaza de destino (op #" + index + "):";
+                            actualizarTanques(usuario);
 
-                                        const selectBarcazaDestino = document.createElement("select");
-                                        selectBarcazaDestino.name = "barcaza_destino_" + index;
-                                        selectBarcazaDestino.required = true;
+                            extras.appendChild(labelCliente);
+                            extras.appendChild(selectCliente);
+                            extras.appendChild(labelTanqueOrigen);
+                            extras.appendChild(selectTanqueOrigen);
+                            extras.appendChild(labelTanqueDestino);
+                            extras.appendChild(selectTanqueDestino);
+                          }
 
-                                        const optionDefaultDestino = document.createElement("option");
-                                        optionDefaultDestino.value = "";
-                                        optionDefaultDestino.text = "Seleccione una barcaza";
-                                        optionDefaultDestino.disabled = true;
-                                        optionDefaultDestino.selected = true;
-                                        selectBarcazaDestino.appendChild(optionDefaultDestino);
+                          else if (tipo.includes("Tanque")) {
+                            const labelCliente = document.createElement("label");
+                            labelCliente.innerText = "Cliente asociado (op #" + index + "):";
 
-                                        nombresBarcazas.forEach(nombre => {
-                                            const option = document.createElement("option");
-                                            option.value = nombre;
-                                            option.text = nombre;
-                                            selectBarcazaDestino.appendChild(option);
+                            const selectCliente = document.createElement("input");
+                            selectCliente.type = "text";
+                            selectCliente.name = "cliente_" + index;
+                            selectCliente.required = true;
+                            selectCliente.value = usuario;
+                            selectCliente.readOnly = true;
+
+                            const labelTanque = document.createElement("label");
+                            labelTanque.innerText = "Tanque asignado (op #" + index + "):";
+
+                            const selectTanque = document.createElement("select");
+                            selectTanque.name = "tanque_" + index;
+                            selectTanque.id = "tanque_" + index;
+                            selectTanque.required = true;
+                            selectTanque.innerHTML = "<option value=''>Seleccione tanque</option>";
+
+                            const actualizarTanques = (cliente) => {
+                                if (!cliente) return;
+
+                                fetch('../ObtenerTanques?usuario='+cliente)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        let options = "<option value=''>Seleccione tanque</option>";
+                                        data.forEach(t => {
+                                            options += "<option value=\"" + t.Tanque + "\">" + t.Tanque + "</option>";
                                         });
+                                        selectTanque.innerHTML = options;
+                                })
+                                .catch(error => console.error("Error cargando tanques:", error));
+                            };
 
-                                        extras.appendChild(labelBarcazaOrigen);
-                                        extras.appendChild(selectBarcazaOrigen);
-                                        extras.appendChild(labelBarcazaDestino);
-                                        extras.appendChild(selectBarcazaDestino);
+                            actualizarTanques(usuario);
 
-                                    } else if (tipo.includes("Barcaza")) {
+                            extras.appendChild(labelCliente);
+                            extras.appendChild(selectCliente);
+                            extras.appendChild(labelTanque);
+                            extras.appendChild(selectTanque);
+                          }
 
-                                        const labelBarcaza = document.createElement("label");
-                                        labelBarcaza.innerText = "Nombre de la barcaza (op #" + index + "):";
+                            var nombresBarcazas = <%= nombresBarcazas.toString() %>;
+                            nombresBarcazas.push("Roma 304", "Omega one", "Alpha uno", "MANFU I", "Remolcador - Doña Clary", "Roma 101");
 
-                                        const selectBarcaza = document.createElement("select");
-                                        selectBarcaza.name = "barcaza_" + index;
-                                        selectBarcaza.required = true;
+                            if (tipo === "Barcaza - Barcaza") {
+                                const labelBarcazaOrigen = document.createElement("label");
+                                labelBarcazaOrigen.innerText = "Nombre de la barcaza de origen (op #" + index + "):";
 
-                                        // Opción vacía inicial
-                                        const optionDefault = document.createElement("option");
-                                        optionDefault.value = "";
-                                        optionDefault.text = "Seleccione una barcaza";
-                                        optionDefault.disabled = true;
-                                        optionDefault.selected = true;
-                                        selectBarcaza.appendChild(optionDefault);
+                                const selectBarcazaOrigen = document.createElement("select");
+                                selectBarcazaOrigen.name = "barcaza_origen_" + index;
+                                selectBarcazaOrigen.required = true;
 
-                                        // Llenar con las barcazas del JSON
-                                        nombresBarcazas.forEach(nombre => {
-                                            const option = document.createElement("option");
-                                            option.value = nombre;
-                                            option.text = nombre;
-                                            selectBarcaza.appendChild(option);
-                                        });
+                                const optionDefaultOrigen = document.createElement("option");
+                                optionDefaultOrigen.value = "";
+                                optionDefaultOrigen.text = "Seleccione una barcaza";
+                                optionDefaultOrigen.disabled = true;
+                                optionDefaultOrigen.selected = true;
+                                selectBarcazaOrigen.appendChild(optionDefaultOrigen);
 
-                                        extras.appendChild(labelBarcaza);
-                                        extras.appendChild(selectBarcaza);
-                                    }
+                                nombresBarcazas.forEach(nombre => {
+                                    const option = document.createElement("option");
+                                    option.value = nombre;
+                                    option.text = nombre;
+                                    selectBarcazaOrigen.appendChild(option);
+                                });
+
+                                const labelBarcazaDestino = document.createElement("label");
+                                labelBarcazaDestino.innerText = "Nombre de la barcaza de destino (op #" + index + "):";
+
+                                const selectBarcazaDestino = document.createElement("select");
+                                selectBarcazaDestino.name = "barcaza_destino_" + index;
+                                selectBarcazaDestino.required = true;
+
+                                const optionDefaultDestino = document.createElement("option");
+                                optionDefaultDestino.value = "";
+                                optionDefaultDestino.text = "Seleccione una barcaza";
+                                optionDefaultDestino.disabled = true;
+                                optionDefaultDestino.selected = true;
+                                selectBarcazaDestino.appendChild(optionDefaultDestino);
+
+                                nombresBarcazas.forEach(nombre => {
+                                    const option = document.createElement("option");
+                                    option.value = nombre;
+                                    option.text = nombre;
+                                    selectBarcazaDestino.appendChild(option);
+                                });
+
+                                extras.appendChild(labelBarcazaOrigen);
+                                extras.appendChild(selectBarcazaOrigen);
+                                extras.appendChild(labelBarcazaDestino);
+                                extras.appendChild(selectBarcazaDestino);
+
+                            } else if (tipo.includes("Barcaza")) {
+                                const labelBarcaza = document.createElement("label");
+                                labelBarcaza.innerText = "Nombre de la barcaza (op #" + index + "):";
+
+                                const selectBarcaza = document.createElement("select");
+                                selectBarcaza.name = "barcaza_" + index;
+                                selectBarcaza.required = true;
+
+                                const optionDefault = document.createElement("option");
+                                optionDefault.value = "";
+                                optionDefault.text = "Seleccione una barcaza";
+                                optionDefault.disabled = true;
+                                optionDefault.selected = true;
+                                selectBarcaza.appendChild(optionDefault);
+
+                                nombresBarcazas.forEach(nombre => {
+                                    const option = document.createElement("option");
+                                    option.value = nombre;
+                                    option.text = nombre;
+                                    selectBarcaza.appendChild(option);
+                                });
+
+                                extras.appendChild(labelBarcaza);
+                                extras.appendChild(selectBarcaza);
+                            }
+                        }
+                    </script>
+                </div>
+            </body>
 
 
-                                }
-                            </script>
-                        </div>
-                    </body>
                 <%
                     }else if (((Integer) rolObj) != 7 && ((Integer) rolObj) != 8){
                 %>
 
                     <body>
-                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                         <div class="contenedor">
                             <input type="submit" value="Reporte De Barcazas Entrada Y Salida" onclick="reporteBarcazas()"/>
                             <input type="submit" value="Reporte De Carrotanques Entrada Y Salida" onclick="reporteCarrotanques()"/>
@@ -511,7 +545,7 @@
                     }else {
                 %>
                         <body>
-                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                        
                         <div class="contenedor">
                             <input type="submit" value="Operaciones de Hoy" onclick="navegarInternamente('../ListarOperaciones')"/>
                         </div>

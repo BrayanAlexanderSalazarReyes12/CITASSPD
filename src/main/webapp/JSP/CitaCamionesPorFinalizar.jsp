@@ -243,7 +243,8 @@
                                            data-nombreconductor="<%= vehiculo.getNombreConductor() %>"
                                            data-formulario="<%= listado.getFmm() %>"
                                            data-rol="<%= rol %>"
-                                           data-fechacreacion="<%= listado.getFecha_Creacion_Cita() %>">
+                                           data-fechacreacion="<%= listado.getFecha_Creacion_Cita() %>"
+                                           data-codcita="<%= listado.getCodCita() %>">
                                 </td>
                             </tr>
                             <%
@@ -440,6 +441,7 @@
             let formulario;
             let rol;
             let registro;
+            let codcita;
             
             // Ejecutamos una consulta por cada vehículo
             const promesas = Array.from(selectedCheckboxes).map(cb => {
@@ -451,16 +453,18 @@
                 nombreconduc = cb.dataset.nombreconductor || "";
                 formulario = cb.dataset.formulario || "";
                 rol = cb.dataset.rol || "";
+                codcita = cb.dataset.codcita || "";
                 
                 identificador = (operacion === "operacion de cargue") ? "1" : "2";
 
                 return axios.get('../FinalizarcitaInfo', {
-                    params: { placa, fecha, cedula }
+                    params: { placa, fecha, cedula, codcita }
                 }).then(res => {
                     respuestas.push({
                         placa,
                         cedula,
                         fecha,
+                        codcita,
                         datos: res.data
                     });
                 }).catch(err => {

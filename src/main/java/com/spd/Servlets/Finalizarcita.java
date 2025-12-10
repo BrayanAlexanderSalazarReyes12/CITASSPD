@@ -116,12 +116,12 @@ public class Finalizarcita extends HttpServlet {
 
             if (respMinisterio == null) {
                 System.out.println("⚠️ Ministerio no respondió, guardando solo en API local.");
-                registrarLocal(fp, apiLocalUrl, jsonLocal, cita, request, response);
+                //registrarLocal(fp, apiLocalUrl, jsonLocal, cita, request, response);
             } else {
                 JSONObject jsonResp = new JSONObject(respMinisterio);
                 if (jsonResp.has("ErrorCode") && jsonResp.getInt("ErrorCode") != 0) {
                     System.out.println("❌ Error Ministerio: " + jsonResp.optString("ErrorText"));
-                    registrarLocal(fp, apiLocalUrl, jsonLocal, cita, request, response);
+                    //registrarLocal(fp, apiLocalUrl, jsonLocal, cita, request, response);
                 } else {
                     System.out.println("✅ Ministerio OK para placa: " + cita.getVehiculoNumPlaca());
                     registrarLocal(fp, apiLocalUrl, jsonLocal, cita, request, response);
@@ -145,10 +145,10 @@ public class Finalizarcita extends HttpServlet {
         Map<String, Object> tiemposProceso = new LinkedHashMap<>();
         tiemposProceso.put("entradaTerminal", cita.getFechaentrada());
         tiemposProceso.put("pesajeEntrada", cita.getPesoentrada());
-        tiemposProceso.put("basculaEntrada", "B1374");
+        //tiemposProceso.put("basculaEntrada", "B1374");
         tiemposProceso.put("salidaTerminal", cita.getFechasalida());
         tiemposProceso.put("pesajeSalida", cita.getPesosalida());
-        tiemposProceso.put("basculaSalida", "B1373");
+        //tiemposProceso.put("basculaSalida", "B1373");
 
         Map<String, Object> turnoAsignado = new LinkedHashMap<>();
         turnoAsignado.put("fecha", cita.getFechaOfertaSolicitud());
