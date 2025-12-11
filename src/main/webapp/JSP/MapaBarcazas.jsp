@@ -26,8 +26,6 @@
         border-right: 2px solid #aaa;
     }
     .barcaza {
-        background: #1e90ff;
-        color: white;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -43,25 +41,48 @@
         flex-direction: column;
         flex-grow: 1;
         background: #87cefa;
+        
+        /* 🔥 HABILITAR SCROLL HORIZONTAL */
+        overflow-x: auto;
+        overflow-y: hidden;
     }
     #mapa {
-        margin-top: 50px;
-        display: grid;
-        grid-template-columns: repeat(10, 100px);
-        grid-template-rows: repeat(3, 60px);
-        gap: 2px;
-        padding: 10px;
-        background: #87cefa;
-    }
-    .celda {
-        background: rgba(255, 255, 255, 0.5);
-        border: 1px dashed #aaa;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .celda.ocupada { background: rgba(200, 0, 0, 0.4) !important; }
-    .celda.finalizada { background: red !important; }
+    margin-top: 50px;
+    
+    /* Convertimos la matriz a una sola fila */
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    padding: 10px;
+
+    background: #87cefa;
+    
+    overflow-x: auto; /* Para deslizar si hay muchos slots */
+    white-space: nowrap;
+}
+
+.celda {
+    width: 120px;      /* tamaño más grande y visible */
+    height: 80px;      /* altura más grande */
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px dashed #aaa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 6px;
+    flex-shrink: 0; /* evita que se encojan */
+}
+
+.celda.ocupada { 
+    background: rgba(200, 0, 0, 0.4) !important; 
+}
+
+.celda.finalizada { 
+    background: red !important; 
+}
+
     #zona-gris {
         flex-grow: 1;
         background: #ccc;
@@ -161,6 +182,10 @@
 
     function crearElementoBarcaza(b) {
         const div = document.createElement('div');
+        // ASIGNAR COLOR ÚNICO ✔️
+        const colorFondo = colorPorNombre(b.nombre);
+        div.style.background = colorFondo;
+        div.style.color = colorContraste(colorFondo);
         div.classList.add('barcaza');
         if (esAdmin) div.setAttribute('draggable', 'true');
         div.dataset.id = b.id;
@@ -394,4 +419,30 @@
             });
         });
     }
+    
+    function colorPorNombre(nombre) {
+        let hash = 0;
+        for (let i = 0; i < nombre.length; i++) {
+            hash = nombre.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const color = "#" + ((hash >> 24) & 0xFF).toString(16).padStart(2, "0")
+                         + ((hash >> 16) & 0xFF).toString(16).padStart(2, "0")
+                         + ((hash >> 8) & 0xFF).toString(16).padStart(2, "0");
+        return color;
+    }
+    
+    // Función para obtener color de letra que contraste
+    function colorContraste(hexColor) {
+        // Convertimos el color hex a RGB
+        const r = parseInt(hexColor.substr(1, 2), 16);
+        const g = parseInt(hexColor.substr(3, 2), 16);
+        const b = parseInt(hexColor.substr(5, 2), 16);
+
+        // Calculamos la luminosidad según fórmula W3C
+        const luminosidad = (0.299*r + 0.587*g + 0.114*b) / 255;
+
+        // Si la luminosidad es alta, usamos negro; si es baja, blanco
+        return luminosidad > 0.5 ? "#000000" : "#FFFFFF";
+    }
+    
 </script>

@@ -12,6 +12,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.Scanner;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,171 +32,334 @@ import org.json.JSONObject;
  */
 public class GuardarCitaBarcazaServlet extends HttpServlet {
 
-   private static final String FILE_PATH = "/WEB-INF/barcazamapa.json"; 
+    private static final String FILE_PATH = "/WEB-INF/barcazamapa.json"; 
+   
+    private static String DB_URL;
+    private static String DB_USER;
+    private static String DB_PASSWORD;
+    
+    @Override
+    public void init() throws ServletException {
+        inicializarDesdeContexto(getServletContext());
+    }
+
+    public static void inicializarDesdeContexto(ServletContext context) {
+        try {
+            InputStream is = context.getResourceAsStream("/WEB-INF/json.env");
+            if (is == null) {
+                throw new RuntimeException("Archivo json.env no encontrado en /WEB-INF");
+            }
+
+            Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A");
+            String content = scanner.hasNext() ? scanner.next() : "";
+            scanner.close();
+
+            JSONObject jsonEnv = new JSONObject(content);
+            DB_URL = jsonEnv.optString("DB_URL");
+            DB_USER = jsonEnv.optString("DB_USER");
+            DB_PASSWORD = jsonEnv.optString("DB_PASSWORD");
+
+            System.out.println("✅ Variables de conexión cargadas desde json.env");
+        } catch (Exception e) {
+            System.err.println("❌ Error leyendo json.env desde contexto: " + e.getMessage());
+        }
+    }
+   
    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ServletContext context = getServletContext();
-        InputStream is = context.getResourceAsStream("/WEB-INF/barcazamapa.json");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
 
-        if (is != null) {
-            String json = inputStreamToString(is);
+        JSONArray lista = new JSONArray();
 
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(json);
-        } else {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            response.getWriter().write("{\"error\": \"Archivo no encontrado\"}");
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+            String sql = "SELECT ID, BARCAZA, ESLORA, MANGA, POSINICIAL, POSFINAL, FEARRIBO, FEZARPE, ESTADO "
+                       + "FROM SPD_POSICIONAMIENTO_BARCAZA "
+                       + "WHERE ESTADO <> 'FINALIZADO'";
+
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                JSONObject obj = new JSONObject();
+
+                obj.put("id", rs.getString("ID"));
+                obj.put("barcaza", rs.getString("BARCAZA"));
+                obj.put("estado", rs.getString("ESTADO"));
+
+                // ----- POSICIÓN -----
+                JSONObject pos = new JSONObject();
+                pos.put("inicio", rs.getInt("POSINICIAL"));
+                pos.put("fin", rs.getInt("POSFINAL"));
+                obj.put("posicion", pos);
+
+                // ----- CITA ARRIBO -----
+                Timestamp fArribo = rs.getTimestamp("FEARRIBO");
+                JSONObject citaArribo = new JSONObject();
+                if (fArribo != null) {
+                    String[] partes = fArribo.toString().split(" ");
+                    citaArribo.put("fecha", partes[0]);              // yyyy-MM-dd
+                    citaArribo.put("hora", partes[1].substring(0,5)); // HH:mm
+                } else {
+                    citaArribo.put("fecha", JSONObject.NULL);
+                    citaArribo.put("hora", JSONObject.NULL);
+                }
+                obj.put("citaArribo", citaArribo);
+
+                // ----- CITA ZARPE -----
+                Timestamp fZarpe = rs.getTimestamp("FEZARPE");
+                JSONObject citaZarpe = new JSONObject();
+                if (fZarpe != null) {
+                    String[] partes = fZarpe.toString().split(" ");
+                    citaZarpe.put("fecha", partes[0]);
+                    citaZarpe.put("hora", partes[1].substring(0,5));
+                } else {
+                    citaZarpe.put("fecha", JSONObject.NULL);
+                    citaZarpe.put("hora", JSONObject.NULL);
+                }
+                obj.put("citaZarpe", citaZarpe);
+
+                lista.put(obj);
+            }
+
+            response.getWriter().write(lista.toString());
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            response.getWriter().write(
+                new JSONObject().put("error", "Error al consultar BD: " + e.getMessage()).toString()
+            );
+
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (pstmt != null) pstmt.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
         }
     }
-
    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws ServletException, IOException {
 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
-        ServletContext context = getServletContext();
-
         try {
-            // Leer el JSON recibido
+            // Leer JSON del body
             StringBuilder sb = new StringBuilder();
+            BufferedReader reader = request.getReader();
             String line;
-            while ((line = request.getReader().readLine()) != null) {
-                sb.append(line);
+            while ((line = reader.readLine()) != null) sb.append(line);
+
+            JSONObject json = new JSONObject(sb.toString());
+
+            // Datos principales
+            String id = String.valueOf(json.getInt("id"));
+            String barcaza = json.getString("barcaza");
+            double eslora = json.getDouble("eslora");
+            double manga = json.getDouble("manga");
+
+            // Posiciones
+            JSONObject pos = json.getJSONObject("posicion");
+            int posInicial = pos.getInt("inicio");
+            int posFinal = pos.getInt("fin");
+
+            // FECHA ARRIBO
+            Timestamp fechaArriboTS = null;
+            JSONObject arribo = json.getJSONObject("citaArribo");
+
+            if (arribo.has("fecha") && arribo.has("hora") &&
+                !arribo.getString("fecha").isEmpty() &&
+                !arribo.getString("hora").isEmpty()) {
+
+                String f = arribo.getString("fecha"); // yyyy-MM-dd
+                String h = arribo.getString("hora");  // HH:mm
+
+                fechaArriboTS = Timestamp.valueOf(f + " " + h + ":00");
             }
-            JSONObject nuevaCita = new JSONObject(sb.toString());
 
-            // Ruta real del archivo (para escribir)
-            String realPath = context.getRealPath(FILE_PATH);
-            File file = new File(realPath);
+            // FECHA ZARPE (puede venir vacío {})
+            Timestamp fechaZarpeTS = null;
 
-            JSONArray citas;
+            if (json.has("citaZarpe")) {
+                JSONObject zarpe = json.getJSONObject("citaZarpe");
 
-            // Leer archivo existente con getResourceAsStream
-            try (InputStream is = context.getResourceAsStream(FILE_PATH)) {
-                if (is != null) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                    StringBuilder contentBuilder = new StringBuilder();
-                    
-                    while ((line = reader.readLine()) != null) {
-                        contentBuilder.append(line);
-                    }
-                    String content = contentBuilder.toString().trim();
-                    citas = content.isEmpty() ? new JSONArray() : new JSONArray(content);
-                } else {
-                    citas = new JSONArray();
+                if (zarpe.has("fecha") && zarpe.has("hora") &&
+                    !zarpe.getString("fecha").isEmpty() &&
+                    !zarpe.getString("hora").isEmpty()) {
+
+                    fechaZarpeTS = Timestamp.valueOf(
+                        zarpe.getString("fecha") + " " + zarpe.getString("hora") + ":00"
+                    );
                 }
             }
 
-            // Agregar nueva cita
-            citas.put(nuevaCita);
+            String estado = json.getString("estado");
 
-            // Guardar nuevamente en archivo
-            Files.write(file.toPath(), citas.toString(2).getBytes(StandardCharsets.UTF_8));
+            // ------------------ INSERT BD --------------------
+            Connection conn = null;
+            PreparedStatement pstmt = null;
 
-            // Respuesta
-            JSONObject resp = new JSONObject();
-            resp.put("status", "success");
-            resp.put("message", "Cita guardada en json.env");
-            out.print(resp.toString());
+            try {
+                Class.forName("oracle.jdbc.driver.OracleDriver");
+                conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+                String sql = "INSERT INTO SPD_POSICIONAMIENTO_BARCAZA "
+                           + "(ID, BARCAZA, ESLORA, MANGA, POSINICIAL, POSFINAL, FEARRIBO, FEZARPE, ESTADO) "
+                           + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+                pstmt = conn.prepareStatement(sql);
+
+                pstmt.setString(1, id);
+                pstmt.setString(2, barcaza);
+                pstmt.setDouble(3, eslora);
+                pstmt.setDouble(4, manga);
+                pstmt.setInt(5, posInicial);
+                pstmt.setInt(6, posFinal);
+                pstmt.setTimestamp(7, fechaArriboTS);
+                pstmt.setTimestamp(8, fechaZarpeTS);
+                pstmt.setString(9, estado);
+                
+
+                int insert = pstmt.executeUpdate();
+
+                out.print(new JSONObject()
+                    .put("success", true)
+                    .put("message", "Cita guardada correctamente (" + insert + " fila).")
+                );
+
+            } catch (Exception e) {
+                out.print(new JSONObject()
+                    .put("success", false)
+                    .put("message", "Error BD: " + e.getMessage() + "pstmt: " + pstmt)
+                );
+            } finally {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            JSONObject resp = new JSONObject();
-            resp.put("status", "error");
-            resp.put("message", e.getMessage());
-            out.print(resp.toString());
+            out.print(new JSONObject()
+                .put("success", false)
+                .put("message", "Error procesando JSON: " + e.getMessage())
+            );
         }
     }
     
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
 
-        ServletContext context = getServletContext();
-
         try {
-            // Leer JSON recibido
+            // ------------------ LEER JSON DE LA PETICIÓN ------------------
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = request.getReader().readLine()) != null) {
                 sb.append(line);
             }
-            JSONObject nuevaCita = new JSONObject(sb.toString());
+            JSONObject json = new JSONObject(sb.toString());
 
-            // Obtener ruta del archivo
-            String realPath = context.getRealPath(FILE_PATH);
-            File file = new File(realPath);
+            // Validar ID
+            if (!json.has("id")) {
+                throw new Exception("Falta el campo 'id'.");
+            }
 
-            JSONArray citas;
+            String id = json.get("id").toString();
+            String estado = json.optString("estado", null);
 
-            // Leer archivo existente
-            try (InputStream is = context.getResourceAsStream(FILE_PATH)) {
-                if (is != null) {
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                        StringBuilder contentBuilder = new StringBuilder();
-                        while ((line = reader.readLine()) != null) {
-                            contentBuilder.append(line);
-                        }
-                        String content = contentBuilder.toString().trim();
-                        citas = content.isEmpty() ? new JSONArray() : new JSONArray(content);
+            // ------------------ PROCESAR FECHA ZARPE ------------------
+            Timestamp fechaZarpeSQL = null;
+
+            if (json.has("citaZarpe")) {
+                JSONObject cz = json.getJSONObject("citaZarpe");
+                if (cz.has("fecha") && cz.has("hora")) {
+                    String fecha = cz.optString("fecha", "").trim();
+                    String hora = cz.optString("hora", "").trim();
+
+                    if (!fecha.isEmpty() && !hora.isEmpty()) {
+                        fechaZarpeSQL = Timestamp.valueOf(fecha + " " + hora + ":00");
                     }
-                } else {
-                    citas = new JSONArray();
                 }
             }
 
-            // Validar que venga el ID
-            if (!nuevaCita.has("id")) {
-                throw new Exception("Falta el campo 'id' en la cita.");
+            // ------------------ ACTUALIZACIÓN EN LA BASE DE DATOS ------------------
+            Connection conn = null;
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+            String sql = "UPDATE SPD_POSICIONAMIENTO_BARCAZA "
+                       + "SET FEZARPE = ?, ESTADO = ? "
+                       + "WHERE ID = ?";
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            if (fechaZarpeSQL != null) {
+                pstmt.setTimestamp(1, fechaZarpeSQL);
+            } else {
+                pstmt.setNull(1, java.sql.Types.TIMESTAMP);
             }
 
-            int idNueva = nuevaCita.getInt("id");
-            
-            System.out.println(idNueva);
-            
-            boolean encontrada = false;
+            pstmt.setString(2, estado);
+            pstmt.setString(3, id);
 
-            // Buscar la cita existente y actualizar solo campos específicos
-            for (int i = 0; i < citas.length(); i++) {
-                JSONObject citaExistente = citas.getJSONObject(i);
+            int rows = pstmt.executeUpdate();
 
-                if (citaExistente.has("id") && citaExistente.getInt("id") == idNueva) {
-                    // ✅ Solo actualizar los campos necesarios
-                    if (nuevaCita.has("citaZarpe")) {
-                        citaExistente.put("citaZarpe", nuevaCita.getJSONObject("citaZarpe"));
+            pstmt.close();
+            conn.close();
+
+            if (rows == 0) {
+                throw new Exception("No se encontró la barcaza con id: " + id);
+            }
+
+            // ------------------ ACTUALIZACIÓN DEL ARCHIVO JSON ------------------
+            ServletContext context = getServletContext();
+            File file = new File(context.getRealPath("/WEB-INF/barcazamapa.json"));
+
+            String contenidoJson = new String(Files.readAllBytes(file.toPath()));
+            JSONArray arr = new JSONArray(contenidoJson);
+
+            // buscar por ID
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject registro = arr.getJSONObject(i);
+
+                if (registro.get("id").toString().equals(id)) {
+
+                    // Guardar fecha de zarpe
+                    if (fechaZarpeSQL != null) {
+                        JSONObject cz = new JSONObject();
+                        cz.put("fecha", json.getJSONObject("citaZarpe").getString("fecha"));
+                        cz.put("hora", json.getJSONObject("citaZarpe").getString("hora"));
+                        registro.put("citaZarpe", cz);
                     }
-                    if (nuevaCita.has("estado")) {
-                        citaExistente.put("estado", nuevaCita.getString("estado"));
+
+                    // Actualizar estado
+                    registro.put("estado", estado);
+
+                    // Si finaliza → eliminar posición
+                    if ("Finalizado".equalsIgnoreCase(estado)) {
+                        registro.remove("posicion");
                     }
 
-                    // Guardar los cambios
-                    citas.put(i, citaExistente);
-                    encontrada = true;
                     break;
                 }
             }
 
+            // Guardar archivo JSON actualizado
+            Files.write(file.toPath(), arr.toString(4).getBytes());
 
-            if (!encontrada) {
-                throw new Exception("No se encontró ninguna cita con id: " + idNueva);
-            }
-
-            // Asegurar que la carpeta exista
-            File parentDir = file.getParentFile();
-            if (parentDir != null && !parentDir.exists()) {
-                parentDir.mkdirs();
-            }
-
-            // Guardar JSON actualizado
-            Files.write(file.toPath(), citas.toString(2).getBytes(StandardCharsets.UTF_8));
-
-            // Respuesta
+            // ------------------ RESPUESTA OK ------------------
             JSONObject resp = new JSONObject();
             resp.put("status", "success");
             resp.put("message", "Cita actualizada correctamente");
@@ -204,6 +373,8 @@ public class GuardarCitaBarcazaServlet extends HttpServlet {
             out.print(resp.toString());
         }
     }
+
+
 
 
     

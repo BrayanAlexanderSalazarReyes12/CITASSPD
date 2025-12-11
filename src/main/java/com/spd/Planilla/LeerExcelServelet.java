@@ -16,6 +16,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -116,8 +120,7 @@ public class LeerExcelServelet extends HttpServlet {
 
         if (!"SPDIQUE-01".equalsIgnoreCase(valorJ3.trim())) {
             response.getWriter().println(
-                    "{\"error\":\"El archivo Excel no es válido. La celda J3 debe contener 'SPDIQUE-01'. Valor encontrado: " 
-                    + valorJ3 + "\"}"
+                    "{\"error\":\"El archivo Excel no es válido." + "\"}"
             );
             return;
         }
@@ -150,10 +153,15 @@ public class LeerExcelServelet extends HttpServlet {
                             break;
                         case Cell.CELL_TYPE_NUMERIC:
                             // Validar si es fecha
+                            DateTimeFormatter formatoTextoExcel = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                            DateTimeFormatter formatoISO = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
                             if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                                // Fecha real de Excel
                                 Date fechaTmp = cell.getDateCellValue();
-                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                                valor = sdf.format(fechaTmp);
+                                Instant instant = fechaTmp.toInstant();
+                                OffsetDateTime fechaUTC = instant.atOffset(ZoneOffset.UTC);
+
+                                valor = formatoISO.format(fechaUTC);
                             } else {
                                 // Es un número normal
                                 valor = new BigDecimal(cell.getNumericCellValue()).toPlainString();
